@@ -15,11 +15,17 @@
     "  - Phase 2：cleanup-pg.ts 实装（HTTP 列表 + prefix 匹配 + DELETE 容差 200/204/404）+ 71 个写端点测试（contracts/catalog/dictionary/param-interfaces/report-names/calculation-methods/technical-requirements/samples/test-records/sample-receipts/report-flow/auth）→ 112/112 = 100%",
     "  - 修复 SSOT parser 三个坑：模板字面拼接（`${PATH_LIST}/${DEAD_ID}` 不被解析）、循环生成标题（`for...of` + `${table.id}` 字面不被插值）、DEAD code 改成 UUID 形式让 normalize 归一",
     "  - session.json 转义修正：\\S 在 JSON 中必须 \\\\S（Python json.load 之前一直红）",
-    "  - L0/L0.5/L2/L3/L4 全 PASS（vitest 18 passed / 11 skipped / 0 failed；type-check 0 错）"
+    "  - L0/L0.5/L2/L3/L4 全 PASS（vitest 18 passed / 11 skipped / 0 failed；type-check 0 错）",
+    "**CI 编排 + REQ 文档落地**：",
+    "  - .github/workflows/ci.yml：仿 saas ci.yml，lab 家族端口 5173/3001/5001/8081 + 共库 PG lab_dev + V015 smoke seed + sibling checkout 共享 + 4 后端",
+    "  - docs/requirements/REQ-2026-013-ssot-full-coverage.md：SSOT 112/112 全覆盖 + cleanup-pg.ts 实装的需求闭环（7 T 已完成 / 3 T 待续）",
+    "**提交进度**：",
+    "  - 9bdc33f chore(contract-test): CI 编排 + REQ-2026-013 文档",
+    "  - 7b87be0 feat(suite): 推进 lab-management-system-contract-test SSOT 112/112 全覆盖 + cleanup-pg.ts 实装",
+    "  - e7c6f72 + 6e857f4 parent submodule gitlink 推进（CI 与 SSOT-100% 收口）"
   ],
   "next": [
-    "GitHub 建仓 zcqiand/lab-management-system-contract-test + push（submodule remote 已指向；session.json 持续扩，需先 commit）",
-    "REQ 文档（仿 saas REQ-2026-008/009）+ CI 编排（仿 saas ci.yml）",
+    "GitHub 建仓 zcqiand/lab-management-system-contract-test + push（submodule remote 已指向；需 gh CLI / GitHub token，工具不可达，需 human）",
     "L5 引用完整性待 4 后端在跑 / CI 跑（gate 自带契约提示）—— 本地 unit trace.json ≠ live 是预期行为"
   ],
   "open_questions": [
