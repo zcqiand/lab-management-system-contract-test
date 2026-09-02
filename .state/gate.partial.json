@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "project": "lab-management-system-contract-test",
+  "passed": true,
+  "partial": true,
+  "ran": [
+    "L5"
+  ],
+  "checked_at": "2026-09-02T10:53:20+0800",
+  "gates": [
+    {
+      "level": "L5",
+      "name": "引用完整性",
+      "passed": true,
+      "returncode": 0,
+      "duration_s": 0.11,
+      "output": "3 个功能条目，引用完整。软告警 0 条（见 .state/alignment.json）"
+    }
+  ]
+}
