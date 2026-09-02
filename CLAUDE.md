@@ -5,8 +5,8 @@
 
 ## 1. 项目定位
 
-黑盒 HTTP 打 4 个后端（`msw`:5173 / `nextjs`:3001 / `aspnetcore`:5001 / `springboot`:8081，
-2026-09-02 起与 saas 家族端口错开可并行），验证它们**对前端不可区分**。
+黑盒 HTTP 打 4 个后端（`msw`:5200 / `nextjs`:5201 / `aspnetcore`:5204 / `springboot`:5205，
+conventions §6 lab=5200 段，2026-09-02 起与 saas 家族端口错开可并行），验证它们**对前端不可区分**。
 保留命名空间 `M96`（lab 家族 infra 段，与 saas-contract-test 同角色同编号）。
 
 **它不是什么**：不是后端的单元测试搬家；不是 E2E（不开浏览器）。
@@ -20,7 +20,7 @@
   两种形态 `/api/auth/login` 契约面必须一致；测试不得假设 noop 假 token 语义
 - **normalize 剔除清单是契约**：增删走 ADR。lab 响应 token 字段名是 `token`（非 accessToken）
 - **默认不剔 ID**：3 真后端共用 lab_dev PG。只有比对含 `msw`（内存 fixture）时才传 `ID_KEYS`
-- **msw 是 oracle**：打 `:5173` 必须绿。红了先怀疑套件写错，不是后端错
+- **msw 是 oracle**：打 `:5200` 必须绿。红了先怀疑套件写错，不是后端错
 - **声明即必须可达**：`CONTRACT_TARGETS` 列了却连不上 = 红，不是 skip
 - **写操作用唯一化前缀 + teardown**：共库写比对会撞唯一约束、不可重跑
 - **100% 覆盖 shared SSOT**：端点清单 = `../lab-management-system-shared/tsp/routes/*.tsp` 全集，

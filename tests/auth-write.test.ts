@@ -66,7 +66,7 @@ describe.skipIf(!live)("M96.F02.I03 POST /api/auth/sso/callback 四方比对", (
         body: {
           grant_type: "authorization_code",
           code: "ct-invalid-code",
-          redirect_uri: "http://localhost:3001/api/auth/sso/callback",
+          redirect_uri: "http://localhost:5201/api/auth/sso/callback",
           state: "ct-state-fixture",
         },
       });

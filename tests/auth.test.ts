@@ -83,7 +83,7 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     console.info(
       "[contract-test] 四方比对未运行。启用：\n" +
         "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run\n" +
-        "  前置：4 个 lab 后端分别跑在 5173 / 3001 / 5001 / 8081",
+        "  前置：4 个 lab 后端分别跑在 5200 / 5201 / 5204 / 5205（conventions §6）",
     );
   });
 });

@@ -38,7 +38,7 @@ jobs:
       TRACE_MAP: "1"
       CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
       # 2026-09-02 lab 与 saas 家族端口错开可并行（conventions §6 + local-contract-test.md）。
-      # 端口：msw=5173, nextjs=3001, aspnetcore=5001, springboot=8081。
+      # 端口：msw=5200, nextjs=5201, aspnetcore=5204, springboot=5205（conventions §6 lab=5200 段）。
 
     steps:
       - uses: actions/checkout@v4
@@ -147,10 +147,10 @@ jobs:
           }
 
           # lab 家族端口（2026-09-02 起与 saas 错开可并行，见 conventions §6）
-          healthcheck msw        http://localhost:5173/healthz
-          healthcheck aspnetcore http://localhost:5001/health
-          healthcheck springboot http://localhost:8081/actuator/health
-          healthcheck nextjs     http://localhost:3001/api/health
+          healthcheck msw        http://localhost:5200/healthz
+          healthcheck aspnetcore http://localhost:5204/health
+          healthcheck springboot http://localhost:5205/actuator/health
+          healthcheck nextjs     http://localhost:5201/api/health
 
           npx --no vitest run
 

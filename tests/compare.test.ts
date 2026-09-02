@@ -69,11 +69,11 @@ describe("M96.F02.I02 normalize 后 body 全等", () => {
 });
 
 describe("M96.F03.I01 目标端口声明", () => {
-  it("四个目标端口与 conventions §6 一致（lab 家族，2026-09-02 与 saas 错开）", () => {
-    expect(TARGETS.msw.baseUrl).toContain(":5173");
-    expect(TARGETS.nextjs.baseUrl).toContain(":3001");
-    expect(TARGETS.aspnetcore.baseUrl).toContain(":5001");
-    expect(TARGETS.springboot.baseUrl).toContain(":8081");
+  it("四个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段）", () => {
+    expect(TARGETS.msw.baseUrl).toContain(":5200");
+    expect(TARGETS.nextjs.baseUrl).toContain(":5201");
+    expect(TARGETS.aspnetcore.baseUrl).toContain(":5204");
+    expect(TARGETS.springboot.baseUrl).toContain(":5205");
   });
 
   it("只有 msw 是内存 fixture", () => {

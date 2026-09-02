@@ -50,7 +50,7 @@
     "起后端跑 live 后必须先杀进程（端口反查）再跑 gate —— 否则 aspnetcore L2 编译 MSB3027 exe 被锁",
     "改了 shared → springboot 仓 bash scripts/gen-shared.sh 再跑门禁（AuthApi 是 codegen 产物）"
   ],
-  "last_gate_passed_at": "2026-09-02T13:51+08:00",
+  "last_gate_passed_at": "2026-09-02T18:53:24",
   "last_live_attempt": {
     "started": "2026-09-02T17:23+00",
     "duration_s": 925,

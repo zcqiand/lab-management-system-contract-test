@@ -86,7 +86,7 @@ describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对`, () 
     const authz = new URLSearchParams({
       response_type: "code",
       client_id: "lab-contract-test",
-      redirect_uri: "http://localhost:3001/api/auth/sso/callback",
+      redirect_uri: "http://localhost:5201/api/auth/sso/callback",
       state: "ct-state-fixture",
     });
     probes = [];

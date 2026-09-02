@@ -12,10 +12,10 @@ export interface Target {
 
 /** conventions §6 端口表（lab 家族，2026-09-02 起与 saas 家族错开）。改这里必须同步改 conventions。 */
 export const TARGETS: Readonly<Record<string, Target>> = {
-  msw: { name: "msw", baseUrl: "http://localhost:5173", inMemory: true },
-  nextjs: { name: "nextjs", baseUrl: "http://localhost:3001", inMemory: false },
-  aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5001", inMemory: false },
-  springboot: { name: "springboot", baseUrl: "http://localhost:8081", inMemory: false },
+  msw: { name: "msw", baseUrl: "http://localhost:5200", inMemory: true },
+  nextjs: { name: "nextjs", baseUrl: "http://localhost:5201", inMemory: false },
+  aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5204", inMemory: false },
+  springboot: { name: "springboot", baseUrl: "http://localhost:5205", inMemory: false },
 };
 
 /** ADR-0015：msw 是 oracle —— 打它必须绿，红了说明套件写错而不是后端错。 */
