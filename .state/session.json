@@ -50,22 +50,15 @@
     "起后端跑 live 后必须先杀进程（端口反查）再跑 gate —— 否则 aspnetcore L2 编译 MSB3027 exe 被锁",
     "改了 shared → springboot 仓 bash scripts/gen-shared.sh 再跑门禁（AuthApi 是 codegen 产物）"
   ],
-  "last_gate_passed_at": "2026-09-02T18:53:24",
+  "last_gate_passed_at": "2026-09-02T22:47:24",
   "last_live_attempt": {
-    "started": "2026-09-02T17:23+00",
-    "duration_s": 925,
-    "tests": "227 passed / 176 failed / 25 skipped (428 total)",
-    "trace_non_inert": 271,
-    "trace_mode": "unit (probeLive race: nextjs overload crash mid-run → flush 时 mode 退回)",
-    "discovered_bugs": [
-      "contract POST body 缺必填字段 — 4 后端 error 400",
-      "nextjs PUT/DELETE /api/{catalog}/{code} 返 404（路由不识别）",
-      "msw DELETE junction link 返 500（关系表 upsert 未实现）",
-      "createdAt/updatedAt 空字符串 — assertTimestampShape 拒收",
-      "msw list page=1 ≠ SSOT 0-indexed",
-      "springboot pageSize=31 ≠ msw 30（4 后端 pagination defaults 漂移）"
-    ],
-    "next_action": "修测试 body + 修 nextjs 路由预编译 + 短跑拆分"
+    "started": "2026-09-02T22:35+08",
+    "duration_s": null,
+    "tests": "234 passed / 169 failed / 25 skipped (428 total)",
+    "trace_non_inert": 396,
+    "trace_mode": "live (start-family.sh 第 4 轮, 端口 5200 段)",
+    "known_forks": "169 failed = session.json #next 已记录的 6 类契约分叉(body 缺字段/nextjs 路由 404/msw link 500/timestamp 空串/分页默认值漂移), 非回归",
+    "next_action": "修 6 类契约分叉(见 next 列表)"
   },
   "active_branch": "master"
 }
