@@ -70,10 +70,45 @@
 
 ### M96.F02 四方比对
 
-| 子项 ID | 名称 | 类型 | 说明 | 状态 |
-|---|---|---|---|---|
-| M96.F02.I01 | `POST /api/auth/login` 四方比对 | 接口 | 首个落地端点（语义只读 + 4 后端都实现 + 所有探针的前置）；**认证形态守卫**：no-sso 与真 saas OAuth 的登录契约面不得分叉；错误凭证 4xx 家族全等 | 开发中 |
-| M96.F02.I02 | `GET /api/auth/me` 四方比对 | 接口 | CurrentUserSession（user/tenants/currentTenantId?）单对象 | 开发中 |
+> **编号约定（2026-09-02 起）**：M96.F02.I## 的 I## 不再 1:1 映射单个端点。
+> 同一 I## 由多个端点共用（如 M96.F02.I01 同时被 auth/login POST + contracts GET list + summary GET 等覆盖）；
+> trace.json 把这些 test→fn 的反向引用都收进来，L5 alignment 看 test_refs[fid] 集合是否非空（任意一个端点有 trace 命中即 OK）。
+> 详见 [REQ-2026-013 §6 风险与回滚](../requirements/REQ-2026-013-ssot-full-coverage.md) 与 suite `docs/adr/0015-contract-test-repo.md`。
+
+| 子项 ID | 名称 | 类型 | 覆盖端点（SSOT 命名空间） | 关联 REQ | 状态 |
+|---|---|---|---|---|---|
+| M96.F02.I01 | 四方比对组 01 — 认证/列表/创建族 | 接口 | POST `/auth/login`、GET 各种列表（contracts/summary/permissions/catalog/receipts/samples/test-records）、POST 创行族（contracts/catalog × 4 /dictionary × 4 /param-interfaces/report-names/calculation-methods/technical-requirements/samples/test-records/receipts）、junction link POST × 7 | REQ-2026-013 | 开发中 |
+| M96.F02.I02 | 四方比对组 02 — 会话/创/详情族 | 接口 | GET `/auth/me`、POST 创行（续 I01 集合）、GET 详情（contracts/{id}/catalog/{code}/dictionary/{code}/param-interfaces/{code}/report-names/{code}/samples/{id}/test-records/{id}/receipts/{id}/history 等）、summary `/stats` | REQ-2026-013 | 开发中 |
+| M96.F02.I03 | 四方比对组 03 — 权限/详情族 | 接口 | GET `/auth/permissions`、GET 详情族（续）、catalog brands 写族（POST/PUT/DELETE） | REQ-2026-013 | 开发中 |
+| M96.F02.I04 | 四方比对组 04 — 菜单/更新族 | 接口 | GET `/auth/menus`、PUT 更新族（contracts/catalog brands PUT） | REQ-2026-013 | 开发中 |
+| M96.F02.I05 | 四方比对组 05 — SSO 跳板/删除族 | 接口 | GET `/auth/sso/authorize`、DELETE 删行族（contracts DELETE / catalog brands DELETE / dictionary specialties DELETE） | REQ-2026-013 | 开发中 |
+| M96.F02.I06 | 四方比对组 06 — catalog models POST | 接口 | POST `/catalog/models` 创 | REQ-2026-013 | 开发中 |
+| M96.F02.I07 | 四方比对组 07 — catalog models PUT | 接口 | PUT `/catalog/models/{code}` 改 | REQ-2026-013 | 开发中 |
+| M96.F02.I08 | 四方比对组 08 — catalog models DELETE | 接口 | DELETE `/catalog/models/{code}` 删 | REQ-2026-013 | 开发中 |
+| M96.F02.I09 | 四方比对组 09 — catalog specs POST | 接口 | POST `/catalog/specs` 创 | REQ-2026-013 | 开发中 |
+| M96.F02.I10 | 四方比对组 10 — catalog specs PUT | 接口 | PUT `/catalog/specs/{code}` 改 | REQ-2026-013 | 开发中 |
+| M96.F02.I11 | 四方比对组 11 — catalog specs DELETE | 接口 | DELETE `/catalog/specs/{code}` 删 | REQ-2026-013 | 开发中 |
+| M96.F02.I12 | 四方比对组 12 — catalog grades POST | 接口 | POST `/catalog/grades` 创 | REQ-2026-013 | 开发中 |
+| M96.F02.I13 | 四方比对组 13 — catalog grades PUT | 接口 | PUT `/catalog/grades/{code}` 改 | REQ-2026-013 | 开发中 |
+| M96.F02.I14 | 四方比对组 14 — catalog grades DELETE | 接口 | DELETE `/catalog/grades/{code}` 删 | REQ-2026-013 | 开发中 |
+| M96.F02.I15 | 四方比对组 15 — dictionary objects POST | 接口 | POST `/inspection/objects` 创 | REQ-2026-013 | 开发中 |
+| M96.F02.I16 | 四方比对组 16 — dictionary objects PUT | 接口 | PUT `/inspection/objects/{code}` 改 | REQ-2026-013 | 开发中 |
+| M96.F02.I17 | 四方比对组 17 — specialty-object link/unlink | 接口 | POST/DELETE `/inspection/links/specialty-object`（upsert，幂等）| REQ-2026-013 | 开发中 |
+| M96.F02.I18 | 四方比对组 18 — dictionary parameters POST/PUT | 接口 | POST/PUT `/inspection/parameters` + specialty-object GET list | REQ-2026-013 | 开发中 |
+| M96.F02.I19 | 四方比对组 19 — dictionary standards + object-parameter link | 接口 | POST/PUT `/inspection/standards`、POST/DELETE `/inspection/links/object-parameter` | REQ-2026-013 | 开发中 |
+| M96.F02.I20 | 四方比对组 20 — object-standard link + standard-parameter link | 接口 | POST/DELETE `/inspection/links/object-standard` + `/standard-parameter` | REQ-2026-013 | 开发中 |
+| M96.F02.I21 | 四方比对组 21 — dictionary CRUD 收口 + 参数界面 | 接口 | DELETE `/inspection/{objects,parameters,standards}` + POST/PUT/DELETE `/param-interfaces` | REQ-2026-013 | 开发中 |
+| M96.F02.I22 | 四方比对组 22 — param-interfaces + report-names POST | 接口 | DELETE `/param-interfaces/{code}`、POST/DELETE `/param-interfaces/links`、POST `/report-names` | REQ-2026-013 | 开发中 |
+| M96.F02.I24 | 四方比对组 24 — report-names PUT + 3 junction links POST | 接口 | PUT `/report-names/{code}` + POST × 3 report-names/links/{object,standard,parameter} | REQ-2026-013 | 开发中 |
+| M96.F02.I25 | 四方比对组 25 — report-names DELETE + 3 junction links DELETE | 接口 | DELETE `/report-names/{code}` + DELETE × 3 report-names/links/{...} | REQ-2026-013 | 开发中 |
+| M96.F02.I27 | 四方比对组 27 — calculation-methods POST + technical-requirements POST | 接口 | POST `/calculation-methods`（复合主键）+ POST `/technical-requirements`（三段主键）| REQ-2026-013 | 开发中 |
+| M96.F02.I28 | 四方比对组 28 — calculation-methods PUT + technical-requirements PUT | 接口 | PUT `/calculation-methods/{object}/{parameter}` + `/technical-requirements/{object}/{parameter}/{standard}` | REQ-2026-013 | 开发中 |
+| M96.F02.I30 | 四方比对组 30 — calculation-methods DELETE + technical-requirements DELETE | 接口 | DELETE `/calculation-methods/{object}/{parameter}` + `/technical-requirements/{object}/{parameter}/{standard}` | REQ-2026-013 | 开发中 |
+| M96.F02.I31 | 四方比对组 31 — 收口族（samples/test-records/receipts/flow/auth POSTs）| 接口 | POST/PUT/DELETE `/samples`、`POST/PUT/DELETE/PATCH /test-records`、`POST/PUT/DELETE /receipts`、`POST /receipts/flow`、`POST /auth/refresh` `logout` `switch-tenant` `sso/callback` | REQ-2026-013 | 开发中 |
+
+> **不进入 M96.F02.I## 集合的端点**（CLAUDE.md §2 禁止手挑）：
+> 上表 27 个 I## 由 tests/*.test.ts 实际使用的 ID 集合确定（`grep -hE "describe.skipIf.*M96" tests/*.test.ts | grep -oE "M96\.F[0-9]+\.I[0-9]+" | sort -u`）。
+> SSOT 112 端点全数被这 27 个组覆盖（check_ssot_coverage.mjs 验证）—— 见 [REQ-2026-013 §1 验收标准](../requirements/REQ-2026-013-ssot-full-coverage.md)。
 
 ### M96.F03 目标声明与可达性
 
@@ -89,3 +124,6 @@
 - 谁改功能，谁改表，同一个 commit。
 - `规划` → `开发中`：必须先有需求文档引用它。
 - `开发中` → `已上线`：L5 会警告它缺设计映射与测试引用。警告不阻断，由人裁量。
+- **2026-09-02 起 I## 不再 1:1 映射端点**：M96.F02.I## 由 tests/*.test.ts 实际使用的 ID 集合确定；trace.json 的 test_refs[fid] 是反向引用（多 test → 1 fn）。
+- **不给未真正运行的比对挂功能 ID**：四方比对未启用时，那条提示测试的描述里不写 `M96.*`，
+  故 `M96.F02.I01` 在未跑活后端前不会被 trace 记为已覆盖。
