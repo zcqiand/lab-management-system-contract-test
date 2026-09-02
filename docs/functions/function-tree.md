@@ -2,6 +2,11 @@
 
 > **全体系唯一锚点。** 需求、流程、设计、测试都引用这里的 ID。
 > 不在这里的 ID 是悬空引用，L5 门会拦。**改功能，先改这份表。**
+>
+> 本仓使用**保留命名空间 `M96`**（lab 家族 infra 段：M97=shared emit，M98=nextjs 接线，M99=msw）。
+> 它不镜像 BASE 业务模块（M00-M06）——声明的是「验证层自己的功能」。
+> 与 saas-identity-platform-contract-test 的 M96 同角色同编号（跨仓检查方式是命名空间归属，不是集合比对）。
+> 依据：suite `docs/adr/0015-contract-test-repo.md` + `0013-alignment-has-two-directions.md`。
 
 ## 编号规则
 
@@ -27,21 +32,55 @@
 
 | 模块 ID | 模块名称 | 业务域边界 | 状态 |
 |---|---|---|---|
-| M01 | （待填） | | 规划 |
+| M01 | （init_project 占位） | 从未是真实功能；本仓真实模块见 M96 | 已废弃 |
+| M96 | 契约一致性验证 | 黑盒 HTTP 打每个后端，验「前端不可区分」 | 开发中 |
 
 ---
 
-## M01 （待填）
+## M01 （init_project 占位）
 
 | 功能 ID | 功能名称 | 闭环定义 | 状态 |
 |---|---|---|---|
-| M01.F01 | （待填） | | 规划 |
+| M01.F01 | （init_project 占位） | 从未是真实功能 | 已废弃 |
 
-### M01.F01 （待填）
+### M01.F01 （init_project 占位）
 
 | 子项 ID | 名称 | 类型 | 说明 | 状态 |
 |---|---|---|---|---|
-| M01.F01.I01 | （待填） | 查询 | | 规划 |
+| M01.F01.I01 | （init_project 占位） | 查询 | 从未是真实功能 | 已废弃 |
+
+---
+
+## M96 契约一致性验证
+
+| 功能 ID | 功能名称 | 闭环定义 | 状态 |
+|---|---|---|---|
+| M96.F01 | normalize 契约 | 把「同输出」从『逐字节相同』翻译成『前端不可区分』（日期归一化/key 排序/null≡缺失/剔 token；共库不剔 ID，含 msw 才剔） | 已上线 |
+| M96.F02 | 四方比对 | 同一请求打 msw/nextjs/aspnetcore/springboot → status 全等 + normalize 后全等；msw 是 oracle | 开发中 |
+| M96.F03 | 目标声明与可达性 | CONTRACT_TARGETS 声明了就必须可达，不许静默跳过 | 已上线 |
+
+### M96.F01 normalize 契约
+
+| 子项 ID | 名称 | 类型 | 说明 | 状态 |
+|---|---|---|---|---|
+| M96.F01.I01 | 剔除非确定性字段 | 接口 | token/refreshToken 总是剔（lab 字段名是 token 非 accessToken）；ID 默认保留（3 真后端共 lab_dev 库），仅比对含 msw 时传 `ID_KEYS` | 已上线 |
+| M96.F01.I02 | 日期归一化到 UTC Z | 接口 | Jackson 出 `+00:00`、System.Text.Json 出 `Z`，OpenAPI 层面都合法 | 已上线 |
+| M96.F01.I03 | 缺失与显式 null 等价 | 接口 | Spring `NON_ABSENT` 省略 null，ASP.NET 默认输出 null | 已上线 |
+| M96.F01.I04 | 递归排序 object key 与数组 | 接口 | 字段顺序与集合顺序不属于契约 | 已上线 |
+
+### M96.F02 四方比对
+
+| 子项 ID | 名称 | 类型 | 说明 | 状态 |
+|---|---|---|---|---|
+| M96.F02.I01 | `POST /api/auth/login` 四方比对 | 接口 | 首个落地端点（语义只读 + 4 后端都实现 + 所有探针的前置）；**认证形态守卫**：no-sso 与真 saas OAuth 的登录契约面不得分叉；错误凭证 4xx 家族全等 | 开发中 |
+| M96.F02.I02 | `GET /api/auth/me` 四方比对 | 接口 | CurrentUserSession（user/tenants/currentTenantId?）单对象 | 开发中 |
+
+### M96.F03 目标声明与可达性
+
+| 子项 ID | 名称 | 类型 | 说明 | 状态 |
+|---|---|---|---|---|
+| M96.F03.I01 | 目标端口声明 | 接口 | msw:5173 / nextjs:3001 / aspnetcore:5001 / springboot:8081（2026-09-02 与 saas 家族错开），显式字面量，非 env 兜底 | 已上线 |
+| M96.F03.I02 | 声明即必须可达 | 接口 | `CONTRACT_TARGETS` 列了却连不上 = 红；名字不认识 = 抛错，不静默忽略 | 已上线 |
 
 ---
 

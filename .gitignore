@@ -5,3 +5,5 @@
 .claude/
 .superpowers/
 .mcp.json
+
+node_modules/

@@ -1,20 +1,20 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "passed": true,
+  "passed": false,
   "partial": true,
   "ran": [
     "L5"
   ],
-  "checked_at": "2026-09-02T10:53:20+0800",
+  "checked_at": "2026-09-02T10:54:46+0800",
   "gates": [
     {
       "level": "L5",
       "name": "引用完整性",
-      "passed": true,
-      "returncode": 0,
-      "duration_s": 0.11,
-      "output": "3 个功能条目，引用完整。软告警 0 条（见 .state/alignment.json）"
+      "passed": false,
+      "returncode": 2,
+      "duration_s": 2.188,
+      "output": "契约错误: lab-management-system-contract-test: trace_cmd 跑完了，却没有产出 .state/trace.json。\r\n    适配器没生效。常见原因：测试框架版本变了，reporter API 不兼容。\r\n    命令: npx --no vitest run"
     }
   ]
 }

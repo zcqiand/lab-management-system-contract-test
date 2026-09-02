@@ -2,8 +2,8 @@
   "schema": 1,
   "project": "lab-management-system-contract-test",
   "functions": {
-    "modules": 1,
-    "features": 1,
+    "modules": 2,
+    "features": 4,
     "items": 1
   },
   "warnings_total": 0,
@@ -11,8 +11,8 @@
   "unreachable_shipped": [],
   "function_map": {
     "M01.F01.I01": {
-      "name": "（待填）",
-      "status": "规划",
+      "name": "（init_project 占位）",
+      "status": "已废弃",
       "type": "查询",
       "requirements": [],
       "flows": [],
