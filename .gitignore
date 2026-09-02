@@ -7,3 +7,4 @@
 .mcp.json
 
 node_modules/
+.runtime-logs/
