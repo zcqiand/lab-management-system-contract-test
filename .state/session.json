@@ -25,8 +25,15 @@
     "  - e7c6f72 + 6e857f4 parent submodule gitlink 推进（CI 与 SSOT-100% 收口）"
   ],
   "next": [
-    "GitHub 建仓 zcqiand/lab-management-system-contract-test + push（submodule remote 已指向；需 gh CLI / GitHub token，工具不可达，需 human）",
-    "L5 引用完整性待 4 后端在跑 / CI 跑（gate 自带契约提示）—— 本地 unit trace.json ≠ live 是预期行为"
+    "L5 待修（probeLive race condition）：live vitest 跑过 925s 后 backend 偶有 crash（nextjs overload：每次请求都编译模块）→ probeLive 在 flush 时探到 nextjs down → mode=unit；即使 trace 已有 271 个非 inert 测试 + 跨家族 227 passed / 176 failed（契约分叉是 contract-test 的本职），L5 仍 fail。修法：(a) vitest 全局 re-bootstrap：跑前预编译所有 nextjs route，(b) split live vitest 为多个短跑（每次 <5min，单后端不至于崩溃），(c) 扩 vitest config fileParallelism=true + 多 worker（每 worker 自带独立后端实例）。CI 流程 ci.yml 有 healthcheck 但没预编译，prod 同样会撞。",
+    "修测试 body bug（contract-test 自身的质量债）：",
+    "  (a) contracts POST body 缺必填字段（Witness/ClientUnit/projectName/constructionUnit/witnessUnit/witness）— 4 后端 error 400 但 my body 仅 {code, name}",
+    "  (b) nextjs DELETE 返 404（不是 contract 不存在，是 nextjs 路由不识别 — 可能 `/{code}` vs `/{id}` 段名）",
+    "  (c) msw DELETE link 返 500 — msw 仓 upsert 关系表未实现",
+    "  (d) createdAt/updatedAt 空字符串 — seed fixtures 是 `\"\"`，但 assertTimestampShape 不接受空串",
+    "  (e) msw list 默认 page=1（不是 SSOT 约定的 page=0）— pagination defaults 必须对齐",
+    "  (f) springboot pageSize=31 (≠ msw 30) — 4 后端 pagination defaults 漂移",
+    "GitHub push 完成（HEAD `312e380` + 4 commits at parent submodule gitlink）"
   ],
   "open_questions": [
     "写端点探针清理：lab 写端点多为 code 主键（非 UUID），junction 表（links/*）无独立主键，唯一化策略走 ct-b-/ct-m-/ct-s-/ct-g-/ct-sp-/ct-obj-/ct-prm-/ct-std-/ct-rn-/ct-pi-/ct-cm-/-ct-tr-/-ct-rc-/-ct-smp- 12 个 prefix —— cleanup-pg.ts 用 PROBE_PREFIX_RE = /^(ct-|probe-|contract-test)/ 兼容",
@@ -44,5 +51,21 @@
     "改了 shared → springboot 仓 bash scripts/gen-shared.sh 再跑门禁（AuthApi 是 codegen 产物）"
   ],
   "last_gate_passed_at": "2026-09-02T13:51+08:00",
+  "last_live_attempt": {
+    "started": "2026-09-02T17:23+00",
+    "duration_s": 925,
+    "tests": "227 passed / 176 failed / 25 skipped (428 total)",
+    "trace_non_inert": 271,
+    "trace_mode": "unit (probeLive race: nextjs overload crash mid-run → flush 时 mode 退回)",
+    "discovered_bugs": [
+      "contract POST body 缺必填字段 — 4 后端 error 400",
+      "nextjs PUT/DELETE /api/{catalog}/{code} 返 404（路由不识别）",
+      "msw DELETE junction link 返 500（关系表 upsert 未实现）",
+      "createdAt/updatedAt 空字符串 — assertTimestampShape 拒收",
+      "msw list page=1 ≠ SSOT 0-indexed",
+      "springboot pageSize=31 ≠ msw 30（4 后端 pagination defaults 漂移）"
+    ],
+    "next_action": "修测试 body + 修 nextjs 路由预编译 + 短跑拆分"
+  },
   "active_branch": "master"
 }
