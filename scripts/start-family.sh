@@ -121,18 +121,29 @@ LAB_JWT_ENV="JWT_SIGNING_KEY=dev-key-32-bytes-minimum-length! JWT_ISSUER=lab-man
 
 # aspnetcore: SERVER_PORT shim 接线 + ASPNETCORE_URLS 双保险（dotnet run 默认
 # launch profile 会带自己的 ASPNETCORE_URLS, 显式覆盖才稳）。
-# DATABASE_URL 从 springboot .env.production 拿 lab_dev 真值（共库前提）。
+# DB 共库语义（conventions local-contract-test.md）：3 真后端 + msw 都连 lab_dev。
+# PG 密码真值从本仓 gitignored .env.production 提取（那里是 lab_prod, 只取密码,
+# 库名强制换 lab_dev）；LAB_PG_PASSWORD 显式给值时优先。
 LAB_PG_HOST="${LAB_PG_HOST:-100.79.128.25}"
-ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD:-changeme}"
+LAB_PG_PASSWORD="${LAB_PG_PASSWORD:-}"
+if [ -z "$LAB_PG_PASSWORD" ]; then
+  LAB_PG_PASSWORD=$(grep -E '^DATABASE_URL=' "$ASPNETCORE_DIR/.env.production" 2>/dev/null \
+    | head -1 | sed -n 's/.*Password=\([^;]*\).*/\1/p')
+fi
+if [ -z "$LAB_PG_PASSWORD" ]; then
+  LAB_PG_PASSWORD=$(grep -E '^DATABASE_PASSWORD=' "$SPRINGBOOT_DIR/.env.production" 2>/dev/null | head -1 | cut -d= -f2-)
+fi
+: "${LAB_PG_PASSWORD:=changeme}"
+ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD}"
 (cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
   LAB_DATA_PROVIDER=memory LAB_SSO_PROFILE=no-sso \
   DATABASE_URL="$ASPNETCORE_PG_URL" \
   dotnet run --project src/Lab.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 
-# springboot: SERVER_PORT relaxed binding; DB 四件套显式传（本仓无 .env.local 约定）。
+# springboot: SERVER_PORT relaxed binding。同上共库 lab_dev（JDBC 四件套）。
 (cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV SERVER_PORT=5205 \
   DATABASE_URL="jdbc:postgresql://${LAB_PG_HOST}:5432/lab_dev" \
-  DATABASE_USER=postgres DATABASE_PASSWORD="${LAB_PG_PASSWORD:-changeme}" DATABASE_NAME=lab_dev \
+  DATABASE_USER=postgres DATABASE_PASSWORD="$LAB_PG_PASSWORD" DATABASE_NAME=lab_dev \
   mvn -q spring-boot:run >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
 
 # nextjs: dev script 已带 -p 5201（package.json）; .env.local 已有 DATABASE_URL 等。

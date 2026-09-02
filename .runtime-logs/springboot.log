@@ -1,0 +1,105 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2026-09-02T22:30:47.874+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] io.xr.harness.Application                : Starting Application using Java 21.0.6 with PID 46260 (D:\qiand-life\1-projects\xr-code-suite\output\lab-management-system-springboot\target\classes started by zcqiand in D:\qiand-life\1-projects\xr-code-suite\output\lab-management-system-springboot)
+2026-09-02T22:30:47.875+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] io.xr.harness.Application                : No active profile set, falling back to 1 default profile: "sso"
+2026-09-02T22:30:48.420+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-02T22:30:48.482+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 56 ms. Found 24 JPA repository interfaces.
+2026-09-02T22:30:49.283+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 5205 (http)
+2026-09-02T22:30:49.294+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-02T22:30:49.294+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
+2026-09-02T22:30:49.351+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-02T22:30:49.352+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1437 ms
+2026-09-02T22:30:49.659+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-02T22:30:50.517+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5d58dc61
+2026-09-02T22:30:50.518+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-02T22:30:50.609+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://100.79.128.25:5432/lab_dev (PostgreSQL 16.14)
+2026-09-02T22:30:52.960+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 17 migrations (execution time 00:00.577s)
+2026-09-02T22:30:54.391+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 017
+2026-09-02T22:30:54.461+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-09-02T22:30:54.946+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-02T22:30:55.018+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.4.Final
+2026-09-02T22:30:55.064+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-09-02T22:30:55.286+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-02T22:30:55.842+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.14
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-09-02T22:30:56.925+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-02T22:31:00.011+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-02T22:31:00.141+08:00  WARN 46260 --- [lab-management-system-springboot] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'authController' defined in file [D:\qiand-life\1-projects\xr-code-suite\output\lab-management-system-springboot\target\classes\io\xr\lab\platform\controller\AuthController.class]: Failed to instantiate [io.xr.lab.platform.controller.AuthController]: Constructor threw exception
+2026-09-02T22:31:00.141+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-09-02T22:31:00.143+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-09-02T22:31:00.999+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-09-02T22:31:01.000+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-09-02T22:31:01.011+08:00  INFO 46260 --- [lab-management-system-springboot] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-09-02T22:31:01.023+08:00 ERROR 46260 --- [lab-management-system-springboot] [           main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'authController' defined in file [D:\qiand-life\1-projects\xr-code-suite\output\lab-management-system-springboot\target\classes\io\xr\lab\platform\controller\AuthController.class]: Failed to instantiate [io.xr.lab.platform.controller.AuthController]: Constructor threw exception
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:321) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:309) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1377) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1214) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:336) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:289) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:334) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1122) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1093) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1030) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987) ~[spring-context-6.2.1.jar:6.2.1]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.1.jar:6.2.1]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.1.jar:3.4.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.4.1.jar:3.4.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.1.jar:3.4.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.1.jar:3.4.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.4.1.jar:3.4.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.4.1.jar:3.4.1]
+	at io.xr.harness.Application.main(Application.java:27) ~[classes/:na]
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [io.xr.lab.platform.controller.AuthController]: Constructor threw exception
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:222) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:145) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:318) ~[spring-beans-6.2.1.jar:6.2.1]
+	... 21 common frames omitted
+Caused by: java.lang.Error: Unresolved compilation problems: 
+	The import io.xr.lab.shared.api cannot be resolved
+	AuthApi cannot be resolved to a type
+	The method authGetCurrentUser() of type AuthController must override or implement a supertype method
+	The method authGetMenus() of type AuthController must override or implement a supertype method
+	The method authGetPermissions() of type AuthController must override or implement a supertype method
+	The method authLogin(LoginRequest) of type AuthController must override or implement a supertype method
+	The method authLogout(AuthLogoutRequest) of type AuthController must override or implement a supertype method
+	The method authRefresh(RefreshTokenRequest) of type AuthController must override or implement a supertype method
+	The method authSsoAuthorize(OAuthResponseType, String, String, String) of type AuthController must override or implement a supertype method
+	The method authSsoCallback(SsoCallbackRequest) of type AuthController must override or implement a supertype method
+	The method authSwitchTenant(SwitchTenantRequest) of type AuthController must override or implement a supertype method
+
+	at io.xr.lab.platform.controller.AuthController.<init>(AuthController.java:4) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:209) ~[spring-beans-6.2.1.jar:6.2.1]
+	... 23 common frames omitted
+
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.4.1:run (default-cli) on project lab-management-system-springboot: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

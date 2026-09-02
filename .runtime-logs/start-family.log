@@ -1,0 +1,56 @@
+=== [1/6] 工具链 + sibling 仓 + 端口 ===
+  ✓ 5 sibling 仓齐全 + 7 工具齐
+  检查 4 端口 LISTENING 残留进程...
+    端口 :5200 被 25368 (node) 占用, taskkill /F
+    端口 :5204 被 26048 (lab-management-system-aspnetcore) 占用 — 不是已知后端, 不杀, 让用户决定
+  ✓ 端口 preflight 完成
+
+=== [2/6] gen-shared (nextjs + springboot) ===
+🍻 orval v7.21.0 - A swagger client generator for typescript
+🎉 lab - Your OpenAPI spec has been converted into ready to use orval!
+[gen-shared] OK
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+[gen-shared] step 3/3 - DB: copy shared/sql/migrations/* -> src/main/resources/db/migration/
+[gen-shared] SKIP diverged migration: V014__enums_to_text.sql (local version is authoritative)
+[gen-shared] OK
+
+=== [3/6] 后台起 4 后端 (lab=5200 段, conventions §6) ===
+
+=== [4/6] healthcheck 4 后端 (90s 串行) ===
+  ✓ msw up after 2s
+  ✓ aspnetcore up after 1s
+  ✗ springboot FAIL within 90s at http://localhost:5205/actuator/health
+  --- springboot log tail-30 ---
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:145) ~[spring-beans-6.2.1.jar:6.2.1]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:318) ~[spring-beans-6.2.1.jar:6.2.1]
+	... 21 common frames omitted
+Caused by: java.lang.Error: Unresolved compilation problems: 
+	The import io.xr.lab.shared.api cannot be resolved
+	AuthApi cannot be resolved to a type
+	The method authGetCurrentUser() of type AuthController must override or implement a supertype method
+	The method authGetMenus() of type AuthController must override or implement a supertype method
+	The method authGetPermissions() of type AuthController must override or implement a supertype method
+	The method authLogin(LoginRequest) of type AuthController must override or implement a supertype method
+	The method authLogout(AuthLogoutRequest) of type AuthController must override or implement a supertype method
+	The method authRefresh(RefreshTokenRequest) of type AuthController must override or implement a supertype method
+	The method authSsoAuthorize(OAuthResponseType, String, String, String) of type AuthController must override or implement a supertype method
+	The method authSsoCallback(SsoCallbackRequest) of type AuthController must override or implement a supertype method
+	The method authSwitchTenant(SwitchTenantRequest) of type AuthController must override or implement a supertype method
+
+	at io.xr.lab.platform.controller.AuthController.<init>(AuthController.java:4) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:209) ~[spring-beans-6.2.1.jar:6.2.1]
+	... 23 common frames omitted
+
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.4.1:run (default-cli) on project lab-management-system-springboot: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
+
+=== cleanup: kill 4 children + grandchildren ===
