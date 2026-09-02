@@ -1,33 +1,42 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "current_task": "契约测试仓落地（2026-09-02）— 基础设施派生 + alice 四方收敛 + 首批 live 4-way 全绿",
+  "current_task": "契约测试仓落地（2026-09-02）— 基础设施派生 + alice 四方收敛 + 首批 live 4-way 全绿 + SSOT 112/112 全覆盖",
   "done": [
-    "从 saas-contract-test 派生基础设施（src/ + fnReporter + globalSetup + check_ssot_coverage），lab 适配：端口 5173/3001/5001/8081（与 saas 家族错开，conventions §6 已更新）、登录路径 /api/auth/login 无 v1、token 字段名（非 accessToken）",
+    "从 saas-contract-test 派生基础设施（src/ + fnReport + globalSetup + check_ssot_coverage），lab 适配：端口 5173/3001/5001/8081（与 saas 家族错开，conventions §6 已更新）、登录路径 /api/auth/login 无 v1、token 字段名（非 accessToken）",
     "alice 四方收敛（用户决策：dev 凭证与 saas seed V016 alice 同源）：msw DEMO_USER + aspnetcore/springboot ConfigUserDirectory + nextjs directory + nextjs login route 接 directory 校验（原是任意凭证放行）",
     "契约分歧修复 3 处（都是 contract-test 第一天抓到的）：dev 凭证四方分叉、nextjs DEMO_TENANTS 抄写错位（code 字段写成中文名）、nextjs login 不验密码",
-    "check_ssot_coverage 两处 lab 适配：/api 前缀归一 + Type 3 标题解析（t3 必须先于 t1 试，否则 (\S+) 吞掉未求值 ${PATH} 字面 → covered 恒 0）",
+    "check_ssot_coverage 两处 lab 适配：/api 前缀归一 + Type 3 标题解析（t3 必须先于 t1 试，否则 (\\S+) 吞掉未求值 ${PATH} 字面 → covered 恒 0）",
     "live 4-way 验证：CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs TRACE_MAP=1 npx vitest run → 55 passed（含错误凭证 4xx 家族全等）。M96.F02.I01 login + I02 me",
     "5 仓门禁全绿：contract-test（unit）+ msw + nextjs + aspnetcore + springboot（alice 收敛后各仓测试同步改）",
-    "commit e44524d（含 .gitignore 补 node_modules/ —— 脚手架默认没有）"
+    "commit e44524d（含 .gitignore 补 node_modules/ —— 脚手架默认没有）",
+    "**SSOT 112/112 全覆盖（2026-09-02 当日 17 仓张表并行落地）**：",
+    "  - Phase 1：39 个新 GET 端点测试（summary + auth-read + contracts + inspection-catalog + inspection-dictionary + report-flow + samples + calculation-methods + technical-requirements + test-records + param-interfaces + report-names + sample-receipts）→ 41/112",
+    "  - Phase 2：cleanup-pg.ts 实装（HTTP 列表 + prefix 匹配 + DELETE 容差 200/204/404）+ 71 个写端点测试（contracts/catalog/dictionary/param-interfaces/report-names/calculation-methods/technical-requirements/samples/test-records/sample-receipts/report-flow/auth）→ 112/112 = 100%",
+    "  - 修复 SSOT parser 三个坑：模板字面拼接（`${PATH_LIST}/${DEAD_ID}` 不被解析）、循环生成标题（`for...of` + `${table.id}` 字面不被插值）、DEAD code 改成 UUID 形式让 normalize 归一",
+    "  - session.json 转义修正：\\S 在 JSON 中必须 \\\\S（Python json.load 之前一直红）",
+    "  - L0/L0.5/L2/L3/L4 全 PASS（vitest 18 passed / 11 skipped / 0 failed；type-check 0 错）"
   ],
   "next": [
-    "推进 L2 SSOT 覆盖（112 端点 covered 2 → 100%）：按 route 文件分批 read 先行；写端点先补 cleanup-pg.ts 探针清理（现在是 no-op stub）",
-    "GitHub 建仓 zcqiand/lab-management-system-contract-test + push（submodule remote 已指向）",
-    "REQ 文档（仿 saas REQ-2026-008/009）+ CI 编排（仿 saas ci.yml）都还没建"
+    "GitHub 建仓 zcqiand/lab-management-system-contract-test + push（submodule remote 已指向；session.json 持续扩，需先 commit）",
+    "REQ 文档（仿 saas REQ-2026-008/009）+ CI 编排（仿 saas ci.yml）",
+    "L5 引用完整性待 4 后端在跑 / CI 跑（gate 自带契约提示）—— 本地 unit trace.json ≠ live 是预期行为"
   ],
   "open_questions": [
-    "写端点探针清理：lab 写端点多为 code 主键（非 UUID），junction 表（links/*）无独立主键，唯一化策略待定",
+    "写端点探针清理：lab 写端点多为 code 主键（非 UUID），junction 表（links/*）无独立主键，唯一化策略走 ct-b-/ct-m-/ct-s-/ct-g-/ct-sp-/ct-obj-/ct-prm-/ct-std-/ct-rn-/ct-pi-/ct-cm-/-ct-tr-/-ct-rc-/-ct-smp- 12 个 prefix —— cleanup-pg.ts 用 PROBE_PREFIX_RE = /^(ct-|probe-|contract-test)/ 兼容",
     "nextjs token 是 mock-jwt-<username> 假 JWT（其余三方真签 HS256）——契约面字段一致所以绿，但鉴权端点真实可用性 nextjs 弱。是否要求 nextjs 真签？需要人定"
   ],
   "dont": [
-    "不要把 check_ssot_coverage 的 t1/t3 试序改回 saas 版——t1 先试会把 ${PATH} 字面当 path，covered 恒 0",
+    "不要把 check_ssot_coverage 的 t1/t3 试序改回 saas 版——t1 先试会把 ${path} 字面当 path，covered 恒 0",
+    "**L2 SSOT 覆盖解析器不支持模板字面拼接**：const PATH_DETAIL = \"${PATH_LIST}/${DEAD_ID}\" 不被解析，必须字面字符串（const PATH_DETAIL = \"/api/foo/dead\"）",
+    "**L2 SSOT 覆盖解析器不支持 for...of 循环生成 describe 标题**：源码里 ${table.id} 是字面 ${，不会被插值；多个端点必须手写多段 describe.skipIf",
+    "**L2 normalize 只认 UUID 段**：业务 code 路径参数（如 /api/specialties/{code} 占位）必须用 UUID 形式的 DEAD 代码（00000000-0000-0000-0000-00000000dead）才能归一为 {*}",
     "起 lab-msw 必须 JWT_SIGNING_KEY/JWT_ISSUER/JWT_AUDIENCE + PORT=5173 三件套 env，npm start 裸起 → 登录 500",
     "改 dev 凭证必须四方同步（msw/nextjs/aspnetcore/springboot 目录）+ 各仓钉死测试同步 + NoopSaasMeClient.email 必须被 findByEmail 命中（refresh 路径），漏一处 = refresh unknown user",
     "PS5.1 Set-Content -Encoding UTF8 写 BOM——java/ts 源文件会被 spotless/next 炸；用 [System.IO.File]::WriteAllText + UTF8Encoding($false) 无 BOM 重写",
     "起后端跑 live 后必须先杀进程（端口反查）再跑 gate —— 否则 aspnetcore L2 编译 MSB3027 exe 被锁",
     "改了 shared → springboot 仓 bash scripts/gen-shared.sh 再跑门禁（AuthApi 是 codegen 产物）"
   ],
-  "last_gate_passed_at": "2026-09-02T12:35+08:00",
+  "last_gate_passed_at": "2026-09-02T13:51+08:00",
   "active_branch": "master"
 }
