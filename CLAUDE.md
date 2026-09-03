@@ -25,6 +25,9 @@ conventions §6 lab=5200 段，2026-09-02 起与 saas 家族端口错开可并�
 - **写操作用唯一化前缀 + teardown**：共库写比对会撞唯一约束、不可重跑
 - **100% 覆盖 shared SSOT**：端点清单 = `../lab-management-system-shared/tsp/routes/*.tsp` 全集，
   auto-derive（`scripts/check_ssot_coverage.mjs`）；禁止手挑；改端点必先改 SSOT
+- **端点增/改/删必须同步本仓断言**（suite CLAUDE.md §2 硬规则）：
+  后端仓改 `/api/**` 端点（增/改/删）→ 本仓对应 `tests/<area>.test.ts` 同 commit 增/改/删断言；
+  端点删除时**必须**删除指向死路径的断言（绿死比红测更危险：无人调用 = 无人发现契约破裂）
 - npm 依赖一律走 registry.npmmirror.com
 
 ## 3. 技术栈
@@ -49,6 +52,8 @@ TypeScript + vitest + axios + tough-cookie jar（HTTP 层，不受 fetch 屏蔽 
 ## 6. 工作循环
 
 1. **改端点**：先改 shared `tsp/routes/*.tsp` → 重生 openapi → 在 `tests/` 写测试
-2. 改 `src/` 或 `tests/` → `npx vitest run`
-3. gate exit 1 修；exit 2 停下问人
-4. `/handoff` 更新 `.state/session.json`
+   （或后端仓先改 → 立刻回头补 shared + 本仓，**不能跨 PR**；见 suite CLAUDE.md §2）
+2. **删端点**：本仓对应断言同 commit 删除（绿死比红测更危险）
+3. 改 `src/` 或 `tests/` → `npx vitest run`
+4. gate exit 1 修；exit 2 停下问人
+5. `/handoff` 更新 `.state/session.json`

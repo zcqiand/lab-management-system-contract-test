@@ -65,6 +65,12 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_STATS} 四方比对`, () => {
         "sampleCount",
         "reportCountByStatus",
         "pendingTaskCount",
+        // M05.F01.I03 核心指标卡
+        "todayTestCount",
+        "qualifiedRateByMaterial",
+        "reportOutputByStatus",
+        // M05.F01.I04 任务状态漏斗
+        "funnelByStage",
       ]) {
         expect(body[key], `${p.target} 少了 ${key}`).toBeDefined();
       }
@@ -73,11 +79,50 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_STATS} 四方比对`, () => {
       for (const key of ["draft", "reviewing", "issued"]) {
         expect(rcs[key], `${p.target} reportCountByStatus 少了 ${key}`).toBeDefined();
       }
+      // M05.F01.I03 — reportOutputByStatus
+      const ros = body.reportOutputByStatus as Record<string, unknown>;
+      expect(ros, `${p.target} reportOutputByStatus 应是对象`).toBeDefined();
+      for (const key of ["generated", "pending", "issued"]) {
+        expect(ros[key], `${p.target} reportOutputByStatus 少了 ${key}`).toBeDefined();
+      }
+      // M05.F01.I03 — qualifiedRateByMaterial（concrete/rebar/sand）
+      const qrm = body.qualifiedRateByMaterial as Record<string, unknown>;
+      expect(qrm, `${p.target} qualifiedRateByMaterial 应是对象`).toBeDefined();
+      for (const mat of ["concrete", "rebar", "sand"]) {
+        const e = qrm[mat] as Record<string, unknown>;
+        expect(e, `${p.target} qualifiedRateByMaterial.${mat} 应是对象`).toBeDefined();
+        for (const k of ["total", "pass", "rate"]) {
+          expect(e[k], `${p.target} qualifiedRateByMaterial.${mat} 少了 ${k}`).toBeDefined();
+        }
+      }
+      // M05.F01.I04 — funnelByStage（6 段）
+      const fbs = body.funnelByStage as Record<string, unknown>;
+      expect(fbs, `${p.target} funnelByStage 应是对象`).toBeDefined();
+      for (const key of [
+        "pending_collect",
+        "received",
+        "testing",
+        "reporting",
+        "reviewing",
+        "issued",
+      ]) {
+        expect(fbs[key], `${p.target} funnelByStage 少了 ${key}`).toBeDefined();
+      }
     }
   });
 
   it("normalize 后骨架全等（计数随本轮写测试漂移，drop）", () => {
-    const drop = ["contractCount", "receiptCount", "sampleCount", "pendingTaskCount", "reportCountByStatus"];
+    const drop = [
+      "contractCount",
+      "receiptCount",
+      "sampleCount",
+      "pendingTaskCount",
+      "todayTestCount",
+      "reportCountByStatus",
+      "reportOutputByStatus",
+      "qualifiedRateByMaterial",
+      "funnelByStage",
+    ];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   });
