@@ -45,9 +45,9 @@
 
 ### M01.F01 （init_project 占位）
 
-| 子项 ID | 名称 | 类型 | 说明 | 状态 |
-|---|---|---|---|---|
-| M01.F01.I01 | （init_project 占位） | 查询 | 从未是真实功能 | 已废弃 |
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M01.F01.I01 | （init_project 占位） | 查询 | 前端+后端 | 从未是真实功能 | 已废弃 |
 
 ---
 
@@ -61,12 +61,12 @@
 
 ### M96.F01 normalize 契约
 
-| 子项 ID | 名称 | 类型 | 说明 | 状态 |
-|---|---|---|---|---|
-| M96.F01.I01 | 剔除非确定性字段 | 接口 | token/refreshToken 总是剔（lab 字段名是 token 非 accessToken）；ID 默认保留（3 真后端共 lab_dev 库），仅比对含 msw 时传 `ID_KEYS` | 已上线 |
-| M96.F01.I02 | 日期归一化到 UTC Z | 接口 | Jackson 出 `+00:00`、System.Text.Json 出 `Z`，OpenAPI 层面都合法 | 已上线 |
-| M96.F01.I03 | 缺失与显式 null 等价 | 接口 | Spring `NON_ABSENT` 省略 null，ASP.NET 默认输出 null | 已上线 |
-| M96.F01.I04 | 递归排序 object key 与数组 | 接口 | 字段顺序与集合顺序不属于契约 | 已上线 |
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M96.F01.I01 | 剔除非确定性字段 | 接口 | 前端+后端 | token/refreshToken 总是剔（lab 字段名是 token 非 accessToken）；ID 默认保留（3 真后端共 lab_dev 库），仅比对含 msw 时传 `ID_KEYS` | 已上线 |
+| M96.F01.I02 | 日期归一化到 UTC Z | 接口 | 前端+后端 | Jackson 出 `+00:00`、System.Text.Json 出 `Z`，OpenAPI 层面都合法 | 已上线 |
+| M96.F01.I03 | 缺失与显式 null 等价 | 接口 | 前端+后端 | Spring `NON_ABSENT` 省略 null，ASP.NET 默认输出 null | 已上线 |
+| M96.F01.I04 | 递归排序 object key 与数组 | 接口 | 前端+后端 | 字段顺序与集合顺序不属于契约 | 已上线 |
 
 ### M96.F02 四方比对
 
@@ -75,36 +75,36 @@
 > trace.json 把这些 test→fn 的反向引用都收进来，L5 alignment 看 test_refs[fid] 集合是否非空（任意一个端点有 trace 命中即 OK）。
 > 详见 [REQ-2026-013 §6 风险与回滚](../requirements/REQ-2026-013-ssot-full-coverage.md) 与 suite `docs/adr/0015-contract-test-repo.md`。
 
-| 子项 ID | 名称 | 类型 | 说明 | 状态 |
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
 |---|---|---|---|---|---|
-| M96.F02.I01 | 四方比对组 01 — 认证/列表/创建族 | 接口 | 覆盖端点：POST `/auth/login`、GET 各种列表（contracts/summary/permissions/catalog/receipts/samples/test-records）、POST 创行族（contracts/catalog × 4 /dictionary × 4 /param-interfaces/report-names/calculation-methods/technical-requirements/samples/test-records/receipts）、junction link POST × 7（REQ-2026-013） | 开发中 |
-| M96.F02.I02 | 四方比对组 02 — 会话/创/详情族 | 接口 | 覆盖端点：GET `/auth/me`、POST 创行（续 I01 集合）、GET 详情（contracts/{id}/catalog/{code}/dictionary/{code}/param-interfaces/{code}/report-names/{code}/samples/{id}/test-records/{id}/receipts/{id}/history 等）、summary `/stats`（REQ-2026-013） | 开发中 |
-| M96.F02.I03 | 四方比对组 03 — 权限/详情族 | 接口 | 覆盖端点：GET `/auth/permissions`、GET 详情族（续）、catalog brands 写族（POST/PUT/DELETE）（REQ-2026-013） | 开发中 |
-| M96.F02.I04 | 四方比对组 04 — 菜单/更新族 | 接口 | 覆盖端点：GET `/auth/menus`、PUT 更新族（contracts/catalog brands PUT）（REQ-2026-013） | 开发中 |
-| M96.F02.I05 | 四方比对组 05 — SSO 跳板/删除族 | 接口 | 覆盖端点：GET `/auth/sso/authorize`、DELETE 删行族（contracts DELETE / catalog brands DELETE / dictionary specialties DELETE）（REQ-2026-013） | 开发中 |
-| M96.F02.I06 | 四方比对组 06 — catalog models POST | 接口 | 覆盖端点：POST `/catalog/models` 创（REQ-2026-013） | 开发中 |
-| M96.F02.I07 | 四方比对组 07 — catalog models PUT | 接口 | 覆盖端点：PUT `/catalog/models/{code}` 改（REQ-2026-013） | 开发中 |
-| M96.F02.I08 | 四方比对组 08 — catalog models DELETE | 接口 | 覆盖端点：DELETE `/catalog/models/{code}` 删（REQ-2026-013） | 开发中 |
-| M96.F02.I09 | 四方比对组 09 — catalog specs POST | 接口 | 覆盖端点：POST `/catalog/specs` 创（REQ-2026-013） | 开发中 |
-| M96.F02.I10 | 四方比对组 10 — catalog specs PUT | 接口 | 覆盖端点：PUT `/catalog/specs/{code}` 改（REQ-2026-013） | 开发中 |
-| M96.F02.I11 | 四方比对组 11 — catalog specs DELETE | 接口 | 覆盖端点：DELETE `/catalog/specs/{code}` 删（REQ-2026-013） | 开发中 |
-| M96.F02.I12 | 四方比对组 12 — catalog grades POST | 接口 | 覆盖端点：POST `/catalog/grades` 创（REQ-2026-013） | 开发中 |
-| M96.F02.I13 | 四方比对组 13 — catalog grades PUT | 接口 | 覆盖端点：PUT `/catalog/grades/{code}` 改（REQ-2026-013） | 开发中 |
-| M96.F02.I14 | 四方比对组 14 — catalog grades DELETE | 接口 | 覆盖端点：DELETE `/catalog/grades/{code}` 删（REQ-2026-013） | 开发中 |
-| M96.F02.I15 | 四方比对组 15 — dictionary objects POST | 接口 | 覆盖端点：POST `/inspection/objects` 创（REQ-2026-013） | 开发中 |
-| M96.F02.I16 | 四方比对组 16 — dictionary objects PUT | 接口 | 覆盖端点：PUT `/inspection/objects/{code}` 改（REQ-2026-013） | 开发中 |
-| M96.F02.I17 | 四方比对组 17 — specialty-object link/unlink | 接口 | 覆盖端点：POST/DELETE `/inspection/links/specialty-object`（upsert，幂等）（REQ-2026-013） | 开发中 |
-| M96.F02.I18 | 四方比对组 18 — dictionary parameters POST/PUT | 接口 | 覆盖端点：POST/PUT `/inspection/parameters` + specialty-object GET list（REQ-2026-013） | 开发中 |
-| M96.F02.I19 | 四方比对组 19 — dictionary standards + object-parameter link | 接口 | 覆盖端点：POST/PUT `/inspection/standards`、POST/DELETE `/inspection/links/object-parameter`（REQ-2026-013） | 开发中 |
-| M96.F02.I20 | 四方比对组 20 — object-standard link + standard-parameter link | 接口 | 覆盖端点：POST/DELETE `/inspection/links/object-standard` + `/standard-parameter`（REQ-2026-013） | 开发中 |
-| M96.F02.I21 | 四方比对组 21 — dictionary CRUD 收口 + 参数界面 | 接口 | 覆盖端点：DELETE `/inspection/{objects,parameters,standards}` + POST/PUT/DELETE `/param-interfaces`（REQ-2026-013） | 开发中 |
-| M96.F02.I22 | 四方比对组 22 — param-interfaces + report-names POST | 接口 | 覆盖端点：DELETE `/param-interfaces/{code}`、POST/DELETE `/param-interfaces/links`、POST `/report-names`（REQ-2026-013） | 开发中 |
-| M96.F02.I24 | 四方比对组 24 — report-names PUT + 3 junction links POST | 接口 | 覆盖端点：PUT `/report-names/{code}` + POST × 3 report-names/links/{object,standard,parameter}（REQ-2026-013） | 开发中 |
-| M96.F02.I25 | 四方比对组 25 — report-names DELETE + 3 junction links DELETE | 接口 | 覆盖端点：DELETE `/report-names/{code}` + DELETE × 3 report-names/links/{...}（REQ-2026-013） | 开发中 |
-| M96.F02.I27 | 四方比对组 27 — calculation-methods POST + technical-requirements POST | 接口 | 覆盖端点：POST `/calculation-methods`（复合主键）+ POST `/technical-requirements`（三段主键）（REQ-2026-013） | 开发中 |
-| M96.F02.I28 | 四方比对组 28 — calculation-methods PUT + technical-requirements PUT | 接口 | 覆盖端点：PUT `/calculation-methods/{object}/{parameter}` + `/technical-requirements/{object}/{parameter}/{standard}`（REQ-2026-013） | 开发中 |
-| M96.F02.I30 | 四方比对组 30 — calculation-methods DELETE + technical-requirements DELETE | 接口 | 覆盖端点：DELETE `/calculation-methods/{object}/{parameter}` + `/technical-requirements/{object}/{parameter}/{standard}`（REQ-2026-013） | 开发中 |
-| M96.F02.I31 | 四方比对组 31 — 收口族（samples/test-records/receipts/flow/auth POSTs） | 接口 | 覆盖端点：POST/PUT/DELETE `/samples`、`POST/PUT/DELETE/PATCH /test-records`、`POST/PUT/DELETE /receipts`、`POST /receipts/flow`、`POST /auth/refresh` `logout` `switch-tenant` `sso/callback`（REQ-2026-013） | 开发中 |
+| M96.F02.I01 | 四方比对组 01 — 认证/列表/创建族 | 接口 | 前端+后端 | 覆盖端点：POST `/auth/login`、GET 各种列表（contracts/summary/permissions/catalog/receipts/samples/test-records）、POST 创行族（contracts/catalog × 4 /dictionary × 4 /param-interfaces/report-names/calculation-methods/technical-requirements/samples/test-records/receipts）、junction link POST × 7（REQ-2026-013） | 开发中 |
+| M96.F02.I02 | 四方比对组 02 — 会话/创/详情族 | 接口 | 前端+后端 | 覆盖端点：GET `/auth/me`、POST 创行（续 I01 集合）、GET 详情（contracts/{id}/catalog/{code}/dictionary/{code}/param-interfaces/{code}/report-names/{code}/samples/{id}/test-records/{id}/receipts/{id}/history 等）、summary `/stats`（REQ-2026-013） | 开发中 |
+| M96.F02.I03 | 四方比对组 03 — 权限/详情族 | 接口 | 前端+后端 | 覆盖端点：GET `/auth/permissions`、GET 详情族（续）、catalog brands 写族（POST/PUT/DELETE）（REQ-2026-013） | 开发中 |
+| M96.F02.I04 | 四方比对组 04 — 菜单/更新族 | 接口 | 前端+后端 | 覆盖端点：GET `/auth/menus`、PUT 更新族（contracts/catalog brands PUT）（REQ-2026-013） | 开发中 |
+| M96.F02.I05 | 四方比对组 05 — SSO 跳板/删除族 | 接口 | 前端+后端 | 覆盖端点：GET `/auth/sso/authorize`、DELETE 删行族（contracts DELETE / catalog brands DELETE / dictionary specialties DELETE）（REQ-2026-013） | 开发中 |
+| M96.F02.I06 | 四方比对组 06 — catalog models POST | 接口 | 前端+后端 | 覆盖端点：POST `/catalog/models` 创（REQ-2026-013） | 开发中 |
+| M96.F02.I07 | 四方比对组 07 — catalog models PUT | 接口 | 前端+后端 | 覆盖端点：PUT `/catalog/models/{code}` 改（REQ-2026-013） | 开发中 |
+| M96.F02.I08 | 四方比对组 08 — catalog models DELETE | 接口 | 前端+后端 | 覆盖端点：DELETE `/catalog/models/{code}` 删（REQ-2026-013） | 开发中 |
+| M96.F02.I09 | 四方比对组 09 — catalog specs POST | 接口 | 前端+后端 | 覆盖端点：POST `/catalog/specs` 创（REQ-2026-013） | 开发中 |
+| M96.F02.I10 | 四方比对组 10 — catalog specs PUT | 接口 | 前端+后端 | 覆盖端点：PUT `/catalog/specs/{code}` 改（REQ-2026-013） | 开发中 |
+| M96.F02.I11 | 四方比对组 11 — catalog specs DELETE | 接口 | 前端+后端 | 覆盖端点：DELETE `/catalog/specs/{code}` 删（REQ-2026-013） | 开发中 |
+| M96.F02.I12 | 四方比对组 12 — catalog grades POST | 接口 | 前端+后端 | 覆盖端点：POST `/catalog/grades` 创（REQ-2026-013） | 开发中 |
+| M96.F02.I13 | 四方比对组 13 — catalog grades PUT | 接口 | 前端+后端 | 覆盖端点：PUT `/catalog/grades/{code}` 改（REQ-2026-013） | 开发中 |
+| M96.F02.I14 | 四方比对组 14 — catalog grades DELETE | 接口 | 前端+后端 | 覆盖端点：DELETE `/catalog/grades/{code}` 删（REQ-2026-013） | 开发中 |
+| M96.F02.I15 | 四方比对组 15 — dictionary objects POST | 接口 | 前端+后端 | 覆盖端点：POST `/inspection/objects` 创（REQ-2026-013） | 开发中 |
+| M96.F02.I16 | 四方比对组 16 — dictionary objects PUT | 接口 | 前端+后端 | 覆盖端点：PUT `/inspection/objects/{code}` 改（REQ-2026-013） | 开发中 |
+| M96.F02.I17 | 四方比对组 17 — specialty-object link/unlink | 接口 | 前端+后端 | 覆盖端点：POST/DELETE `/inspection/links/specialty-object`（upsert，幂等）（REQ-2026-013） | 开发中 |
+| M96.F02.I18 | 四方比对组 18 — dictionary parameters POST/PUT | 接口 | 前端+后端 | 覆盖端点：POST/PUT `/inspection/parameters` + specialty-object GET list（REQ-2026-013） | 开发中 |
+| M96.F02.I19 | 四方比对组 19 — dictionary standards + object-parameter link | 接口 | 前端+后端 | 覆盖端点：POST/PUT `/inspection/standards`、POST/DELETE `/inspection/links/object-parameter`（REQ-2026-013） | 开发中 |
+| M96.F02.I20 | 四方比对组 20 — object-standard link + standard-parameter link | 接口 | 前端+后端 | 覆盖端点：POST/DELETE `/inspection/links/object-standard` + `/standard-parameter`（REQ-2026-013） | 开发中 |
+| M96.F02.I21 | 四方比对组 21 — dictionary CRUD 收口 + 参数界面 | 接口 | 前端+后端 | 覆盖端点：DELETE `/inspection/{objects,parameters,standards}` + POST/PUT/DELETE `/param-interfaces`（REQ-2026-013） | 开发中 |
+| M96.F02.I22 | 四方比对组 22 — param-interfaces + report-names POST | 接口 | 前端+后端 | 覆盖端点：DELETE `/param-interfaces/{code}`、POST/DELETE `/param-interfaces/links`、POST `/report-names`（REQ-2026-013） | 开发中 |
+| M96.F02.I24 | 四方比对组 24 — report-names PUT + 3 junction links POST | 接口 | 前端+后端 | 覆盖端点：PUT `/report-names/{code}` + POST × 3 report-names/links/{object,standard,parameter}（REQ-2026-013） | 开发中 |
+| M96.F02.I25 | 四方比对组 25 — report-names DELETE + 3 junction links DELETE | 接口 | 前端+后端 | 覆盖端点：DELETE `/report-names/{code}` + DELETE × 3 report-names/links/{...}（REQ-2026-013） | 开发中 |
+| M96.F02.I27 | 四方比对组 27 — calculation-methods POST + technical-requirements POST | 接口 | 前端+后端 | 覆盖端点：POST `/calculation-methods`（复合主键）+ POST `/technical-requirements`（三段主键）（REQ-2026-013） | 开发中 |
+| M96.F02.I28 | 四方比对组 28 — calculation-methods PUT + technical-requirements PUT | 接口 | 前端+后端 | 覆盖端点：PUT `/calculation-methods/{object}/{parameter}` + `/technical-requirements/{object}/{parameter}/{standard}`（REQ-2026-013） | 开发中 |
+| M96.F02.I30 | 四方比对组 30 — calculation-methods DELETE + technical-requirements DELETE | 接口 | 前端+后端 | 覆盖端点：DELETE `/calculation-methods/{object}/{parameter}` + `/technical-requirements/{object}/{parameter}/{standard}`（REQ-2026-013） | 开发中 |
+| M96.F02.I31 | 四方比对组 31 — 收口族（samples/test-records/receipts/flow/auth POSTs） | 接口 | 前端+后端 | 覆盖端点：POST/PUT/DELETE `/samples`、`POST/PUT/DELETE/PATCH /test-records`、`POST/PUT/DELETE /receipts`、`POST /receipts/flow`、`POST /auth/refresh` `logout` `switch-tenant` `sso/callback`（REQ-2026-013） | 开发中 |
 
 > **不进入 M96.F02.I## 集合的端点**（CLAUDE.md §2 禁止手挑）：
 > 上表 27 个 I## 由 tests/*.test.ts 实际使用的 ID 集合确定（`grep -hE "describe.skipIf.*M96" tests/*.test.ts | grep -oE "M96\.F[0-9]+\.I[0-9]+" | sort -u`）。
@@ -112,10 +112,10 @@
 
 ### M96.F03 目标声明与可达性
 
-| 子项 ID | 名称 | 类型 | 说明 | 状态 |
-|---|---|---|---|---|
-| M96.F03.I01 | 目标端口声明 | 接口 | msw:5173 / nextjs:3001 / aspnetcore:5001 / springboot:8081（2026-09-02 与 saas 家族错开），显式字面量，非 env 兜底 | 已上线 |
-| M96.F03.I02 | 声明即必须可达 | 接口 | `CONTRACT_TARGETS` 列了却连不上 = 红；名字不认识 = 抛错，不静默忽略 | 已上线 |
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M96.F03.I01 | 目标端口声明 | 接口 | 前端+后端 | msw:5173 / nextjs:3001 / aspnetcore:5001 / springboot:8081（2026-09-02 与 saas 家族错开），显式字面量，非 env 兜底 | 已上线 |
+| M96.F03.I02 | 声明即必须可达 | 接口 | 前端+后端 | `CONTRACT_TARGETS` 列了却连不上 = 红；名字不认识 = 抛错，不静默忽略 | 已上线 |
 
 ---
 
