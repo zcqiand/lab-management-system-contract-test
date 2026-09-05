@@ -18,7 +18,7 @@ interface Ctx {
 }
 const ctx: Ctx = { ids: new Map() };
 
-describe.skipIf(!live)("M96.F02.I04 POST /api/param-interfaces 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01", () => {
   for (const target of targets) {
     it(`${target.name} 创 param-interface → 200`, async () => {
       const code = uniqueName("ct-pi");
@@ -39,7 +39,7 @@ describe.skipIf(!live)("M96.F02.I04 POST /api/param-interfaces 四方比对", ()
   }
 });
 
-describe.skipIf(!live)("M96.F02.I05 PUT /api/param-interfaces/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I05 PUT /api/param-interfaces/{code} 四方比对 / M01.F05.I02", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = ctx.ids.get(target.name);
@@ -54,7 +54,7 @@ describe.skipIf(!live)("M96.F02.I05 PUT /api/param-interfaces/{code} 四方比�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I06 DELETE /api/param-interfaces/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I06 DELETE /api/param-interfaces/{code} 四方比对 / M04.F06.I02", () => {
   it("param-interface 删除 → 200/204", async () => {
     for (const target of targets) {
       const code = ctx.ids.get(target.name);
@@ -66,7 +66,7 @@ describe.skipIf(!live)("M96.F02.I06 DELETE /api/param-interfaces/{code} 四方�
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I07 POST /api/param-interfaces/links 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03", () => {
   for (const target of targets) {
     it(`${target.name} link(PRM, PI) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -79,7 +79,7 @@ describe.skipIf(!live)("M96.F02.I07 POST /api/param-interfaces/links 四方比�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I08 DELETE /api/param-interfaces/links 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04", () => {
   for (const target of targets) {
     it(`${target.name} unlink(PRM, PI) → 200/204`, async () => {
       const r = await probeRequest(target, {

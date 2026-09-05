@@ -38,7 +38,7 @@ async function cleanup(target: Target, table: string, code: string) {
   });
 }
 
-describe.skipIf(!live)("M96.F02.I02 POST /api/catalog/brands 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/catalog/brands 四方比对 / M00.F01.I01", () => {
   beforeAll(() => clearCleanups(), 30_000);
 
   for (const target of targets) {
@@ -58,7 +58,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/catalog/brands 四方比对", () =
   }
 });
 
-describe.skipIf(!live)("M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对 / M01.F04.I02", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = ctx.ids.get("brands")!.get(target.name);
@@ -73,7 +73,7 @@ describe.skipIf(!live)("M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对"
   }
 });
 
-describe.skipIf(!live)("M96.F02.I04 DELETE /api/catalog/brands/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I04 DELETE /api/catalog/brands/{code} 四方比对 / M01.F04.I01", () => {
   it("brand 删除 → 200/204 + 重复删 → 404", async () => {
     for (const target of targets) {
       const code = ctx.ids.get("brands")!.get(target.name);
@@ -87,7 +87,7 @@ describe.skipIf(!live)("M96.F02.I04 DELETE /api/catalog/brands/{code} 四方比�
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I06 POST /api/catalog/models 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02", () => {
   for (const target of targets) {
     it(`${target.name} 创 model → 200`, async () => {
       const code = uniqueName("ct-m");
@@ -103,7 +103,7 @@ describe.skipIf(!live)("M96.F02.I06 POST /api/catalog/models 四方比对", () =
   }
 });
 
-describe.skipIf(!live)("M96.F02.I07 PUT /api/catalog/models/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I07 PUT /api/catalog/models/{code} 四方比对 / M04.F06.I03", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = ctx.ids.get("models")!.get(target.name);
@@ -118,7 +118,7 @@ describe.skipIf(!live)("M96.F02.I07 PUT /api/catalog/models/{code} 四方比对"
   }
 });
 
-describe.skipIf(!live)("M96.F02.I08 DELETE /api/catalog/models/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I08 DELETE /api/catalog/models/{code} 四方比对 / M04.F06.I04", () => {
   it("model 删除 → 200/204 + 重复删 → 404", async () => {
     for (const target of targets) {
       const code = ctx.ids.get("models")!.get(target.name);
@@ -130,7 +130,7 @@ describe.skipIf(!live)("M96.F02.I08 DELETE /api/catalog/models/{code} 四方比�
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I10 POST /api/catalog/specs 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I10 POST /api/catalog/specs 四方比对 / M04.F07.I03", () => {
   for (const target of targets) {
     it(`${target.name} 创 spec → 200`, async () => {
       const code = uniqueName("ct-s");
@@ -146,7 +146,7 @@ describe.skipIf(!live)("M96.F02.I10 POST /api/catalog/specs 四方比对", () =>
   }
 });
 
-describe.skipIf(!live)("M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对 / M04.F07.I04", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = ctx.ids.get("specs")!.get(target.name);
@@ -161,7 +161,7 @@ describe.skipIf(!live)("M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对",
   }
 });
 
-describe.skipIf(!live)("M96.F02.I12 DELETE /api/catalog/specs/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I12 DELETE /api/catalog/specs/{code} 四方比对 / M04.F08.I02", () => {
   it("spec 删除 → 200/204 + 重复删 → 404", async () => {
     for (const target of targets) {
       const code = ctx.ids.get("specs")!.get(target.name);
@@ -173,7 +173,7 @@ describe.skipIf(!live)("M96.F02.I12 DELETE /api/catalog/specs/{code} 四方比�
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I14 POST /api/catalog/grades 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I14 POST /api/catalog/grades 四方比对 / M04.F08.I04", () => {
   for (const target of targets) {
     it(`${target.name} 创 grade → 200`, async () => {
       const code = uniqueName("ct-g");
@@ -189,7 +189,7 @@ describe.skipIf(!live)("M96.F02.I14 POST /api/catalog/grades 四方比对", () =
   }
 });
 
-describe.skipIf(!live)("M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对 / M06.F02.I02", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = ctx.ids.get("grades")!.get(target.name);
@@ -204,7 +204,7 @@ describe.skipIf(!live)("M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对"
   }
 });
 
-describe.skipIf(!live)("M96.F02.I16 DELETE /api/catalog/grades/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I16 DELETE /api/catalog/grades/{code} 四方比对 / M06.F02.I03", () => {
   it("grade 删除 → 200/204 + 重复删 → 404", async () => {
     for (const target of targets) {
       const code = ctx.ids.get("grades")!.get(target.name);

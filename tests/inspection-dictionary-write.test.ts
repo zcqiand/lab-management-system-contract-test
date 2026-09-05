@@ -43,7 +43,7 @@ function regCleanup(target: Target, label: string, doIt: () => Promise<unknown>)
 }
 
 // ── specialties ──
-describe.skipIf(!live)("M96.F02.I02 POST /api/inspection/specialties 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01", () => {
   beforeAll(() => {
     clearCleanups();
   }, 30_000);
@@ -65,7 +65,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/inspection/specialties 四方比�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I03 PUT /api/inspection/specialties/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I03 PUT /api/inspection/specialties/{code} 四方比对 / M01.F04.I02", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = bucket("specialties").get(target.name);
@@ -80,7 +80,7 @@ describe.skipIf(!live)("M96.F02.I03 PUT /api/inspection/specialties/{code} 四�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I04 DELETE /api/inspection/specialties/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I04 DELETE /api/inspection/specialties/{code} 四方比对 / M01.F04.I01", () => {
   it("specialty 删除 → 200/204", async () => {
     for (const target of targets) {
       const code = bucket("specialties").get(target.name);
@@ -93,7 +93,7 @@ describe.skipIf(!live)("M96.F02.I04 DELETE /api/inspection/specialties/{code} �
 });
 
 // ── objects ──
-describe.skipIf(!live)("M96.F02.I06 POST /api/inspection/objects 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I06 POST /api/inspection/objects 四方比对 / M04.F06.I02", () => {
   for (const target of targets) {
     it(`${target.name} 创 object → 200`, async () => {
       const code = uniqueName("ct-obj");
@@ -111,7 +111,7 @@ describe.skipIf(!live)("M96.F02.I06 POST /api/inspection/objects 四方比对", 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = bucket("objects").get(target.name);
@@ -126,7 +126,7 @@ describe.skipIf(!live)("M96.F02.I07 PUT /api/inspection/objects/{code} 四方比
   }
 });
 
-describe.skipIf(!live)("M96.F02.I08 DELETE /api/inspection/objects/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I08 DELETE /api/inspection/objects/{code} 四方比对 / M04.F06.I04", () => {
   it("object 删除 → 200/204", async () => {
     for (const target of targets) {
       const code = bucket("objects").get(target.name);
@@ -139,7 +139,7 @@ describe.skipIf(!live)("M96.F02.I08 DELETE /api/inspection/objects/{code} 四方
 });
 
 // ── parameters ──
-describe.skipIf(!live)("M96.F02.I10 POST /api/inspection/parameters 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I10 POST /api/inspection/parameters 四方比对 / M04.F07.I03", () => {
   for (const target of targets) {
     it(`${target.name} 创 parameter → 200`, async () => {
       const code = uniqueName("ct-prm");
@@ -157,7 +157,7 @@ describe.skipIf(!live)("M96.F02.I10 POST /api/inspection/parameters 四方比对
   }
 });
 
-describe.skipIf(!live)("M96.F02.I11 PUT /api/inspection/parameters/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I11 PUT /api/inspection/parameters/{code} 四方比对 / M04.F07.I04", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = bucket("parameters").get(target.name);
@@ -172,7 +172,7 @@ describe.skipIf(!live)("M96.F02.I11 PUT /api/inspection/parameters/{code} 四方
   }
 });
 
-describe.skipIf(!live)("M96.F02.I12 DELETE /api/inspection/parameters/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I12 DELETE /api/inspection/parameters/{code} 四方比对 / M04.F08.I02", () => {
   it("parameter 删除 → 200/204", async () => {
     for (const target of targets) {
       const code = bucket("parameters").get(target.name);
@@ -185,7 +185,7 @@ describe.skipIf(!live)("M96.F02.I12 DELETE /api/inspection/parameters/{code} 四
 });
 
 // ── standards ──
-describe.skipIf(!live)("M96.F02.I14 POST /api/inspection/standards 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I14 POST /api/inspection/standards 四方比对 / M04.F08.I04", () => {
   for (const target of targets) {
     it(`${target.name} 创 standard → 200`, async () => {
       const code = uniqueName("ct-std");
@@ -203,7 +203,7 @@ describe.skipIf(!live)("M96.F02.I14 POST /api/inspection/standards 四方比对"
   }
 });
 
-describe.skipIf(!live)("M96.F02.I15 PUT /api/inspection/standards/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I15 PUT /api/inspection/standards/{code} 四方比对 / M06.F02.I02", () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const code = bucket("standards").get(target.name);
@@ -218,7 +218,7 @@ describe.skipIf(!live)("M96.F02.I15 PUT /api/inspection/standards/{code} 四方�
   }
 });
 
-describe.skipIf(!live)("M96.F02.I16 DELETE /api/inspection/standards/{code} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I16 DELETE /api/inspection/standards/{code} 四方比对 / M06.F02.I03", () => {
   it("standard 删除 → 200/204", async () => {
     for (const target of targets) {
       const code = bucket("standards").get(target.name);
@@ -233,7 +233,7 @@ describe.skipIf(!live)("M96.F02.I16 DELETE /api/inspection/standards/{code} 四�
 // ── junction links ──
 // junction 是 upsert（POST=link, DELETE=unlink），不存在「创建新行」，所以 link 测试不需要清理。
 // 4 后端用同一对 (specialty, object) 走两次 link/unlink，第二次幂等。
-describe.skipIf(!live)("M96.F02.I21 POST /api/inspection/links/specialty-object 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I21 POST /api/inspection/links/specialty-object 四方比对 / M06.F02.I04", () => {
   for (const target of targets) {
     it(`${target.name} link(SP01, OBJ-SP01-P1) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -246,7 +246,7 @@ describe.skipIf(!live)("M96.F02.I21 POST /api/inspection/links/specialty-object 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对 / M06.F08.I06", () => {
   for (const target of targets) {
     it(`${target.name} unlink(SP01, OBJ-SP01-P1) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -259,7 +259,7 @@ describe.skipIf(!live)("M96.F02.I22 DELETE /api/inspection/links/specialty-objec
   }
 });
 
-describe.skipIf(!live)("M96.F02.I24 POST /api/inspection/links/object-parameter 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I24 POST /api/inspection/links/object-parameter 四方比对 / M06.F07.I04", () => {
   for (const target of targets) {
     it(`${target.name} link(OBJ, PRM) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -272,7 +272,7 @@ describe.skipIf(!live)("M96.F02.I24 POST /api/inspection/links/object-parameter 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对 / M06.F07.I05", () => {
   for (const target of targets) {
     it(`${target.name} unlink(OBJ, PRM) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -285,7 +285,7 @@ describe.skipIf(!live)("M96.F02.I25 DELETE /api/inspection/links/object-paramete
   }
 });
 
-describe.skipIf(!live)("M96.F02.I27 POST /api/inspection/links/object-standard 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I27 POST /api/inspection/links/object-standard 四方比对 / M06.F05.I03", () => {
   for (const target of targets) {
     it(`${target.name} link(OBJ, STD, role=judgment) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -298,7 +298,7 @@ describe.skipIf(!live)("M96.F02.I27 POST /api/inspection/links/object-standard �
   }
 });
 
-describe.skipIf(!live)("M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对 / M06.F05.I04", () => {
   for (const target of targets) {
     it(`${target.name} unlink(OBJ, STD, role=judgment) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -311,7 +311,7 @@ describe.skipIf(!live)("M96.F02.I28 DELETE /api/inspection/links/object-standard
   }
 });
 
-describe.skipIf(!live)("M96.F02.I30 POST /api/inspection/links/standard-parameter 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I30 POST /api/inspection/links/standard-parameter 四方比对 / M06.F05.I05", () => {
   for (const target of targets) {
     it(`${target.name} link(STD, PRM) → 200/204`, async () => {
       const r = await probeRequest(target, {
@@ -324,7 +324,7 @@ describe.skipIf(!live)("M96.F02.I30 POST /api/inspection/links/standard-paramete
   }
 });
 
-describe.skipIf(!live)("M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对 / M03.F03.I08", () => {
   for (const target of targets) {
     it(`${target.name} unlink(STD, PRM) → 200/204`, async () => {
       const r = await probeRequest(target, {

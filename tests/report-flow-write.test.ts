@@ -10,7 +10,7 @@ import { type Target, selectedTargets } from "../src/targets.js";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)("M96.F02.I02 POST /api/receipts/flow 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/receipts/flow 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} 批量 submit → 200 或 4xx（接样单不存在）`, async () => {
       const r = await probeRequest(target, {

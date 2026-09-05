@@ -46,7 +46,7 @@ function assertBodies(probes: Probe[]) {
   expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
 }
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SPECIALTIES} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SPECIALTIES} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_SPECIALTIES);
@@ -56,7 +56,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SPECIALTIES} 四方比对`, () =>
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_OBJECTS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_OBJECTS} 四方比对 / M01.F05.I02`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_OBJECTS);
@@ -66,7 +66,7 @@ describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_OBJECTS} 四方比对`, () => {
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_PARAMETERS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_PARAMETERS} 四方比对 / M04.F07.I02`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_PARAMETERS);
@@ -76,7 +76,7 @@ describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_PARAMETERS} 四方比对`, () => 
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_STANDARDS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_STANDARDS} 四方比对 / M04.F08.I03`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_STANDARDS);
@@ -86,7 +86,7 @@ describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_STANDARDS} 四方比对`, () => {
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I17 GET ${PATH_LINK_SPECIALTY_OBJECT} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I17 GET ${PATH_LINK_SPECIALTY_OBJECT} 四方比对 / M06.F02.I05`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_SPECIALTY_OBJECT);
@@ -96,7 +96,7 @@ describe.skipIf(!live)(`M96.F02.I17 GET ${PATH_LINK_SPECIALTY_OBJECT} 四方比�
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I18 GET ${PATH_LINK_OBJECT_PARAMETER} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I18 GET ${PATH_LINK_OBJECT_PARAMETER} 四方比对 / M06.F03.I02`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_OBJECT_PARAMETER);
@@ -106,7 +106,7 @@ describe.skipIf(!live)(`M96.F02.I18 GET ${PATH_LINK_OBJECT_PARAMETER} 四方比�
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I19 GET ${PATH_LINK_OBJECT_STANDARD} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I19 GET ${PATH_LINK_OBJECT_STANDARD} 四方比对 / M06.F04.I02`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_OBJECT_STANDARD);
@@ -116,7 +116,7 @@ describe.skipIf(!live)(`M96.F02.I19 GET ${PATH_LINK_OBJECT_STANDARD} 四方比�
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.skipIf(!live)(`M96.F02.I20 GET ${PATH_LINK_STANDARD_PARAMETER} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I20 GET ${PATH_LINK_STANDARD_PARAMETER} 四方比对 / M06.F03.I05`, () => {
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_STANDARD_PARAMETER);

@@ -21,7 +21,7 @@ const PATH_DETAIL = "/api/contracts/00000000-0000-0000-0000-00000000dead";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -61,7 +61,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
 // 详情走 DEAD_ID 验 404 envelope —— 不依赖具体 contract 存在。
 // （DEAD_ID / PATH_DETAIL 在文件首部声明以被 SSOT 覆盖解析器扫描。）
 
-describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -106,7 +106,7 @@ interface ContractCtx {
 
 const ctx: ContractCtx = { ids: new Map() };
 
-describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对 / M00.F01.I01`, () => {
   beforeAll(() => {
     clearCleanups();
     ctx.ids.clear();
@@ -163,7 +163,7 @@ describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对`, () => {
   }, 60_000);
 });
 
-describe.skipIf(!live)(`M96.F02.I04 PUT /api/contracts/{id} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I04 PUT /api/contracts/{id} 四方比对 / M01.F04.I01`, () => {
   for (const target of targets) {
     it(`${target.name} 改 name → 200`, async () => {
       const id = ctx.ids.get(target.name);
@@ -178,7 +178,7 @@ describe.skipIf(!live)(`M96.F02.I04 PUT /api/contracts/{id} 四方比对`, () =>
   }
 });
 
-describe.skipIf(!live)(`M96.F02.I05 DELETE /api/contracts/{id} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I05 DELETE /api/contracts/{id} 四方比对 / M01.F05.I02`, () => {
   it("I02 的 contract 删除 → 200/204 + 重复删 → 404（幂等）", async () => {
     for (const target of targets) {
       const id = ctx.ids.get(target.name);

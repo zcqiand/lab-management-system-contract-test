@@ -15,7 +15,7 @@ const PATH_QUEUE = "/api/receipts/flow/queue";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_QUEUE} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_QUEUE} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {

@@ -21,7 +21,7 @@ const PATH_SSO_AUTHORIZE = "/api/auth/sso/authorize";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_PERMISSIONS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_PERMISSIONS} 四方比对 / M01.F04.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -47,7 +47,7 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_PERMISSIONS} 四方比对`, () =>
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I04 GET ${PATH_MENUS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I04 GET ${PATH_MENUS} 四方比对 / M01.F04.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -76,7 +76,7 @@ describe.skipIf(!live)(`M96.F02.I04 GET ${PATH_MENUS} 四方比对`, () => {
 
 // /auth/sso/authorize 是 OAuth 2.0 跳板（RFC 6749 §4.1.1）：后端拿到合法参数后
 // 重定向到 saas /oauth/authorize —— 契约面是「302 + Location 含 client_id/state/code_challenge」
-describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对 / M01.F05.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {

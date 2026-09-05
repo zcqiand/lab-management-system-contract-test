@@ -18,7 +18,7 @@ const PATH_LINKS = "/api/param-interfaces/links";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -47,7 +47,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对 / M00.F01.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -75,7 +75,7 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_LINKS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_LINKS} 四方比对 / M01.F04.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {

@@ -17,7 +17,7 @@ const PATH_HISTORY = "/api/receipts/00000000-0000-0000-0000-00000000dead/history
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -46,7 +46,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -74,7 +74,7 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {

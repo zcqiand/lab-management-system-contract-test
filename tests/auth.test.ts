@@ -20,7 +20,7 @@ const PATH = "/api/auth/login";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 POST ${PATH} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 POST ${PATH} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {

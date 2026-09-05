@@ -13,7 +13,7 @@ const PATH = "/api/auth/me";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I02 GET ${PATH} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I02 GET ${PATH} 四方比对 / M00.F01.I01`, () => {
   let probes: Awaited<ReturnType<typeof probeAll>>;
 
   beforeAll(async () => {

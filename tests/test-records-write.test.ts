@@ -16,7 +16,7 @@ interface Ctx {
 }
 const ctx: Ctx = { ids: new Map() };
 
-describe.skipIf(!live)("M96.F02.I02 POST /api/test-records 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/test-records 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} 创 test-record → 200/201 或 4xx（sample 不存在时）`, async () => {
       const r = await probeRequest(target, {
@@ -45,7 +45,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/test-records 四方比对", () => 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I04 PUT /api/test-records/{id} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I04 PUT /api/test-records/{id} 四方比对 / M01.F04.I01", () => {
   for (const target of targets) {
     it(`${target.name} 改 value → 200 或 404（id 不存在时）`, async () => {
       const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";
@@ -59,7 +59,7 @@ describe.skipIf(!live)("M96.F02.I04 PUT /api/test-records/{id} 四方比对", ()
   }
 });
 
-describe.skipIf(!live)("M96.F02.I05 DELETE /api/test-records/{id} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I05 DELETE /api/test-records/{id} 四方比对 / M01.F05.I02", () => {
   it("test-record 删除 → 200/204 或 404（id 不存在）", async () => {
     for (const target of targets) {
       const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";
@@ -69,7 +69,7 @@ describe.skipIf(!live)("M96.F02.I05 DELETE /api/test-records/{id} 四方比对",
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I06 PATCH /api/test-records/{id}/verdict 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I06 PATCH /api/test-records/{id}/verdict 四方比对 / M04.F06.I02", () => {
   it("人工改判 verdict → 200 或 404（id 不存在）", async () => {
     for (const target of targets) {
       const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";

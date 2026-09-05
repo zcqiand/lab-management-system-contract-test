@@ -11,7 +11,7 @@ import { type Target, selectedTargets } from "../src/targets.js";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)("M96.F02.I02 POST /api/auth/refresh 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} refresh(有效 token) → 200 + 新 token`, async () => {
       // 走登录拿真实 token → refresh 期望 200 + LoginResponse shape
@@ -28,7 +28,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/auth/refresh 四方比对", () => 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I05 POST /api/auth/logout 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02", () => {
   for (const target of targets) {
     it(`${target.name} logout → 200/204`, async () => {
       const token = await login(target);
@@ -42,7 +42,7 @@ describe.skipIf(!live)("M96.F02.I05 POST /api/auth/logout 四方比对", () => {
   }
 });
 
-describe.skipIf(!live)("M96.F02.I03 POST /api/auth/switch-tenant 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02", () => {
   for (const target of targets) {
     it(`${target.name} switch-tenant → 200 或 4xx（tenant 不存在）`, async () => {
       await login(target);
@@ -56,7 +56,7 @@ describe.skipIf(!live)("M96.F02.I03 POST /api/auth/switch-tenant 四方比对", 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I03 POST /api/auth/sso/callback 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02", () => {
   for (const target of targets) {
     it(`${target.name} sso.callback → 200/4xx（code 不可用）`, async () => {
       await login(target);

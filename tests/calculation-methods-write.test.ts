@@ -20,7 +20,7 @@ interface Ctx {
 }
 const ctx: Ctx = { keys: new Map() };
 
-describe.skipIf(!live)("M96.F02.I02 POST /api/calculation-methods 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/calculation-methods 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} 创 calculation-method → 200`, async () => {
       const obj = uniqueName("ct-cm-o");
@@ -50,7 +50,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/calculation-methods 四方比对",
   }
 });
 
-describe.skipIf(!live)("M96.F02.I04 PUT /api/calculation-methods/{object}/{parameter} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I04 PUT /api/calculation-methods/{object}/{parameter} 四方比对 / M01.F04.I01", () => {
   for (const target of targets) {
     it(`${target.name} 改 formula → 200`, async () => {
       const key = ctx.keys.get(target.name);
@@ -66,7 +66,7 @@ describe.skipIf(!live)("M96.F02.I04 PUT /api/calculation-methods/{object}/{param
   }
 });
 
-describe.skipIf(!live)("M96.F02.I05 DELETE /api/calculation-methods/{object}/{parameter} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I05 DELETE /api/calculation-methods/{object}/{parameter} 四方比对 / M01.F05.I02", () => {
   it("calculation-method 删除 → 200/204", async () => {
     for (const target of targets) {
       const key = ctx.keys.get(target.name);

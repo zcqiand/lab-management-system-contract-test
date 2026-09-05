@@ -18,7 +18,7 @@ interface Ctx {
 }
 const ctx: Ctx = { ids: new Map() };
 
-describe.skipIf(!live)("M96.F02.I02 POST /api/receipts 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I02 POST /api/receipts 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} 创 receipt → 200/201 或 4xx（contract 不存在）`, async () => {
       const code = uniqueName("ct-rc");
@@ -49,7 +49,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/receipts 四方比对", () => {
   }
 });
 
-describe.skipIf(!live)("M96.F02.I03 PUT /api/receipts/{id} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I03 PUT /api/receipts/{id} 四方比对 / M01.F04.I02", () => {
   for (const target of targets) {
     it(`${target.name} 改 clientName → 200 或 404`, async () => {
       const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";
@@ -63,7 +63,7 @@ describe.skipIf(!live)("M96.F02.I03 PUT /api/receipts/{id} 四方比对", () => 
   }
 });
 
-describe.skipIf(!live)("M96.F02.I04 DELETE /api/receipts/{id} 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I04 DELETE /api/receipts/{id} 四方比对 / M01.F04.I01", () => {
   it("receipt 删除 → 200/204 或 404（id 不存在）", async () => {
     for (const target of targets) {
       const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";
@@ -73,7 +73,7 @@ describe.skipIf(!live)("M96.F02.I04 DELETE /api/receipts/{id} 四方比对", () 
   }, 60_000);
 });
 
-describe.skipIf(!live)("M96.F02.I05 PUT /api/receipts/{id}/task 四方比对", () => {
+describe.skipIf(!live)("M96.F02.I05 PUT /api/receipts/{id}/task 四方比对 / M01.F05.I02", () => {
   it("任务分配 → 200 或 404（id 不存在）", async () => {
     for (const target of targets) {
       const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";

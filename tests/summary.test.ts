@@ -15,7 +15,7 @@ const PATH_STATS = "/api/summary/stats";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SUMMARY} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SUMMARY} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -44,7 +44,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SUMMARY} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_STATS} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_STATS} 四方比对 / M00.F01.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {

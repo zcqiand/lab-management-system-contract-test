@@ -34,7 +34,7 @@ const DROP_404 = [
 ];
 const DROP_LIST = ["items", "total"];
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -62,7 +62,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对 / M00.F01.I01`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -89,7 +89,7 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对`, () => {
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_LINK_OBJECT} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_LINK_OBJECT} 四方比对 / M04.F06.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -117,7 +117,7 @@ describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_LINK_OBJECT} 四方比对`, () =>
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I07 GET ${PATH_LINK_STANDARD} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I07 GET ${PATH_LINK_STANDARD} 四方比对 / M04.F06.I03`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
@@ -145,7 +145,7 @@ describe.skipIf(!live)(`M96.F02.I07 GET ${PATH_LINK_STANDARD} 四方比对`, () 
   });
 });
 
-describe.skipIf(!live)(`M96.F02.I08 GET ${PATH_LINK_PARAMETER} 四方比对`, () => {
+describe.skipIf(!live)(`M96.F02.I08 GET ${PATH_LINK_PARAMETER} 四方比对 / M04.F06.I04`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
