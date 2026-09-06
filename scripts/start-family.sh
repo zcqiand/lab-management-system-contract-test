@@ -121,7 +121,7 @@ LAB_JWT_ENV="JWT_SIGNING_KEY=dev-key-32-bytes-minimum-length! JWT_ISSUER=lab-man
 
 # aspnetcore: SERVER_PORT shim 接线 + ASPNETCORE_URLS 双保险（dotnet run 默认
 # launch profile 会带自己的 ASPNETCORE_URLS, 显式覆盖才稳）。
-# DB 共库语义（conventions local-contract-test.md）：3 真后端 + msw 都连 lab_dev。
+# DB 共库语义（conventions contract-test-run-live.md）：3 真后端 + msw 都连 lab_dev。
 # PG 密码真值从本仓 gitignored .env.production 提取（那里是 lab_prod, 只取密码,
 # 库名强制换 lab_dev）；LAB_PG_PASSWORD 显式给值时优先。
 LAB_PG_HOST="${LAB_PG_HOST:-100.79.128.25}"

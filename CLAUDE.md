@@ -40,7 +40,7 @@ TypeScript + vitest + axios + tough-cookie jar（HTTP 层，不受 fetch 屏蔽 
 
 - suite 根目录跑 `python scripts/gate.py -p lab-management-system-contract-test`
 - 四方比对：`CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run`
-- 端口与起法 → suite `docs/conventions/multi-repo-family.md` §6 + `local-contract-test.md`
+- 端口与起法 → suite `docs/conventions/multi-repo-family.md` §6 + `contract-test-run-live.md`
 
 ## 5. 指向别处
 

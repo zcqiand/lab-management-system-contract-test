@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 25
 
     # 3 真后端共一个 PG（lab_dev + V015 smoke seed）。msw 内存 fixture 不连 DB。
-    # local-contract-test.md §3 共库约定：aspnetcore/springboot/nextjs 共享 PG。
+    # contract-test-run-live.md 共库约定：aspnetcore/springboot/nextjs 共享 PG。
     services:
       postgres:
         image: postgres:16
@@ -37,7 +37,7 @@ jobs:
       DATABASE_URL: postgresql://lab:lab@localhost:5432/lab_dev?schema=public
       TRACE_MAP: "1"
       CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
-      # 2026-09-02 lab 与 saas 家族端口错开可并行（conventions §6 + local-contract-test.md）。
+      # 2026-09-02 lab 与 saas 家族端口错开可并行（conventions §6 + contract-test-run-live.md）。
       # 端口：msw=5200, nextjs=5201, aspnetcore=5204, springboot=5205（conventions §6 lab=5200 段）。
 
     steps:
