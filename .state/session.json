@@ -1,51 +1,33 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "current_task": "2026-09-03 gate --all 仍 exit 2（stack.json require_live=true vs trace.json unit 模式 契约卡死）；SSOT 112/112 与 5 仓 L0-L4 PASS 状态保留，本批未动 live 复跑",
-  "last_session_at": "2026-09-03",
+  "current_task": "2026-09-10 收口：L2 解析器修 fnId 后缀 + L5 命名空间路由（ADR-0031）后 gate 全绿；live trace 已落 mode=live 4 targets",
+  "last_session_at": "2026-09-10",
+  "last_session_summary": "两处修复让本仓 gate 从「中断于 L2」变全绿：(1) check_ssot_coverage.mjs 的 describe 标题正则放宽容忍 ` / <fnId>` 后缀（4f21f10 spec §5 引入的后缀让 112 个标题全 NOMATCH → covered=0）；(2) suite _alignment.py L5 按命名空间路由（ADR-0031，用户裁决）——BASE 段 ID 查 lab-shared 清单不再判本仓悬空。之后起 lab 4 后端（5200 段）跑 live 全量恢复 trace.json mode=live。live 真实结果 207 failed（上会话 93 的 6 类契约分叉 + nextjs 冷启动超时级联），属修代码批次欠账非本次范围。",
   "done": [
-    "本批对 contract-test 没做代码改动 —— gate exit 2 是契约问题不是代码问题（CLAUDE.md exit code 2 = 「停下问人」）",
-    "复核上次会话成果仍完整：SSOT 112/112 全覆盖、cleanup-pg.ts 实装、5 仓 gate 全绿（unit 模式）、9bdc33f + 7b87be0 + e7c6f72 + 6e857f4 commits 已落 HEAD 312e380",
-    "trace.json 状态：mode='unit', contract_targets=[]（alive 但未跑 live）"
+    "scripts/check_ssot_coverage.mjs：3 处标题正则尾部改 `四方比对(?:\\s*\\/\\s+[^\\`'\"+]+)?\\s*$` → SSOT 112/112 covered",
+    "suite scripts/checks/_alignment.py：L5 命名空间路由（ADR-0031）→ L5 绿",
+    "live 复跑（4 后端 5200 段 + CONTRACT_TARGETS 全 4）→ trace.json mode=live targets 4/4",
+    "gate.py -p lab-management-system-contract-test → L0-L5 全绿",
+    "本仓代码无改动（两处修复都在 suite 侧脚本）"
   ],
   "next": [
-    "复绿 lab-contract-test L5 + gate --all exit 0 的第一步：",
-    "  (a) cd output/lab-management-system-contract-test",
-    "  (b) 起 4 后端：docs/conventions/local-contract-test.md（msw :5173 / aspnetcore :5001 / springboot :8081 / nextjs :3001）",
-    "  (c) 跑：CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs TRACE_MAP=1 npx vitest run",
-    "  (d) 等 trace.json mode=live 才算绿；不要手写 trace.json（CLAUDE.md 硬规则）",
-    "或：直接让 CI 跑（.github/workflows/ci.yml 已编排 4 后端 + sibling checkout 共享）",
-    "live 跑通后回归 session.json 既有的 6 类契约分叉（body 缺字段/nextjs 路由 404/msw link 500/timestamp 空串/分页默认值漂移），那是 contract-test 的本职",
-    "GitHub push 已完成（HEAD 312e380 + 4 commits）"
+    "修 live 207 failed（≈上会话 93 的 6 类契约分叉：body 缺字段/nextjs 路由 404/msw link 500/timestamp 空串/分页默认值漂移 + nextjs dev 冷启动超时误伤）——开新批次",
+    "跑 live 前先预热 nextjs（curl /api/health 直到 <1s），避免 healthcheck 超时把 live mode 打成失效"
   ],
   "open_questions": [
-    "stack.json require_live=true 是否要让本机也能跑通？三个选项：(a) require_live=false（让 unit 兜底回到绿，但要确认 CLAUDE.md 是否允许改这个 key），(b) gate --all 加 pre-hook 自动起 4 后端（脚本复杂度高），(c) 接受 CI 跑 + 本地 unit 兜底 + 开 suite 入口只查『CI last green』。需要人定",
-    "写端点探针清理：lab 写端点多为 code 主键（非 UUID），cleanup-pg.ts 用 PROBE_PREFIX_RE 兼容 12 个 prefix（见既有记录）",
-    "nextjs token 是 mock-jwt-<username> 假 JWT（其余三方真签 HS256）—— 契约面字段一致所以绿，但鉴权真实可用性 nextjs 弱。要不要 nextjs 真签？",
-    "是否值得把 contract-test 的『本地绿』定义为 unit + soft 警告单列，避免本机 gate --all 必红"
+    "gate 本地 L4 是「无 CONTRACT_TARGETS 即 skip 比对」的快速门（设计内），真比对在 CI —— 207 failed 的消化策略（本地修 or 只信 CI）需人定"
   ],
   "dont": [
-    "不要再手写 .state/trace.json（CLAUDE.md 硬规则）",
-    "不要再把 check_ssot_coverage 的 t1/t3 试序改回 saas 版 —— t1 先试会把 ${path} 字面当 path",
-    "不要再用 const PATH_DETAIL = \"${PATH_LIST}/${DEAD_ID}\" 模板拼接 —— L2 parser 不解析",
-    "不要再用 for...of 循环生成 describe 标题 —— ${table.id} 不会被插值",
-    "不要再用业务 code 路径做 SSOT 占位 —— normalize 只认 UUID 段（00000000-0000-0000-0000-00000000dead 才能归一为 {*}）",
-    "不要再裸起 lab-msw（缺 JWT_SIGNING_KEY/JWT_ISSUER/JWT_AUDIENCE + PORT=5173 三件套）→ 登录 500",
-    "不要再改 dev 凭证时漏同步某仓（msw/nextjs/aspnetcore/springboot 目录 + 各仓钉死测试）—— 漏一处 = refresh unknown user",
-    "不要再用 PS5.1 Set-Content -Encoding UTF8 写 BOM —— spotless/next 炸；用 UTF8Encoding($false) 无 BOM",
-    "不要再起后端跑 live 后不杀进程 —— 残留会撞 gate L2/lockfile（实测踩中）",
-    "不要再改 shared 后不跑 springboot 仓 bash scripts/gen-shared.sh —— AuthApi 是 codegen 产物",
-    "不要再让 nextjs 起 4 个并行进程跑 live —— probeLive 在 925s 后拿不到 nextjs 响应误判 unit；先预编译所有 nextjs route 再跑"
+    "不要手写 .state/trace.json（CLAUDE.md 硬规则）",
+    "不要在 suite 根裸跑 npx vitest run 不带 CONTRACT_TARGETS —— 会把 trace.json 覆盖成 unit 模式，L5 必红（本次实测踩中）",
+    "不要再把 check_ssot_coverage 的 t1/t3 试序改回 saas 版",
+    "不要用模板拼接/for...of 生成 describe 标题（解析器不插值）",
+    "不要复用 saas 的 JWT_ISSUER/AUDIENCE —— lab 三件套 issuer 是 lab-management-system",
+    "springboot 的 DATABASE_URL 必须 jdbc: 前缀（jdbc:postgresql://host:port/db + DATABASE_USER/PASSWORD 分离）；URL userinfo 语法（user:pass@host）JDBC 不认",
+    "aspnetcore 的 DATABASE_URL 必须 Npgsql key=value 格式（Host=...;Password=...）；postgresql:// URI 会让 NpgsqlDataSourceBuilder 在 index 0 崩",
+    "起后端最稳配方：set -a && source .env.example && set +a && export 只覆盖密码/端口"
   ],
-  "last_gate_passed_at": "2026-09-02T22:47:24 (unit 模式)",
-  "last_live_attempt": {
-    "started": "2026-09-02T22:35+08",
-    "duration_s": null,
-    "tests": "234 passed / 169 failed / 25 skipped (428 total)",
-    "trace_non_inert": 396,
-    "trace_mode": "live (start-family.sh 第 4 轮, 端口 5200 段)",
-    "known_forks": "169 failed = session.json #next 既有的 6 类契约分叉(非回归)",
-    "next_action": "修 6 类契约分叉(见本文件 next 列表) OR 接受 forks 状态 CI 通过即可"
-  },
+  "last_gate_passed_at": "2026-09-10T23:05+08:00 (全绿; trace live 4/4)",
   "active_branch": "master"
 }

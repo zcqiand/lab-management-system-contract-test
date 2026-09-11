@@ -192,7 +192,7 @@ function parseTests(testsDir) {
       // Type 3 必须先于 Type 1 试：`POST ${PATH}` 也满足 Type 1 的 (\S+)，
       // 先试 Type 1 会把未求值的 `${PATH}` 字面当 path 收进来看起来永远不覆盖。
       const t3 = title.match(
-        /^(?:M\d+\.F\d+\.I\d+|M96\.F\d+\.I\d+)\s+(GET|POST|PUT|PATCH|DELETE)\s+\$\{(\w+)\}\s+四方比对\s*$/,
+        /^(?:M\d+\.F\d+\.I\d+|M96\.F\d+\.I\d+)\s+(GET|POST|PUT|PATCH|DELETE)\s+\$\{(\w+)\}\s+四方比对(?:\s*\/\s*[^`'"]+)?\s*$/,
       );
       if (t3) {
         const resolved = constMap[t3[2]];
@@ -200,14 +200,14 @@ function parseTests(testsDir) {
         continue;
       }
       const t1 = title.match(
-        /^(?:M\d+\.F\d+\.I\d+|M96\.F\d+\.I\d+)\s+(GET|POST|PUT|PATCH|DELETE)\s+(\S+)\s+四方比对\s*$/,
+        /^(?:M\d+\.F\d+\.I\d+|M96\.F\d+\.I\d+)\s+(GET|POST|PUT|PATCH|DELETE)\s+(\S+)\s+四方比对(?:\s*\/\s*[^`'"]+)?\s*$/,
       );
       if (t1) {
         out.push({ method: t1[1], path: t1[2] });
         continue;
       }
       const t2 = title.match(
-        /^(?:M\d+\.F\d+\.I\d+|M96\.F\d+\.I\d+)\s+\$\{(\w+)\}\s+四方比对\s*$/,
+        /^(?:M\d+\.F\d+\.I\d+|M96\.F\d+\.I\d+)\s+\$\{(\w+)\}\s+四方比对(?:\s*\/\s*[^`'"]+)?\s*$/,
       );
       if (t2) {
         const resolved = constMap[t2[1]];
