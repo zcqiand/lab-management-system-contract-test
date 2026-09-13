@@ -107,6 +107,41 @@
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
+        "M96.F02.I01 GET /api/calculation-methods 四方比对 / M01.F05.I01 > CalculationMethod[] 数组（不分页，按双复合主键 — 见 query 过滤）",
+        "M96.F02.I01 GET /api/calculation-methods 四方比对 / M01.F05.I01 > normalize 后骨架全等（数组内 items 计数漂移，drop）",
+        "M96.F02.I01 GET /api/calculation-methods 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/catalog/brands 四方比对 / M01.F05.I01 > Page envelope 必填",
+        "M96.F02.I01 GET /api/catalog/brands 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/catalog/brands 四方比对 / M01.F05.I01 > seed 首行 shape（code）",
+        "M96.F02.I01 GET /api/catalog/brands 四方比对 / M01.F05.I01 > 分页 defaults 全等（page=0, pageSize=20）",
+        "M96.F02.I01 GET /api/catalog/brands 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/contracts 四方比对 / M01.F05.I01 > Page<Contract> envelope 必填（page/pageSize/total/items）",
+        "M96.F02.I01 GET /api/contracts 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/contracts 四方比对 / M01.F05.I01 > 分页 defaults 全等（page=0, pageSize=20）",
+        "M96.F02.I01 GET /api/contracts 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/inspection/specialties 四方比对 / M01.F05.I01 > Page envelope 必填",
+        "M96.F02.I01 GET /api/inspection/specialties 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/inspection/specialties 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/param-interfaces 四方比对 / M01.F05.I01 > Page<ParamInterface> envelope 必填",
+        "M96.F02.I01 GET /api/param-interfaces 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/param-interfaces 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/receipts/flow/queue 四方比对 / M01.F05.I01 > Page<SampleReceipt> envelope 必填（page/pageSize/total/items）",
+        "M96.F02.I01 GET /api/receipts/flow/queue 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/receipts/flow/queue 四方比对 / M01.F05.I01 > 每个目标都返回 200（即使 items 为空）",
+        "M96.F02.I01 GET /api/report-names 四方比对 / M01.F05.I01 > Page<InspectionReportName> envelope 必填",
+        "M96.F02.I01 GET /api/report-names 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/report-names 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/technical-requirements 四方比对 / M01.F05.I01 > TechnicalRequirement[] 数组（不分页，多维 query 过滤）",
+        "M96.F02.I01 GET /api/technical-requirements 四方比对 / M01.F05.I01 > normalize 后骨架全等（数组内容漂移）",
+        "M96.F02.I01 GET /api/technical-requirements 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 GET /api/test-records 四方比对 / M01.F05.I01 > Page<TestRecord> envelope 必填",
+        "M96.F02.I01 GET /api/test-records 四方比对 / M01.F05.I01 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I01 GET /api/test-records 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 POST /api/auth/login 四方比对 / M01.F05.I01 > normalize 后所有目标全等（token/refreshToken 已在 ALWAYS_VOLATILE 剔除）",
+        "M96.F02.I01 POST /api/auth/login 四方比对 / M01.F05.I01 > tenants 行必填齐全（MyTenant required: tenantId/code/name/roleIds）",
+        "M96.F02.I01 POST /api/auth/login 四方比对 / M01.F05.I01 > 必填字段齐全（LoginResponse required: token/user/tenants）",
+        "M96.F02.I01 POST /api/auth/login 四方比对 / M01.F05.I01 > 每个目标都返回 200",
+        "M96.F02.I01 POST /api/auth/login 四方比对 / M01.F05.I01 > 错误凭证 → 4xx 全等（前端 catch 分支由状态码决定）",
         "M96.F02.I01 status 全等 > 单个目标不比对",
         "M96.F02.I01 status 全等 > 状态码一致时无分歧",
         "M96.F02.I01 status 全等 > 状态码分叉时点名是哪个后端"
@@ -123,6 +158,27 @@
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
+        "M96.F02.I02 GET /api/auth/me 四方比对 / M00.F01.I01 > normalize 后所有目标全等",
+        "M96.F02.I02 GET /api/auth/me 四方比对 / M00.F01.I01 > 必填字段齐全（CurrentUserSession required: user/tenants）",
+        "M96.F02.I02 GET /api/auth/me 四方比对 / M00.F01.I01 > 每个目标都返回 200",
+        "M96.F02.I02 GET /api/calculation-methods/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 404 envelope shape 全等",
+        "M96.F02.I02 GET /api/calculation-methods/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > status 全等",
+        "M96.F02.I02 GET /api/calculation-methods/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在双段路径 → 4 后端全 404",
+        "M96.F02.I02 GET /api/param-interfaces/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 404 envelope shape 全等",
+        "M96.F02.I02 GET /api/param-interfaces/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > status 全等",
+        "M96.F02.I02 GET /api/param-interfaces/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在 code → 4 后端全 404",
+        "M96.F02.I02 GET /api/report-names/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 404 envelope shape 全等",
+        "M96.F02.I02 GET /api/report-names/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > status 全等",
+        "M96.F02.I02 GET /api/report-names/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在 code → 4 后端全 404",
+        "M96.F02.I02 GET /api/samples/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 404 envelope shape 全等",
+        "M96.F02.I02 GET /api/samples/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > status 全等",
+        "M96.F02.I02 GET /api/samples/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在 id → 4 后端全 404",
+        "M96.F02.I02 GET /api/technical-requirements/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 404 envelope shape 全等",
+        "M96.F02.I02 GET /api/technical-requirements/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > status 全等",
+        "M96.F02.I02 GET /api/technical-requirements/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在三段路径 → 4 后端全 404",
+        "M96.F02.I02 GET /api/test-records/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 404 envelope shape 全等",
+        "M96.F02.I02 GET /api/test-records/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > status 全等",
+        "M96.F02.I02 GET /api/test-records/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在 id → 4 后端全 404",
         "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > aspnetcore refresh(有效 token) → 200 + 新 token",
         "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > msw refresh(有效 token) → 200 + 新 token",
         "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > nextjs refresh(有效 token) → 200 + 新 token",
@@ -177,6 +233,18 @@
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
+        "M96.F02.I03 GET /api/auth/permissions 四方比对 / M01.F04.I02 > PermissionSet 必填 permissions 数组",
+        "M96.F02.I03 GET /api/auth/permissions 四方比对 / M01.F04.I02 > normalize 后骨架全等",
+        "M96.F02.I03 GET /api/auth/permissions 四方比对 / M01.F04.I02 > 每个目标都返回 200",
+        "M96.F02.I03 GET /api/contracts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > 404 envelope shape 全等（前端 catch 分支依赖）",
+        "M96.F02.I03 GET /api/contracts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > status 全等",
+        "M96.F02.I03 GET /api/contracts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > 不存在 id → 4 后端全 404（契约面是错误码，不是 200+空对象）",
+        "M96.F02.I03 GET /api/param-interfaces/links 四方比对 / M01.F04.I02 > Page<ParamInterfaceLink> envelope 必填",
+        "M96.F02.I03 GET /api/param-interfaces/links 四方比对 / M01.F04.I02 > normalize 后骨架全等",
+        "M96.F02.I03 GET /api/param-interfaces/links 四方比对 / M01.F04.I02 > 每个目标都返回 200",
+        "M96.F02.I03 GET /api/receipts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > 404 envelope shape 全等",
+        "M96.F02.I03 GET /api/receipts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > status 全等",
+        "M96.F02.I03 GET /api/receipts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > 不存在 id → 4 后端全 404",
         "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > aspnetcore sso.callback → 200/4xx（code 不可用）",
         "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > msw sso.callback → 200/4xx（code 不可用）",
         "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > nextjs sso.callback → 200/4xx（code 不可用）",
@@ -221,6 +289,9 @@
         "M96.F02.I04 DELETE /api/catalog/brands/{code} 四方比对 / M01.F04.I01 > brand 删除 → 200/204 + 重复删 → 404",
         "M96.F02.I04 DELETE /api/inspection/specialties/{code} 四方比对 / M01.F04.I01 > specialty 删除 → 200/204",
         "M96.F02.I04 DELETE /api/receipts/{id} 四方比对 / M01.F04.I01 > receipt 删除 → 200/204 或 404（id 不存在）",
+        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > normalize 后骨架全等（items 计数漂移，drop）",
+        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > 每个目标都返回 200",
+        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > 返回 MenuNode[] 数组",
         "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > aspnetcore 创 param-interface → 200",
         "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > msw 创 param-interface → 200",
         "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > nextjs 创 param-interface → 200",
@@ -268,6 +339,17 @@
         "M96.F02.I05 DELETE /api/samples/{id} 四方比对 / M01.F05.I02 > sample 删除 → 200/204 或 404（id 不存在））",
         "M96.F02.I05 DELETE /api/technical-requirements/{object}/{parameter}/{standard} 四方比对 / M01.F05.I02 > technical-requirement 删除 → 200/204",
         "M96.F02.I05 DELETE /api/test-records/{id} 四方比对 / M01.F05.I02 > test-record 删除 → 200/204 或 404（id 不存在）",
+        "M96.F02.I05 GET /api/auth/sso/authorize 四方比对 / M01.F05.I02 > 4 后端都返回 302（authorize 是跳板，不是 200）",
+        "M96.F02.I05 GET /api/auth/sso/authorize 四方比对 / M01.F05.I02 > normalize 后骨架全等",
+        "M96.F02.I05 GET /api/auth/sso/authorize 四方比对 / M01.F05.I02 > 响应 Location 头非空（跳板契约面）",
+        "M96.F02.I05 GET /api/catalog/models 四方比对 / M01.F05.I02 > Page envelope 必填",
+        "M96.F02.I05 GET /api/catalog/models 四方比对 / M01.F05.I02 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I05 GET /api/catalog/models 四方比对 / M01.F05.I02 > seed 首行 shape（code）",
+        "M96.F02.I05 GET /api/catalog/models 四方比对 / M01.F05.I02 > 分页 defaults 全等（page=0, pageSize=20）",
+        "M96.F02.I05 GET /api/catalog/models 四方比对 / M01.F05.I02 > 每个目标都返回 200",
+        "M96.F02.I05 GET /api/inspection/objects 四方比对 / M01.F05.I02 > Page envelope 必填",
+        "M96.F02.I05 GET /api/inspection/objects 四方比对 / M01.F05.I02 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I05 GET /api/inspection/objects 四方比对 / M01.F05.I02 > 每个目标都返回 200",
         "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > aspnetcore logout → 200/204",
         "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > msw logout → 200/204",
         "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > nextjs logout → 200/204",
@@ -291,6 +373,9 @@
       ],
       "tests": [
         "M96.F02.I06 DELETE /api/param-interfaces/{code} 四方比对 / M04.F06.I02 > param-interface 删除 → 200/204",
+        "M96.F02.I06 GET /api/report-names/links/object 四方比对 / M04.F06.I02 > Page envelope 必填",
+        "M96.F02.I06 GET /api/report-names/links/object 四方比对 / M04.F06.I02 > normalize 后骨架全等",
+        "M96.F02.I06 GET /api/report-names/links/object 四方比对 / M04.F06.I02 > 每个目标都返回 200",
         "M96.F02.I06 PATCH /api/test-records/{id}/verdict 四方比对 / M04.F06.I02 > 人工改判 verdict → 200 或 404（id 不存在）",
         "M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02 > aspnetcore 创 model → 200",
         "M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02 > msw 创 model → 200",
@@ -313,6 +398,9 @@
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
+        "M96.F02.I07 GET /api/report-names/links/standard 四方比对 / M04.F06.I03 > Page envelope 必填",
+        "M96.F02.I07 GET /api/report-names/links/standard 四方比对 / M04.F06.I03 > normalize 后骨架全等",
+        "M96.F02.I07 GET /api/report-names/links/standard 四方比对 / M04.F06.I03 > 每个目标都返回 200",
         "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > aspnetcore link(PRM, PI) → 200/204",
         "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > msw link(PRM, PI) → 200/204",
         "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > nextjs link(PRM, PI) → 200/204",
@@ -343,7 +431,10 @@
         "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > aspnetcore unlink(PRM, PI) → 200/204",
         "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > msw unlink(PRM, PI) → 200/204",
         "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > nextjs unlink(PRM, PI) → 200/204",
-        "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > springboot unlink(PRM, PI) → 200/204"
+        "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > springboot unlink(PRM, PI) → 200/204",
+        "M96.F02.I08 GET /api/report-names/links/parameter 四方比对 / M04.F06.I04 > Page envelope 必填",
+        "M96.F02.I08 GET /api/report-names/links/parameter 四方比对 / M04.F06.I04 > normalize 后骨架全等",
+        "M96.F02.I08 GET /api/report-names/links/parameter 四方比对 / M04.F06.I04 > 每个目标都返回 200"
       ],
       "entry": []
     },
@@ -357,6 +448,14 @@
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
+        "M96.F02.I09 GET /api/catalog/specs 四方比对 / M04.F07.I02 > Page envelope 必填",
+        "M96.F02.I09 GET /api/catalog/specs 四方比对 / M04.F07.I02 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I09 GET /api/catalog/specs 四方比对 / M04.F07.I02 > seed 首行 shape（code）",
+        "M96.F02.I09 GET /api/catalog/specs 四方比对 / M04.F07.I02 > 分页 defaults 全等（page=0, pageSize=20）",
+        "M96.F02.I09 GET /api/catalog/specs 四方比对 / M04.F07.I02 > 每个目标都返回 200",
+        "M96.F02.I09 GET /api/inspection/parameters 四方比对 / M04.F07.I02 > Page envelope 必填",
+        "M96.F02.I09 GET /api/inspection/parameters 四方比对 / M04.F07.I02 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I09 GET /api/inspection/parameters 四方比对 / M04.F07.I02 > 每个目标都返回 200",
         "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > aspnetcore link → 200/204",
         "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > msw link → 200/204",
         "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > nextjs link → 200/204",
@@ -442,7 +541,15 @@
         "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > aspnetcore unlink(RN, STD, role=judgment) → 200/204",
         "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > msw unlink(RN, STD, role=judgment) → 200/204",
         "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > nextjs unlink(RN, STD, role=judgment) → 200/204",
-        "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > springboot unlink(RN, STD, role=judgment) → 200/204"
+        "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > springboot unlink(RN, STD, role=judgment) → 200/204",
+        "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > Page envelope 必填",
+        "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > seed 首行 shape（code）",
+        "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > 分页 defaults 全等（page=0, pageSize=20）",
+        "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > 每个目标都返回 200",
+        "M96.F02.I13 GET /api/inspection/standards 四方比对 / M04.F08.I03 > Page envelope 必填",
+        "M96.F02.I13 GET /api/inspection/standards 四方比对 / M04.F08.I03 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I13 GET /api/inspection/standards 四方比对 / M04.F08.I03 > 每个目标都返回 200"
       ],
       "entry": []
     },
@@ -520,7 +627,11 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I17 GET /api/inspection/links/specialty-object 四方比对 / M06.F02.I05 > Page envelope 必填",
+        "M96.F02.I17 GET /api/inspection/links/specialty-object 四方比对 / M06.F02.I05 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I17 GET /api/inspection/links/specialty-object 四方比对 / M06.F02.I05 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I18": {
@@ -532,7 +643,11 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I18 GET /api/inspection/links/object-parameter 四方比对 / M06.F03.I02 > Page envelope 必填",
+        "M96.F02.I18 GET /api/inspection/links/object-parameter 四方比对 / M06.F03.I02 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I18 GET /api/inspection/links/object-parameter 四方比对 / M06.F03.I02 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I19": {
@@ -544,7 +659,11 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I19 GET /api/inspection/links/object-standard 四方比对 / M06.F04.I02 > Page envelope 必填",
+        "M96.F02.I19 GET /api/inspection/links/object-standard 四方比对 / M06.F04.I02 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I19 GET /api/inspection/links/object-standard 四方比对 / M06.F04.I02 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I20": {
@@ -556,7 +675,11 @@
       "designs": [
         "docs\\design\\design-function-map.md"
       ],
-      "tests": [],
+      "tests": [
+        "M96.F02.I20 GET /api/inspection/links/standard-parameter 四方比对 / M06.F03.I05 > Page envelope 必填",
+        "M96.F02.I20 GET /api/inspection/links/standard-parameter 四方比对 / M06.F03.I05 > normalize 后骨架全等（items/total 漂移，drop）",
+        "M96.F02.I20 GET /api/inspection/links/standard-parameter 四方比对 / M06.F03.I05 > 每个目标都返回 200"
+      ],
       "entry": []
     },
     "M96.F02.I21": {
