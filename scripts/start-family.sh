@@ -99,7 +99,8 @@ echo "  ✓ 端口 preflight 完成"
 echo ""
 echo "=== [2/6] gen-shared (nextjs + springboot) ==="
 # nextjs: npm run gen:shared — 读 ../lab-management-system-shared/generated/openapi/openapi.yaml
-# springboot: bash scripts/gen-shared.sh — TypeSpec codegen + flyway migrations
+# springboot: bash scripts/gen-shared.sh — TypeSpec codegen（OpenAPI → Java client）;
+#   DB schema 消费走 scripts/scaffold-entities.sh（DB-First, ADR-0025/0033, Flyway 已退役）
 # aspnetcore: NSwag 在 csproj build 时自动跑, 不需要单独 step
 # msw: handlers/handlers-array.ts 由 shared emit:handlers 生成, 不需要单独 step
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
