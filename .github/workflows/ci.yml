@@ -35,6 +35,30 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://lab:lab@localhost:5432/lab_dev?schema=public
+      # JWT 全家共享（ADR-0019 各后端缺 key 即 fail-fast；且「前端不可区分」要求
+      # A 后端签的 token B 后端能验 —— 四方必须同一把 key，job 级统一注入）。
+      # JWT_TTL_SECONDS / JWT_REFRESH_TTL_SECONDS 缺失时 aspnetcore/springboot
+      # 启动即崩（2026-09-13 补齐，对齐 saas ci.yml + aspnetcore .env.example；
+      # start-family.sh 同步）。
+      JWT_SIGNING_KEY: dev-key-32-bytes-minimum-length!
+      JWT_ISSUER: lab-management-system
+      JWT_AUDIENCE: lab-management-system-clients
+      JWT_TTL_SECONDS: "3600"
+      JWT_REFRESH_TTL_SECONDS: "604800"
+      # CORS allowlist（契约值 = 两后端 .env.example；aspnetcore RequireCorsOrigins
+      # fail-fast，缺失启动即崩）。dev 目录登录密码（两后端 key 拼法不同都给）+
+      # springboot no-sso profile（默认 sso 会要求 LAB_SAAS_* 三件套）。
+      LAB_CORS_ALLOWED_ORIGINS: http://localhost:5201,http://localhost:5202,http://localhost:5203,http://localhost:5101
+      LAB_AUTH_DEV_PASSWORD: dev123456
+      Lab__Auth__DevPassword: dev123456
+      LAB_PROFILE: no-sso
+      # saas 服务账号（springboot SsoBeansConfig 任何 profile 都 @PostConstruct 校验）
+      LAB_SAAS_SERVICE_USER: alice
+      LAB_SAAS_SERVICE_PASSWORD: dev123456
+      # nextjs login route requireEnv(SAAS_IDP_URL)，缺失登录 500 级联全挂。
+      # 指黑洞端口：serviceLogin 瞬时失败 → 空菜单快照（noop 语义契约等价），
+      # live/CI 四方比对不依赖外部 saas 部署（start-family.sh 同步）。
+      SAAS_IDP_URL: http://127.0.0.1:9
       TRACE_MAP: "1"
       CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
       # 2026-09-02 lab 与 saas 家族端口错开可并行（conventions §6 + contract-test-run-live.md）。

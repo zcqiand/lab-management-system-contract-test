@@ -111,9 +111,27 @@ echo ""
 echo "=== [3/6] 后台起 4 后端 (lab=5200 段, conventions §6) ==="
 PIDS=()
 
-# lab 家族 JWT 三件套（别复用 saas 的 issuer/audience —— 4 后端 dev token
+# lab 家族 JWT 四件套（别复用 saas 的 issuer/audience —— 4 后端 dev token
 # 解码器只认自己家族的 claim, 跨家族 token 即 401）。
-LAB_JWT_ENV="JWT_SIGNING_KEY=dev-key-32-bytes-minimum-length! JWT_ISSUER=lab-management-system JWT_AUDIENCE=lab-management-system-clients"
+# JWT_TTL_SECONDS / JWT_REFRESH_TTL_SECONDS: aspnetcore/springboot fail-fast
+# 必查（ADR-0019 家族 env 契约），缺它两个后端启动即崩（2026-09-13 healthcheck
+# 连环实锤：先 TTL 后 REFRESH_TTL）; nextjs 用带前缀的 LAB_JWT_TTL_SECONDS（读
+# .env.local）。REFRESH_TTL=604800（7 天）取家族值（.env.example/.env.test/deploy）。
+LAB_JWT_ENV="JWT_SIGNING_KEY=dev-key-32-bytes-minimum-length! JWT_ISSUER=lab-management-system JWT_AUDIENCE=lab-management-system-clients JWT_TTL_SECONDS=3600 JWT_REFRESH_TTL_SECONDS=604800"
+
+# CORS allowlist（契约值取 .env.example：nextjs/react/vue dev origin）。
+# aspnetcore RequireCorsOrigins fail-fast（ADR-0019 禁 localhost 兜底指「不允许代码字面
+# 默认」，显式 env 声明是正道）。
+LAB_CORS_ENV="LAB_CORS_ALLOWED_ORIGINS=http://localhost:5201,http://localhost:5202,http://localhost:5203,http://localhost:5101"
+
+# no-sso profile 共用：dev 目录登录 + dev 密码（契约值 .env.example；contract-test
+# auth.test.ts 的登录断言吃这个目录）。两个后端 key 拼法不同：aspnetcore 读分层
+# Lab:Auth:DevPassword（env 双下划线 Lab__Auth__DevPassword），springboot 读 flat
+# LAB_AUTH_DEV_PASSWORD。springboot 不显式 LAB_PROFILE=no-sso 会默认 sso profile，
+# 启动即要求 LAB_SAAS_CLIENT_ID/SECRET/DEFAULT_TENANT_ID 三件套。
+# LAB_SAAS_SERVICE_USER/PASSWORD：SsoBeansConfig @PostConstruct 任何 profile 都校验
+# （no-sso 的 cacheMenus 也走 serviceLogin），缺失启动即崩（2026-09-13 实锤）。
+LAB_NOSSO_ENV="LAB_AUTH_DEV_PASSWORD=dev123456 Lab__Auth__DevPassword=dev123456 LAB_SAAS_SERVICE_USER=alice LAB_SAAS_SERVICE_PASSWORD=dev123456"
 
 # msw: npm start（不是 npm run dev —— tsx watch 热重载时 process.env 丢失,
 # JWT_SIGNING_KEY 缺失 signAccessToken 抛 500, saas 版同坑）。
@@ -136,19 +154,27 @@ if [ -z "$LAB_PG_PASSWORD" ]; then
 fi
 : "${LAB_PG_PASSWORD:=changeme}"
 ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD}"
-(cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
+(cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_NOSSO_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
   LAB_DATA_PROVIDER=memory LAB_SSO_PROFILE=no-sso \
   DATABASE_URL="$ASPNETCORE_PG_URL" \
   dotnet run --project src/Lab.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 
 # springboot: SERVER_PORT relaxed binding。同上共库 lab_dev（JDBC 四件套）。
-(cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV SERVER_PORT=5205 \
+(cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_NOSSO_ENV SERVER_PORT=5205 \
+  LAB_PROFILE=no-sso \
   DATABASE_URL="jdbc:postgresql://${LAB_PG_HOST}:5432/lab_dev" \
   DATABASE_USER=postgres DATABASE_PASSWORD="$LAB_PG_PASSWORD" DATABASE_NAME=lab_dev \
   mvn -q spring-boot:run >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
 
 # nextjs: dev script 已带 -p 5201（package.json）; .env.local 已有 DATABASE_URL 等。
-(cd "$NEXTJS_DIR" && nohup npm run dev >"$CT_ROOT/.runtime-logs/nextjs.log" 2>&1) & PIDS+=($!)
+# dev 密码显式传：login route.ts fail-fast（ADR-0019），缺失时登录 500 →
+# probeAll 全量级联失败（2026-09-13 run5 实锤：183 失败全从这一个 500 级联）。
+# SAAS_IDP_URL 指黑洞端口：login route 每次密码登录都会 serviceLogin 拉菜单快照，
+# .env.local 里指向真 saas 部署时每次登录挂 8-10s（快照 fetch 超时），把 next dev
+# 拖到 probeLive 3s 超时 → trace 退化 unit（run6 实锤）。黑洞端口瞬时 ECONNREFUSED
+# → 空快照路径，与 msw/aspnetcore/springboot noop 语义契约等价（/menus 200 []），
+# live 四方比对不再依赖外部 saas 部署。进程 env 优先于 .env.local（dotenv 语义）。
+(cd "$NEXTJS_DIR" && nohup env $LAB_NOSSO_ENV SAAS_IDP_URL="http://127.0.0.1:9" npm run dev >"$CT_ROOT/.runtime-logs/nextjs.log" 2>&1) & PIDS+=($!)
 
 cleanup() {
   echo ""
