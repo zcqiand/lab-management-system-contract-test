@@ -1,33 +1,19 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "current_task": "2026-09-10 收口：L2 解析器修 fnId 后缀 + L5 命名空间路由（ADR-0031）后 gate 全绿；live trace 已落 mode=live 4 targets",
-  "last_session_at": "2026-09-10",
-  "last_session_summary": "两处修复让本仓 gate 从「中断于 L2」变全绿：(1) check_ssot_coverage.mjs 的 describe 标题正则放宽容忍 ` / <fnId>` 后缀（4f21f10 spec §5 引入的后缀让 112 个标题全 NOMATCH → covered=0）；(2) suite _alignment.py L5 按命名空间路由（ADR-0031，用户裁决）——BASE 段 ID 查 lab-shared 清单不再判本仓悬空。之后起 lab 4 后端（5200 段）跑 live 全量恢复 trace.json mode=live。live 真实结果 207 failed（上会话 93 的 6 类契约分叉 + nextjs 冷启动超时级联），属修代码批次欠账非本次范围。",
+  "current_task": "ADR-0033 阶段二收口：live trace + alignment 刷新",
   "done": [
-    "scripts/check_ssot_coverage.mjs：3 处标题正则尾部改 `四方比对(?:\\s*\\/\\s+[^\\`'\"+]+)?\\s*$` → SSOT 112/112 covered",
-    "suite scripts/checks/_alignment.py：L5 命名空间路由（ADR-0031）→ L5 绿",
-    "live 复跑（4 后端 5200 段 + CONTRACT_TARGETS 全 4）→ trace.json mode=live targets 4/4",
-    "gate.py -p lab-management-system-contract-test → L0-L5 全绿",
-    "本仓代码无改动（两处修复都在 suite 侧脚本）"
+    "阶段一：live 四方链路 env 缺口五连补齐（healthcheck 0/4→4/4）；start-family.sh 注释对齐 DB-First",
+    "start-family.sh 全链重跑 exit=0：trace mode=live + _alignment + gate 全绿",
+    "alignment.json live 覆盖刷新；commits 0420917 / 0be7b3a / 05785a3"
   ],
   "next": [
-    "修 live 207 failed（≈上会话 93 的 6 类契约分叉：body 缺字段/nextjs 路由 404/msw link 500/timestamp 空串/分页默认值漂移 + nextjs dev 冷启动超时误伤）——开新批次",
-    "跑 live 前先预热 nextjs（curl /api/health 直到 <1s），避免 healthcheck 超时把 live mode 打成失效"
+    "live 四方真实发散收敛（非 gate 项）：unlink 400-vs-2xx、nextjs 时间戳非 ISO 8601 ms UTC"
   ],
-  "open_questions": [
-    "gate 本地 L4 是「无 CONTRACT_TARGETS 即 skip 比对」的快速门（设计内），真比对在 CI —— 207 failed 的消化策略（本地修 or 只信 CI）需人定"
-  ],
+  "open_questions": [],
   "dont": [
-    "不要手写 .state/trace.json（CLAUDE.md 硬规则）",
-    "不要在 suite 根裸跑 npx vitest run 不带 CONTRACT_TARGETS —— 会把 trace.json 覆盖成 unit 模式，L5 必红（本次实测踩中）",
-    "不要再把 check_ssot_coverage 的 t1/t3 试序改回 saas 版",
-    "不要用模板拼接/for...of 生成 describe 标题（解析器不插值）",
-    "不要复用 saas 的 JWT_ISSUER/AUDIENCE —— lab 三件套 issuer 是 lab-management-system",
-    "springboot 的 DATABASE_URL 必须 jdbc: 前缀（jdbc:postgresql://host:port/db + DATABASE_USER/PASSWORD 分离）；URL userinfo 语法（user:pass@host）JDBC 不认",
-    "aspnetcore 的 DATABASE_URL 必须 Npgsql key=value 格式（Host=...;Password=...）；postgresql:// URI 会让 NpgsqlDataSourceBuilder 在 index 0 崩",
-    "起后端最稳配方：set -a && source .env.example && set +a && export 只覆盖密码/端口"
+    "gate 报「trace.json 是 unit 模式」时禁改 stack.json require_live——走 start-family.sh 出 live trace"
   ],
-  "last_gate_passed_at": "2026-09-10T23:05+08:00 (全绿; trace live 4/4)",
-  "active_branch": "master"
+  "active_branch": "master",
+  "last_session_at": "2026-09-13"
 }
