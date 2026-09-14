@@ -28,7 +28,10 @@ export function client(target: Target): AxiosInstance {
       jar,
       withCredentials: true,
       maxRedirects: 0,
-      timeout: 8000,
+      // 30s：live 跑 dev server 的现实水位（nextjs dev 每个探针先 login，
+      // 单次 login 实测 7.5-8s，8s 恒间歇性误报 Unreachable——REQ-2026-001 live 实证）。
+      // 声明即必须可达的判定不变，只是不再把「dev 编译慢」当「连不上」。
+      timeout: 30_000,
       // 任何状态码都返回，不抛 —— 状态码本身是被比对的对象。
       validateStatus: () => true,
       headers: { "content-type": "application/json" },
@@ -116,7 +119,10 @@ async function probeWithToken(
         res = await http.get(path, { headers });
         break;
       case "DELETE":
-        res = await http.delete(path, { headers });
+        // 契约里有 @body 的 unlink（如 /api/param-interfaces/links）必须带 body——
+        // 此前只传 headers，body 被丢弃：msw query 兜底成幂等 no-op 假 204，
+        // 真后端 @RequestBody 必填直接 400（REQ-2026-001 live 实证）
+        res = await http.delete(path, { headers, data: body });
         break;
       case "POST":
         res = await http.post(path, body, { headers });

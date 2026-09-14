@@ -150,6 +150,9 @@ export interface TimestampShapeError {
  * ADR-0015-amend：每个 probe.body 里的 TIMESTAMP_KEYS 字段值必须：
  *   1. 字符串形态匹配 `YYYY-MM-DDTHH:mm:ss.sssZ`
  *   2. parse 后的年份 ∈ [1970, 2100]
+ * 例外：`""` 合法（ADR-0025 —— SSOT schema.ts 时间戳列 `text().default("")` 是全家族
+ * 约定的「未设」标记，4 后端一致返回 ""，REQ-2026-001 live 四方实证）；null/undefined
+ * 同样跳过。仍拦截：parse 失败的非空串、epoch 数字、DateTime.MinValue 等荒谬值。
  * 任一不过 → 返回错误。**不**比较值，只比格式/合理性。
  */
 export function assertTimestampShape(
@@ -172,6 +175,8 @@ function walkShape(value: unknown, path: readonly string[], keys: readonly strin
   if (isPlainObject(value)) {
     for (const [k, v] of Object.entries(value)) {
       if (keys.includes(k) && typeof v === "string") {
+        // "" = ADR-0025 家族约定的未设时间戳，放行（见 assertTimestampShape docstring）
+        if (v === "") continue;
         const ms = Date.parse(v);
         if (Number.isNaN(ms)) {
           errors.push({ path: [...path, k].join("."), value: v, reason: "format" });

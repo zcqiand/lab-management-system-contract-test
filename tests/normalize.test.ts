@@ -112,6 +112,10 @@ describe("M96.F01 normalize 不吞掉真实差异", () => {
 });
 
 describe("M96.F01 assertTimestampShape 年份边界（ADR-0015-amend，下界=1970-01-01）", () => {
+  it("空串合法（ADR-0025 家族约定未设时间戳，REQ-2026-001 live 四方实证）", () => {
+    expect(assertTimestampShape({ createdAt: "", updatedAt: "" })).toEqual([]);
+  });
+
   it("下界：1970-01-01T00:00:00Z 合法（= UnixEpoch / EPOCH / new Date(0)）", () => {
     expect(assertTimestampShape({ createdAt: "1970-01-01T00:00:00.000Z" })).toEqual([]);
   });
