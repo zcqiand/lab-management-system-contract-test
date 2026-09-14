@@ -1,19 +1,21 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "current_task": "ADR-0033 阶段二收口：live trace + alignment 刷新",
+  "current_task": "REQ-2026-001 live 四方全绿（26/1/0）——已上线",
   "done": [
-    "阶段一：live 四方链路 env 缺口五连补齐（healthcheck 0/4→4/4）；start-family.sh 注释对齐 DB-First",
-    "start-family.sh 全链重跑 exit=0：trace mode=live + _alignment + gate 全绿",
-    "alignment.json live 覆盖刷新；commits 0420917 / 0be7b3a / 05785a3"
+    "probeRequest DELETE 补发 body（此前只传 headers，@body unlink 全被吞：msw 假 204/真后端假红）",
+    "axios 超时 8s→30s（nextjs dev login 实测 7.5-8s）",
+    "normalize 放行 \"\" 时间戳（ADR-0025 家族约定）+ 单测锁定；I07 前清残留 + I08 幂等断言",
+    "5 轮收敛 live 四方 AC-2 全绿；commit db26c1e"
   ],
   "next": [
-    "live 四方真实发散收敛（非 gate 项）：unlink 400-vs-2xx、nextjs 时间戳非 ISO 8601 ms UTC"
+    "skipIf(!live) 结构性洞（门绿=没测）REQ 立项候选——live 目标 <2 时应警告或红"
   ],
   "open_questions": [],
   "dont": [
-    "gate 报「trace.json 是 unit 模式」时禁改 stack.json require_live——走 start-family.sh 出 live trace"
+    "gate 报「trace.json 是 unit 模式」时禁改 stack.json require_live——走 start-family.sh 出 live trace",
+    "后端语义变更必须同 commit 同步断言（contract-test-rule）"
   ],
   "active_branch": "master",
-  "last_session_at": "2026-09-13"
+  "last_session_at": "2026-09-14"
 }
