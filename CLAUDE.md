@@ -5,7 +5,7 @@
 
 ## 1. 项目定位
 
-黑盒 HTTP 打 4 个后端（`msw`:5200 / `nextjs`:5201 / `aspnetcore`:5204 / `springboot`:5205，
+黑盒 HTTP 打 3 个后端（`nextjs`:5201 / `aspnetcore`:5204 / `springboot`:5205，
 conventions §6 lab=5200 段，2026-09-02 起与 saas 家族端口错开可并行），验证它们**对前端不可区分**。
 保留命名空间 `M96`（lab 家族 infra 段，与 saas-contract-test 同角色同编号）。
 
@@ -19,8 +19,8 @@ conventions §6 lab=5200 段，2026-09-02 起与 saas 家族端口错开可并�
   admin/dev123456 直登）与真 saas OAuth 2.0（`LAB_SSO_PROFILE=default` + saas 家族在跑）。
   两种形态 `/api/auth/login` 契约面必须一致；测试不得假设 noop 假 token 语义
 - **normalize 剔除清单是契约**：增删走 ADR。lab 响应 token 字段名是 `token`（非 accessToken）
-- **默认不剔 ID**：3 真后端共用 lab_dev PG。只有比对含 `msw`（内存 fixture）时才传 `ID_KEYS`
-- **msw 是 oracle**：打 `:5200` 必须绿。红了先怀疑套件写错，不是后端错
+- **ID 默认保留直比**：3 真后端共用 lab_dev PG，ID 参与比对且应当相等；Phase 2 起 msw/`ID_KEYS` 剔除路径已删除（spec §3.3）
+- **比对基准恒为 probes[0]**：`CONTRACT_TARGETS` 声明序首位是基准（2026-09-15 Phase 2 去 msw，spec §3.3）
 - **声明即必须可达**：`CONTRACT_TARGETS` 列了却连不上 = 红，不是 skip
 - **写操作用唯一化前缀 + teardown**：共库写比对会撞唯一约束、不可重跑
 - **100% 覆盖 shared SSOT**：端点清单 = `../lab-management-system-shared/tsp/routes/*.tsp` 全集，
@@ -39,7 +39,7 @@ TypeScript + vitest + axios + tough-cookie jar（HTTP 层，不受 fetch 屏蔽 
 ## 4. 验收
 
 - suite 根目录跑 `python scripts/gate.py -p lab-management-system-contract-test`
-- 四方比对：`CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run`
+- 三方比对：`CONTRACT_TARGETS=nextjs,aspnetcore,springboot npx vitest run`
 - 端口与起法 → suite `docs/conventions/multi-repo-family.md` §6 + `contract-test-run-live.md`
 
 ## 5. 指向别处

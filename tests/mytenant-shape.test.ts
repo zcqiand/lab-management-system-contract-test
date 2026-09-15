@@ -24,6 +24,8 @@ describe("MyTenant 契约形状锁（shared OpenAPI 静态断言）", () => {
   });
 
   it("旧 demo 形状（tenantCode/tenantName）不回潮", () => {
+    // 重复判空：schema 段缺失时走干净断言失败，而不是 undefined 上的 TypeError。
+    expect(schemaBlock, "openapi.yaml 中未找到 MyTenant schema（先跑 shared npm run build 重 emit）").toBeTruthy();
     expect(schemaBlock![1]).not.toContain("tenantCode:");
     expect(schemaBlock![1]).not.toContain("tenantName:");
   });

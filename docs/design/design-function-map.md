@@ -12,7 +12,7 @@
 | M96.F01.I02 | — | harness: `src/normalize.ts` `normalizeDate` | — | — | ADR-0015 §Decision.2 | 已上线 |
 | M96.F01.I03 | — | harness: `src/normalize.ts` `normalize` + `stable`（null ≡ 缺失） | — | — | ADR-0015 §Decision.2 | 已上线 |
 | M96.F01.I04 | — | harness: `src/normalize.ts` `stable`（递归 key/数组排序） | — | — | ADR-0015 §Decision.2 | 已上线 |
-| M96.F02.I01 | — | harness: `src/compare.ts` `compareStatuses` / `tests/*.test.ts` 各种 GET 列表 + POST 创行族 + auth/login POST | lab_dev PG 共库（msw 内存 fixture） | — | ADR-0015 §Decision.2 + [REQ-2026-013 §2 AC-1](../requirements/REQ-2026-013-ssot-full-coverage.md) | 开发中 |
+| M96.F02.I01 | — | harness: `src/compare.ts` `compareStatuses` / `tests/*.test.ts` 各种 GET 列表 + POST 创行族 + auth/login POST | lab_dev PG 共库（三真后端直比；比对基准 probes[0]） | — | ADR-0015 §Decision.2 + [REQ-2026-013 §2 AC-1](../requirements/REQ-2026-013-ssot-full-coverage.md) | 开发中 |
 | M96.F02.I02 | — | harness: `src/compare.ts` `compareBodies` + `tests/*.test.ts` 详情族 + summary `/stats` | 同上 | — | ADR-0015 §Decision.2 + REQ-2026-013 §2 AC-1 | 开发中 |
 | M96.F02.I03 | — | `tests/auth-read.test.ts:permissions` + `tests/contracts.test.ts:GET {id}` + `tests/inspection-catalog.test.ts:brands` 写族 | — | — | REQ-2026-013 §2 AC-1 | 开发中 |
 | M96.F02.I04 | — | `tests/auth-read.test.ts:menus` + 各种 PUT 更新族 | — | — | REQ-2026-013 §2 AC-1 | 开发中 |
@@ -40,7 +40,7 @@
 | M96.F02.I28 | — | `tests/calculation-methods-write.test.ts:PUT` + `tests/technical-requirements-write.test.ts:PUT` | — | — | REQ-2026-013 §2 AC-1 | 开发中 |
 | M96.F02.I30 | — | `tests/calculation-methods-write.test.ts:DELETE` + `tests/technical-requirements-write.test.ts:DELETE` | — | — | REQ-2026-013 §2 AC-1 | 开发中 |
 | M96.F02.I31 | — | 收口族：`tests/samples-write.test.ts` + `tests/test-records-write.test.ts` + `tests/sample-receipts-write.test.ts` + `tests/report-flow-write.test.ts` + `tests/auth-write.test.ts` | — | — | REQ-2026-013 §2 AC-1 | 开发中 |
-| M96.F03.I01 | — | harness: `src/targets.ts` `TARGETS`（msw:5173 / nextjs:3001 / aspnetcore:5001 / springboot:8081） | — | — | [conventions §6](../../../../docs/conventions/multi-repo-family.md) + ADR-0015 | 已上线 |
+| M96.F03.I01 | — | harness: `src/targets.ts` `TARGETS`（nextjs:5201 / aspnetcore:5204 / springboot:5205） | — | — | [conventions §6](../../../../docs/conventions/multi-repo-family.md) + ADR-0015 | 已上线 |
 | M96.F03.I02 | — | harness: `src/targets.ts` `selectedTargets` + `TargetError` | — | — | ADR-0015 §Decision.2 | 已上线 |
 
 ---
