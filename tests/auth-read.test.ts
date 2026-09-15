@@ -41,7 +41,7 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_PERMISSIONS} 四方比对 / M01.F
   });
 
   it("normalize 后骨架全等", () => {
-    // 4 后端 permissions 长度随本轮 role/permission 配置漂移 + msw 不共库，drop 数组
+    // 各后端 permissions 长度随本轮 role/permission 配置漂移，drop 数组
     const divergences = compareBodies(probes, targets, ["permissions"]);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   });

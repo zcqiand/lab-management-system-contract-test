@@ -1,10 +1,11 @@
-// M96.F02 四方比对 —— 同一请求打 N 个后端，比 status 与 normalize 后的 body。
+// M96.F02 三方比对 —— 同一请求打 N 个后端，比 status 与 normalize 后的 body。
 //
 // 不做 snapshot 逐字节比对：UUID / 时间戳 / token 天生不同，那个目标不可达（ADR-0015）。
 // 判定标准是「前端不可区分」：前端会因为什么走进不同分支，就比什么。
+// 2026-09-15 Phase 2 去 msw：oracle 语义回归 shared OpenAPI 契约（spec §3.3），比对基准 = probes[0]。
 
-import { ID_KEYS, normalize, stable, assertTimestampShape, type TimestampShapeError } from "./normalize.js";
-import { ORACLE, type Target, needsIdDrop } from "./targets.js";
+import { normalize, stable, assertTimestampShape, type TimestampShapeError } from "./normalize.js";
+import type { Target } from "./targets.js";
 
 export interface Probe {
   readonly target: string;
@@ -18,14 +19,10 @@ export interface Divergence {
   readonly detail: string;
 }
 
-function dropKeys(targets: readonly Target[]): readonly string[] {
-  return needsIdDrop(targets) ? ID_KEYS : [];
-}
-
 /** M96.F02.I01 —— 前端的 catch 分支由状态码决定，状态码必须全等。 */
 export function compareStatuses(probes: readonly Probe[]): Divergence[] {
   if (probes.length < 2) return [];
-  const oracle = probes.find((p) => p.target === ORACLE) ?? probes[0];
+  const oracle = probes[0];
   return probes
     .filter((p) => p.target !== oracle.target && p.status !== oracle.status)
     .map((p) => ({
@@ -35,15 +32,20 @@ export function compareStatuses(probes: readonly Probe[]): Divergence[] {
     }));
 }
 
-/** M96.F02.I02 —— 前端渲染由字段名/类型/必填决定，normalize 后必须全等。 */
+/**
+ * M96.F02.I02 —— 前端渲染由字段名/类型/必填决定，normalize 后必须全等。
+ * 比对基准恒为 probes[0]（2026-09-15 Phase 2：msw oracle 移除后基准收敛到声明序首位）。
+ * `targets` 参数保留只为调用点兼容（Phase 2 起不再参与剔除决策）。
+ */
 export function compareBodies(
   probes: readonly Probe[],
   targets: readonly Target[],
   extraDrop: readonly string[] = [],
 ): Divergence[] {
+  void targets;
   if (probes.length < 2) return [];
-  const drop = [...dropKeys(targets), ...extraDrop];
-  const oracle = probes.find((p) => p.target === ORACLE) ?? probes[0];
+  const drop = [...extraDrop];
+  const oracle = probes[0];
   const want = stable(oracle.body, { drop });
 
   const divergences: Divergence[] = probes

@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
-    # 3 真后端共一个 PG（lab_dev + V015 smoke seed）。msw 内存 fixture 不连 DB。
+    # 3 真后端共一个 PG（lab_dev + V015 smoke seed）。
     # contract-test-run-live.md 共库约定：aspnetcore/springboot/nextjs 共享 PG。
     services:
       postgres:
@@ -36,7 +36,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://lab:lab@localhost:5432/lab_dev?schema=public
       # JWT 全家共享（ADR-0019 各后端缺 key 即 fail-fast；且「前端不可区分」要求
-      # A 后端签的 token B 后端能验 —— 四方必须同一把 key，job 级统一注入）。
+      # A 后端签的 token B 后端能验 —— 三方必须同一把 key，job 级统一注入）。
       # JWT_TTL_SECONDS / JWT_REFRESH_TTL_SECONDS 缺失时 aspnetcore/springboot
       # 启动即崩（2026-09-13 补齐，对齐 saas ci.yml + aspnetcore .env.example；
       # start-family.sh 同步）。
@@ -57,12 +57,13 @@ jobs:
       LAB_SAAS_SERVICE_PASSWORD: dev123456
       # nextjs login route requireEnv(SAAS_IDP_URL)，缺失登录 500 级联全挂。
       # 指黑洞端口：serviceLogin 瞬时失败 → 空菜单快照（noop 语义契约等价），
-      # live/CI 四方比对不依赖外部 saas 部署（start-family.sh 同步）。
+      # live/CI 三方比对不依赖外部 saas 部署（start-family.sh 同步）。
       SAAS_IDP_URL: http://127.0.0.1:9
       TRACE_MAP: "1"
-      CONTRACT_TARGETS: msw,aspnetcore,springboot,nextjs
+      CONTRACT_TARGETS: nextjs,aspnetcore,springboot
       # 2026-09-02 lab 与 saas 家族端口错开可并行（conventions §6 + contract-test-run-live.md）。
-      # 端口：msw=5200, nextjs=5201, aspnetcore=5204, springboot=5205（conventions §6 lab=5200 段）。
+      # 端口：nextjs=5201, aspnetcore=5204, springboot=5205（conventions §6 lab=5200 段）。
+      # 声明序首位 = 比对基准 probes[0]（2026-09-15 Phase 2 去 msw，spec §3.3）。
 
     steps:
       - uses: actions/checkout@v4
@@ -90,23 +91,15 @@ jobs:
       - name: Checkout shared sibling
         run: git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/lab-management-system-shared.git ../lab-management-system-shared
 
-      # 4 后端作为 sibling 被 checkout
+      # 3 后端作为 sibling 被 checkout
       - name: Checkout backend siblings
         run: |
           set -e
-          for repo in msw aspnetcore springboot nextjs; do
+          for repo in aspnetcore springboot nextjs; do
             git clone --depth 1 https://x-access-token:${GITHUB_TOKEN}@github.com/zcqiand/lab-management-system-$repo.git ../lab-management-system-$repo
           done
 
       # 各仓依赖安装（前置，避免 healthcheck 阶段再 compile）
-      - name: msw install
-        working-directory: ../lab-management-system-msw
-        run: npm ci --registry=https://registry.npmmirror.com
-
-      - name: msw gen:handlers
-        working-directory: ../lab-management-system-msw
-        run: npm run gen:handlers
-
       - name: aspnetcore restore
         working-directory: ../lab-management-system-aspnetcore
         run: dotnet restore src/Lab.AspNetCore.csproj
@@ -124,21 +117,20 @@ jobs:
         working-directory: ../lab-management-system-nextjs
         run: npm run gen:shared
 
-      # 起 4 后端 + healthcheck + vitest（核心步骤）
-      # - 后台 nohup ... & 启 4 进程，PID 入 PIDS 数组
+      # 起 3 后端 + healthcheck + vitest（核心步骤）
+      # - 后台 nohup ... & 启 3 进程，PID 入 PIDS 数组
       # - trap cleanup EXIT 确保 step exit 时清理所有子进程 + 兜底 pkill 孙子
       # - healthcheck 串行 90s，任一 return 1 → set -e → step fail → trap 触发
-      # - npx --no vitest run 必须在所有 4 后端 healthcheck 通过后才跑
+      # - npx --no vitest run 必须在所有 3 后端 healthcheck 通过后才跑
       # 注：路径 `src/Lab.AspNetCore.csproj` 与 nextjs `gen:shared` 命令名
       # 按实际仓当前 PR 微调——子仓改动时这里同步改，不要盲目照搬。
-      - name: Run 4 backends + healthcheck + vitest
+      - name: Run 3 backends + healthcheck + vitest
         working-directory: .
         run: |
           set -e
           mkdir -p .runtime-logs
           PIDS=()
 
-          (cd ../lab-management-system-msw && nohup npm run dev > .runtime-logs/msw.log 2>&1) & PIDS+=($!)
           (cd ../lab-management-system-aspnetcore && nohup dotnet run --project src/Lab.AspNetCore.csproj > .runtime-logs/aspnetcore.log 2>&1) & PIDS+=($!)
           (cd ../lab-management-system-springboot && nohup mvn -q spring-boot:run > .runtime-logs/springboot.log 2>&1) & PIDS+=($!)
           (cd ../lab-management-system-nextjs && nohup npm run dev > .runtime-logs/nextjs.log 2>&1) & PIDS+=($!)
@@ -149,7 +141,6 @@ jobs:
             pkill -f Lab.AspNetCore     2>/dev/null || true
             pkill -f spring-boot:run    2>/dev/null || true
             pkill -f next-server        2>/dev/null || true
-            pkill -f tsx                2>/dev/null || true
             echo "::endgroup::"
           }
           trap cleanup EXIT
@@ -171,14 +162,13 @@ jobs:
           }
 
           # lab 家族端口（2026-09-02 起与 saas 错开可并行，见 conventions §6）
-          healthcheck msw        http://localhost:5200/healthz
           healthcheck aspnetcore http://localhost:5204/health
           healthcheck springboot http://localhost:5205/actuator/health
           healthcheck nextjs     http://localhost:5201/api/health
 
           npx --no vitest run
 
-      # 上传 .runtime-logs/ 供失败时排查（4 后端的 log 各 tail 100 已能定位）
+      # 上传 .runtime-logs/ 供失败时排查（3 后端的 log 各 tail 100 已能定位）
       - name: Upload backend logs on failure
         if: failure()
         uses: actions/upload-artifact@v4

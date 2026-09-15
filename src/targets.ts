@@ -2,24 +2,19 @@
 //
 // 端口是 conventions §6 的显式字面量，不是 env 兜底（CLAUDE.md 硬规则：禁止 env 默认值兜底）。
 // 「打哪些目标」由 CONTRACT_TARGETS 显式声明；**声明了就必须可达**，连不上是红不是跳过。
+// 2026-09-15 Phase 2 去 msw：oracle 语义回归 shared OpenAPI 契约（spec §3.3），比对基准 = probes[0]。
 
 export interface Target {
   readonly name: string;
   readonly baseUrl: string;
-  /** true = 内存 fixture，不与三个真后端共库（ADR-0012）。比对时需额外剔 ID。 */
-  readonly inMemory: boolean;
 }
 
 /** conventions §6 端口表（lab 家族，2026-09-02 起与 saas 家族错开）。改这里必须同步改 conventions。 */
 export const TARGETS: Readonly<Record<string, Target>> = {
-  msw: { name: "msw", baseUrl: "http://localhost:5200", inMemory: true },
-  nextjs: { name: "nextjs", baseUrl: "http://localhost:5201", inMemory: false },
-  aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5204", inMemory: false },
-  springboot: { name: "springboot", baseUrl: "http://localhost:5205", inMemory: false },
+  nextjs: { name: "nextjs", baseUrl: "http://localhost:5201" },
+  aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5204" },
+  springboot: { name: "springboot", baseUrl: "http://localhost:5205" },
 };
-
-/** ADR-0015：msw 是 oracle —— 打它必须绿，红了说明套件写错而不是后端错。 */
-export const ORACLE = "msw";
 
 export class TargetError extends Error {}
 
@@ -41,9 +36,4 @@ export function selectedTargets(raw = process.env.CONTRACT_TARGETS): Target[] {
     );
   }
   return names.map((n) => TARGETS[n]);
-}
-
-/** 比对集合里只要含内存后端，ID 就不可比 —— 它不共库。 */
-export function needsIdDrop(targets: readonly Target[]): boolean {
-  return targets.some((t) => t.inMemory);
 }

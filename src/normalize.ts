@@ -7,10 +7,10 @@
 // 故拆成两档：
 //   FORMAT 档（总是跑）  —— 日期归一化、key 排序、数组排序、null≡缺失。纯方言，不丢语义。
 //   VOLATILE 档（可选） —— 剔除每次请求都不同的值（token / jti）。
-//                          比对含 msw 时再额外剔 ID（它是内存 fixture，不共库）。
+// 2026-09-15 Phase 2 去 msw：ID 不再有任何剔除路径 —— 三个真后端共库，ID 本来就该相等。
 
 export interface NormalizeOptions {
-  /** 额外剔除的字段名（除 ALWAYS_VOLATILE 外）。含 msw 的比对传 ID_KEYS。 */
+  /** 额外剔除的字段名（除 ALWAYS_VOLATILE 外）。 */
   readonly drop?: readonly string[];
 }
 
@@ -22,9 +22,6 @@ export const ALWAYS_VOLATILE: readonly string[] = [
   "refresh_token",
   "jti",
 ];
-
-/** 主键类字段。**只在比对涉及 msw 时剔除** —— 三个真后端共库，ID 应当相等。 */
-export const ID_KEYS: readonly string[] = ["id", "userId", "tenantId", "user_id", "tenant_id"];
 
 /**
  * ADR-0015-amend：时间戳字段名（驼峰 + 下划线两版）。
@@ -43,7 +40,7 @@ export const TIMESTAMP_KEYS: readonly string[] = [
  *   - Java: `Instant.EPOCH` / `LocalDateTime.of(1970, 1, 1, 0, 0)`
  *   - JS/TS: `new Date(0)` // 1970-01-01T00:00:00.000Z
  * 不锁死毫秒/Z vs 微秒/+00:00 等具体语法（OpenAPI `format: date-time` 允许任意精度小数秒，
- * `Z` 和 `+00:00` 等价；msw 静态 seed 可能无小数秒）。前端不可区分这些形态，断言只挡
+ * `Z` 和 `+00:00` 等价）。前端不可区分这些形态，断言只挡
  * 「明显荒谬」的值（DateTime.MinValue、epoch 数字、null、空串）。
  */
 function isPlausibleTimestamp(value: string): boolean {
@@ -82,10 +79,10 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 }
 
 /** 数组排序键：对元素归一化后取稳定 JSON。集合顺序不属于契约。 */
-// session.json #1: msw fixture 同步 uniqueName tag（I10 设计层）。
-// contract-test 4 target uniqueName 调用每次生成不同 random tag，msw oracle
-// echo body tag 与后端真持久化 tag 必然不一致。normalize 时把 4 个已知测试
-// prefix 的 username/email 后 6 char 随机 tag 抹平为固定占位，prefix 仍可比对。
+// session.json #1: uniqueName 随机 tag 抹平（I10 设计层）。
+// contract-test 对各 target 的 uniqueName 调用每次生成不同 random tag，各后端
+// 真持久化的 tag 必然不一致。normalize 时把已知测试 prefix 的 username/email
+// 后 6 char 随机 tag 抹平为固定占位，prefix 仍可比对。
 const TEST_USER_PREFIXES = ["shape-", "invite-", "ct-u2-", "contract-test-user-"] as const;
 const RANDOM_TAG_RE = /(-[a-z0-9]{6})(?=[@.]|$)/;
 function maskRandomTag(value: unknown): unknown {
@@ -127,8 +124,8 @@ function walk(value: unknown, drop: Set<string>): unknown {
       // M96.F01.I03 —— 「字段缺失」与「显式 null」等价：两者都不进结果。
       // Spring 的 NON_ABSENT 省略 null，ASP.NET 默认输出 null，契约层面都合法。
       if (child === null || child === undefined) continue;
-      // session.json #1: username / email 是 contract-test 4 target uniqueName 随机 tag，
-      // 4 后端必然不一致；mask 抹平让 normalize 全等（只 mask 已知测试 prefix）。
+      // session.json #1: username / email 是 contract-test 各 target uniqueName 随机 tag，
+      // 各后端必然不一致；mask 抹平让 normalize 全等（只 mask 已知测试 prefix）。
       const walked = walk(child, drop);
       const isUserField = key === "username" || key === "email";
       out[key] = isUserField ? maskRandomTag(walked) : walked;
@@ -195,8 +192,8 @@ function walkShape(value: unknown, path: readonly string[], keys: readonly strin
 
 /** 便于断言的稳定序列化。 */
 export function stable(value: unknown, options: NormalizeOptions = {}): string {
-  // 解析后重序列化,消除 4 后端 JSON 序列化器格式差异
-  // (msw 不带 trailing comma,后端带;Object key 顺序也可能不同)
+  // 解析后重序列化,消除各后端 JSON 序列化器格式差异
+  // (trailing comma 有无、Object key 顺序等)
   return JSON.stringify(
     JSON.parse(JSON.stringify(normalize(value, options))),
     null,

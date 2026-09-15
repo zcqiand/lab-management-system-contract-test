@@ -5,7 +5,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   ALWAYS_VOLATILE,
-  ID_KEYS,
   assertTimestampShape,
   normalize,
   normalizeDate,
@@ -72,22 +71,12 @@ describe("M96.F01.I01 剔除非确定性字段", () => {
     expect(ALWAYS_VOLATILE).toContain("refresh_token");
   });
 
-  it("默认不剔 ID —— 三个真后端共库，UUID 本来就该相等", () => {
+  it("ID 不进任何剔除路径 —— 三个真后端共库，UUID 本来就该相等", () => {
     // 这是 2026-08-29 落地时对 ADR-0015 的修正：无脑剔 ID 会丢掉最强的一路信号。
+    // 2026-09-15 Phase 2 去 msw 后，比对里已没有任何含内存 fixture 的场景。
     const kept = normalize({ id: "t1", userId: "u1" }) as Record<string, unknown>;
     expect(kept.id).toBe("t1");
     expect(kept.userId).toBe("u1");
-  });
-
-  it("显式传 ID_KEYS 才剔 —— 比对含 msw（内存 fixture，不共库）时用", () => {
-    const dropped = normalize({ id: "t1", status: "active" }, { drop: ID_KEYS });
-    expect(dropped).toEqual({ status: "active" });
-  });
-
-  it("剔 ID 后 msw 的合成 ID 与真库 UUID 可比", () => {
-    const fromMsw = { id: "00000000-0000-0000-0000-000000000001-user-alice", status: "active" };
-    const fromPg = { id: "3f8a1c22-0f1e-4b7a-9c31-1d2e3f4a5b6c", status: "active" };
-    expect(stable(fromMsw, { drop: ID_KEYS })).toBe(stable(fromPg, { drop: ID_KEYS }));
   });
 });
 

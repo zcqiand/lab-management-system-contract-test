@@ -6,7 +6,7 @@
 // 认证形态兼容：no-sso（admin 直登）与真 saas OAuth（service account 内部换 token）
 // 的响应契约面必须一致 —— 本测试就是那条「两种形态不得分叉」的守卫。
 //
-// 跑法：CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run
+// 跑法：CONTRACT_TARGETS=nextjs,aspnetcore,springboot npx vitest run
 // 未声明 CONTRACT_TARGETS → 整组跳过（fnReporter 记 inert，不计入 trace）。
 // **声明了却连不上 = 红，不是跳过。**
 import { beforeAll, describe, expect, it } from "vitest";
@@ -82,8 +82,8 @@ describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID
     expect(targets.length).toBeLessThan(2);
     console.info(
       "[contract-test] 四方比对未运行。启用：\n" +
-        "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs npx vitest run\n" +
-        "  前置：4 个 lab 后端分别跑在 5200 / 5201 / 5204 / 5205（conventions §6）",
+        "  CONTRACT_TARGETS=nextjs,aspnetcore,springboot npx vitest run\n" +
+        "  前置：3 个 lab 后端分别跑在 5201 / 5204 / 5205（conventions §6）",
     );
   });
 });

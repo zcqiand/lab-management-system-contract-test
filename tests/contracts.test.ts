@@ -3,7 +3,7 @@
 // SSOT: contracts.tsp M02.F01.I01 (list) + M02.F01.I02 (create) + M02.F01.I03 (detail) +
 //       M02.F01.I04 (update) + M02.F01.I05 (delete)。
 //
-// 共库 V015 seed + msw fixtures 都有 contract 行；msw 内存 fixture 不共库 → ID drop。
+// 共库 V015 seed 提供 contract 行；三后端共库 → ID 直比不 drop。
 // 写端点共库约束：code 必须全局唯一 → 走 uniqueName("ct") 唯一化，registerCleanup DELETE 兜底。
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -75,7 +75,7 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I0
   });
 
   it("404 envelope shape 全等（前端 catch 分支依赖）", () => {
-    // 各家 ErrorResponse 命名不同（msw: {code,message}；aspnetcore: ProblemDetails；
+    // 各家 ErrorResponse 命名不同（aspnetcore: ProblemDetails；
     // springboot: {code,message,path}；nextjs: {error,message}），drop 后骨架必一致
     const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
     const divergences = compareBodies(probes, targets, drop);

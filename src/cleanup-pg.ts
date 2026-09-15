@@ -2,11 +2,10 @@
 //
 // 设计约束（CLAUDE.md §2 铁律 + ADR-0015）：
 //   1. 走 HTTP 不直连 PG —— 守黑盒契约
-//   2. msw（inMemory: true）一视同仁 —— 内存态残留也撞下次跑
-//   3. DELETE 容差 200 / 204 / 404 —— aspnetcore DELETE 返 200，msw 返 204，已删返 404 都算成功
+//   2. DELETE 容差 200 / 204 / 404 —— aspnetcore DELETE 返 200，其余返 204，已删返 404 都算成功
 //
 // 探针行识别：所有写端点测试 body 都走 uniqueName("ct-...") 系列 prefix。
-// 4 后端共库（PG）+ msw 内存态 —— 任何一行残留都会让下次跑撞唯一约束或漂移 total 计数。
+// 3 后端共库（PG）—— 任何一行残留都会让下次跑撞唯一约束或漂移 total 计数。
 //
 // 清理范围（按 SSOT 写端点全集）：
 //   - /contracts
@@ -20,7 +19,7 @@
 //   - /test-records
 //   - /calculation-methods
 //
-// junction 端点（POST/DELETE link）：msw/真后端都是基于「是否已存在」返回 200/204，
+// junction 端点（POST/DELETE link）：真后端都是基于「是否已存在」返回 200/204，
 // 不持久化 probe 状态；upsert 模式自然幂等，不需特别清理。
 import { login, probeRequest } from "./http.js";
 import { selectedTargets, type Target } from "./targets.js";

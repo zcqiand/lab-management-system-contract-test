@@ -1,7 +1,7 @@
 // M96.F03 探针 —— 打一个目标，拿回 (status, body)。
 //
 // 用 axios + tough-cookie jar，工作在 HTTP 层而非 fetch 的 CookieStore：
-// 因此不受 saas-msw「HttpOnly cookie 在 node fetch 被屏蔽」的限制，无需 debug 导出通道（ADR-0015）。
+// 不受「HttpOnly cookie 在 node fetch 被屏蔽」的坑限制，无需 debug 导出通道（ADR-0015）。
 // maxRedirects: 0 —— 302 链要手动走，Location 的 query 参数是 OAuth 流的断言点。
 
 import axios, { type AxiosInstance } from "axios";
@@ -11,7 +11,7 @@ import { wrapper } from "axios-cookiejar-support";
 import type { Probe } from "./compare.js";
 import type { Target } from "./targets.js";
 
-/** lab-msw DEMO_USER + 3 真后端 dev 目录共有的账号（2026-09-02 四方收敛，与 saas seed V016 alice 同源）。显式字面量，不走 env 兜底。 */
+/** 3 真后端 dev 目录共有的账号（2026-09-02 收敛，与 saas seed V016 alice 同源）。显式字面量，不走 env 兜底。 */
 export const SEED_USER = { username: "alice", password: "dev123456" } as const;
 
 export class UnreachableError extends Error {
@@ -120,7 +120,7 @@ async function probeWithToken(
         break;
       case "DELETE":
         // 契约里有 @body 的 unlink（如 /api/param-interfaces/links）必须带 body——
-        // 此前只传 headers，body 被丢弃：msw query 兜底成幂等 no-op 假 204，
+        // 此前只传 headers，body 被丢弃：请求退化成幂等 no-op 假 204，
         // 真后端 @RequestBody 必填直接 400（REQ-2026-001 live 实证）
         res = await http.delete(path, { headers, data: body });
         break;
