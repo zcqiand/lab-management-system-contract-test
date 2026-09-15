@@ -5,8 +5,8 @@
 // refresh 命中才会返回新 token（错误 token 4xx 是契约面）。
 import { describe, expect, it } from "vitest";
 
-import { login, probeGet, probeRequest } from "../src/http.js";
-import { type Target, selectedTargets } from "../src/targets.js";
+import { client, login, probeGet, probeRequest } from "../src/http.js";
+import { ORACLE, type Target, selectedTargets } from "../src/targets.js";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -101,4 +101,49 @@ describe.skipIf(!live)("M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M
       expect([200, 400, 401, 422], `${target.name} sso.callback 期望 2xx/4xx 实得 ${r.status}`).toContain(r.status);
     }, 30_000);
   }
+});
+
+// 2026-09-15 形状收敛锁：sso/callback 登录响应 tenants 收敛到契约 MyTenant
+// {tenantId, code, name, roleIds}（lab-nextjs 旧 demo 形状 tenantCode/tenantName
+// 与 shared OpenAPI、login/me 及其余三仓不一致，已收敛）。happy-path 形状先在
+// oracle（msw）侧锁死——msw 自铸一次性 code，无需 saas OAuth 全链；真后端
+// happy-path 需 saas 授权码 + state cookie 完整舞步，Phase 3 跟进（当前真后端
+// 只跑上方 invalid-code 冒烟）。
+// 注意：it() 标题不带 M/F/I 字面（fnReporter 正则会误吸作 functional coverage）。
+const mswTarget = targets.find((t) => t.name === ORACLE);
+
+describe.skipIf(!mswTarget)("M96.F02.I03 POST /api/auth/sso/callback happy-path 形状（msw oracle） / M01.F04.I02", () => {
+  it(`${ORACLE} sso.callback（authorize 换真 code）→ 200 + tenants 每行契约 MyTenant 四键`, async () => {
+    const http = client(mswTarget!);
+    const redirectUri = "http://localhost:5202/login";
+    const authRes = await http.get(
+      `/api/auth/sso/authorize?response_type=code&client_id=lab` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}&state=ct-mytenant-lock`,
+    );
+    expect(authRes.status, "msw authorize 期望 200 实得 " + authRes.status).toBe(200);
+    const back = new URL((authRes.data as { authorizeUrl?: string }).authorizeUrl ?? "");
+    const code = back.searchParams.get("code");
+    expect(code, "msw authorizeUrl 里必须带一次性 code").toBeTruthy();
+
+    const res = await http.post("/api/auth/sso/callback", {
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+    });
+    expect(res.status, "msw sso.callback(真 code) 期望 200 实得 " + res.status).toBe(200);
+    const tenants = (res.data as {
+      tenants?: Array<Record<string, unknown> & { tenantId: string }>;
+    }).tenants;
+    expect(tenants?.length, "msw sso.callback tenants 为空").toBeGreaterThan(0);
+    for (const row of tenants!) {
+      for (const key of ["tenantId", "code", "name", "roleIds"] as const) {
+        expect(row[key], `msw sso.callback 租户行少了 ${key}`).toBeDefined();
+      }
+      expect(row.name, "msw sso.callback name 拿 tenantId 充名字").not.toBe(row.tenantId);
+      expect(row.code, "msw sso.callback code 拿 tenantId 充名字").not.toBe(row.tenantId);
+      // 旧 demo 形状（tenantCode/tenantName）不得回潮
+      expect(row).not.toHaveProperty("tenantCode");
+      expect(row).not.toHaveProperty("tenantName");
+    }
+  }, 30_000);
 });

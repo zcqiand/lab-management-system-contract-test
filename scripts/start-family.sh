@@ -152,7 +152,7 @@ fi
 if [ -z "$LAB_PG_PASSWORD" ]; then
   LAB_PG_PASSWORD=$(grep -E '^DATABASE_PASSWORD=' "$SPRINGBOOT_DIR/.env.production" 2>/dev/null | head -1 | cut -d= -f2-)
 fi
-: "${LAB_PG_PASSWORD:=changeme}"
+: "${LAB_PG_PASSWORD:=qiand68+++}"
 ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD}"
 (cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_NOSSO_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
   LAB_DATA_PROVIDER=memory LAB_SSO_PROFILE=no-sso \
