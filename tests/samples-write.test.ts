@@ -72,3 +72,21 @@ describe.skipIf(!live)("M96.F02.I05 DELETE /api/samples/{id} 四方比对 / M01.
     await runCleanups();
   }, 60_000);
 });
+
+// M96.F02.I07 — PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07
+// 2026-09-17 Task 2.5：samples.tsp M03.F01.I07 ext 字段补录（独立端点）。
+// 2009-09-17 note: 端点固定存在 /samples/{id}/ext；body 必须含 ext 字段；
+// id 不存在时 4 后端可能 404（不同实现）—— 这是契约面。
+describe.skipIf(!live)("M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07", () => {
+  it("补录 ext → 200 或 404（id 不存在）", async () => {
+    for (const target of targets) {
+      const id = ctx.ids.get(target.name) ?? "00000000-0000-0000-0000-00000000dead";
+      const r = await probeRequest(target, {
+        method: "PUT",
+        path: `/api/samples/${id}/ext`,
+        body: { ext: { customField: `ct-${uniqueName("ext")}` } },
+      });
+      expect([200, 404], `${target.name} PUT sample ext 期望 200/404 实得 ${r.status}`).toContain(r.status);
+    }
+  }, 60_000);
+});
