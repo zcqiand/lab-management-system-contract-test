@@ -74,15 +74,18 @@ describe.skipIf(!live)(`M96.F02.I04 GET ${PATH_MENUS} 四方比对 / M01.F04.I01
   });
 });
 
-// /auth/sso/authorize 是 OAuth 2.0 跳板（RFC 6749 §4.1.1）：后端拿到合法参数后
-// 重定向到 saas /oauth/authorize —— 契约面是「302 + Location 含 client_id/state/code_challenge」
+// /auth/sso/authorize 是 OAuth 2.0 跳板（RFC 6749 §4.1.1）。
+// T11(2026-09-16) 遗留裁决落定：2026-09-15 saas authorize 收敛为必须 Bearer
+// （code 绑 Bearer sub+tenant_id，禁匿名签 code）后，lab 三后端 sso/authorize
+// 家族统一为「200 JSON 跳板」—— 返回 { authorizeUrl, state }（authorizeUrl 指向
+// saas 登录页 /login，前端 window.location.href 顶层导航不受 CORS 限制），
+// 服务端不再做 code 预拿。旧「302 + Location」断言是 saas authorize 认证收敛
+// 之前的契约，作废（lab-nextjs authorize 跳板收敛记录在案）。
 describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对 / M01.F05.I02`, () => {
   let probes: Probe[];
 
   beforeAll(async () => {
-    // maxRedirects: 0，所以 302 会原样回来。query 必须齐全：response_type=code +
-    // client_id + redirect_uri + state。4 后端 redirect 目标必须指向同一 saas
-    // /oauth/authorize（URL host 部分），query 一致。
+    // query 必须齐全：response_type=code + client_id + redirect_uri + state。
     const authz = new URLSearchParams({
       response_type: "code",
       client_id: "lab-contract-test",
@@ -99,26 +102,27 @@ describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对 / M01
     }
   }, 60_000);
 
-  it("4 后端都返回 302（authorize 是跳板，不是 200）", () => {
-    const bad = probes.filter((p) => p.status !== 302);
+  it("4 后端都返回 200（JSON 跳板，不是 302/5xx）", () => {
+    const bad = probes.filter((p) => p.status !== 200);
     expect(
       bad,
-      `非 302: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
     ).toEqual([]);
   });
 
-  it("响应 Location 头非空（跳板契约面）", () => {
-    // axios maxRedirects: 0 时 302 的 Location 在 res.headers.location —— 不在 body。
-    // 这里只验后端确有跳板语义；Location 内容比对由 Phase 2 oauth.test 接管。
+  it("跳板契约面：body.authorizeUrl 指向 saas 登录页且带 state 回显", () => {
     for (const p of probes) {
-      // 通过 raw response data 验证 body 是空（标准 302 行为）
-      expect(p.body, `${p.target} 302 body 应为空`).toBeDefined();
+      const body = p.body as Record<string, unknown>;
+      const authorizeUrl = String(body.authorizeUrl ?? "");
+      expect(authorizeUrl, `${p.target} 缺 authorizeUrl`).toContain("/login");
+      expect(authorizeUrl, `${p.target} authorizeUrl 缺 state`).toContain("state=");
+      expect(String(body.state ?? ""), `${p.target} state 未回显`).toBe("ct-state-fixture");
     }
   });
 
   it("normalize 后骨架全等", () => {
     const divergences = compareAll(probes, targets);
-    // 302 的 body 通常为空或 Location 字符串 —— 4 后端都该空；只验 status 不分叉
+    // authorizeUrl 的 host/query 每后端 env 不同 —— 只验 status 不分叉
     expect(
       divergences.filter((d) => d.kind === "status"),
       `\n${formatDivergences(divergences)}\n`,

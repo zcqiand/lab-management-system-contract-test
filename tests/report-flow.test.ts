@@ -19,7 +19,10 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_QUEUE} 四方比对 / M01.F05.I01
   let probes: Probe[];
 
   beforeAll(async () => {
-    probes = await probeAll(targets, `${PATH_QUEUE}?stage=Reviewing`);
+    // T11(2026-09-16)：stage 取值必须是 SSOT FlowStatus 成员（common.tsp 小写 snake：
+    // review/approval/issuance/archived/...）。此前发 "Reviewing" —— 该成员不存在，
+    // aspnetcore/springboot 按 SSOT 枚举拒 400 是正确行为（nextjs 宽松解析 200 是单侧漂移）。
+    probes = await probeAll(targets, `${PATH_QUEUE}?stage=review`);
   }, 60_000);
 
   it("每个目标都返回 200（即使 items 为空）", () => {

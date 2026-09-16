@@ -169,7 +169,20 @@ describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对 / M00.F01.I01
       });
       probes.push(r);
     }
-    const drop = ["id", "contractCode", "projectName", "createdAt", "updatedAt"];
+    // clientUnit/constructionUnit/witnessUnit/witness：必填回显字段，值内嵌 per-target
+    // uniqueName（`unit ${contractCode}` 等），与 contractCode/projectName 同类 —— 永远
+    // 不可能跨后端逐字相等，只能 drop。
+    const drop = [
+      "id",
+      "contractCode",
+      "projectName",
+      "createdAt",
+      "updatedAt",
+      "clientUnit",
+      "constructionUnit",
+      "witnessUnit",
+      "witness",
+    ];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);
