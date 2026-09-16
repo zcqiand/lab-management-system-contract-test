@@ -8,9 +8,13 @@ import { type Target, selectedTargets } from "../src/targets.js";
 import { uniqueName } from "../src/unique.js";
 import { registerCleanup, runCleanups } from "../src/teardown.js";
 
-const SEED_OBJECT = "OBJ-SP01-P1";
-const SEED_PARAMETER = "PRM-CEMENT-STRENGTH";
-const SEED_STANDARD = "GB/T-17671-2021";
+// 2026-09-16 T11：三元组换 lab_dev 真实种子码且未占用（旧 PRM-CEMENT-STRENGTH /
+// GB/T-17671-2021 是 msw 时代虚构码，springboot 真 FK 23503 → 500；
+// judgmentStandardCode 也不能 uniqueName 虚构——必须真实存在）。
+// (OBJ-SP01-P11, IP-0002, GB 13788-2024) 实测 lab_dev 0 行——create→cleanup delete 净零。
+const SEED_OBJECT = "OBJ-SP01-P11";
+const SEED_PARAMETER = "IP-0002";
+const SEED_STANDARD = "GB 13788-2024";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -24,23 +28,22 @@ const ctx: Ctx = { keys: new Map() };
 describe.skipIf(!live)("M96.F02.I02 POST /api/technical-requirements 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} 创 technical-requirement → 200`, async () => {
-      const std = uniqueName("ct-tr-s");
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/technical-requirements",
         body: {
           inspectionObjectCode: SEED_OBJECT,
           inspectionParameterCode: SEED_PARAMETER,
-          judgmentStandardCode: std,
+          judgmentStandardCode: SEED_STANDARD,
           requirement: "≥ 42.5 MPa",
         },
       });
       expect([200, 201], `${target.name} POST tr 期望 200/201 实得 ${r.status}`).toContain(r.status);
-      ctx.keys.set(target.name, `${SEED_OBJECT}/${SEED_PARAMETER}/${std}`);
-      registerCleanup(`delete-tr:${target.name}:${std.slice(-6)}`, async () => {
+      ctx.keys.set(target.name, `${SEED_OBJECT}/${SEED_PARAMETER}/${SEED_STANDARD}`);
+      registerCleanup(`delete-tr:${target.name}`, async () => {
         const tr = await probeRequest(target, {
           method: "DELETE",
-          path: `/api/technical-requirements/${SEED_OBJECT}/${SEED_PARAMETER}/${std}`,
+          path: `/api/technical-requirements/${SEED_OBJECT}/${SEED_PARAMETER}/${SEED_STANDARD}`,
         });
         if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
           console.warn(`[teardown] delete tr ${target.name} status=${tr.status}`);

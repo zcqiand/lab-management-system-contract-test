@@ -40,8 +40,9 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`
     }
   });
 
-  it("normalize 后骨架全等（items/total 漂移，drop）", () => {
-    const drop = ["items", "total"];
+  it("normalize 后骨架全等（items/total/pageSize 数据派生漂移，drop）", () => {
+    // pageSize 缺省 wrapDict=total，aspnetcore memory 空仓 ≠ PG → drop。
+    const drop = ["items", "total", "pageSize"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   });
@@ -97,15 +98,10 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_LINKS} 四方比对 / M01.F04.I02
     }
   });
 
-  it("normalize 后骨架全等", () => {
-    const drop = ["items", "total"];
+  it("normalize 后骨架全等（links 短信封 pageSize 数据派生，drop）", () => {
+    const drop = ["items", "total", "pageSize"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   });
 });
 
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});

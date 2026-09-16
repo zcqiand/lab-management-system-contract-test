@@ -24,7 +24,7 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/test-records 四方比对 / M00.F0
         path: "/api/test-records",
         body: {
           sampleId: "00000000-0000-0000-0000-000000000001",
-          parameterCode: "PRM-CEMENT-STRENGTH",
+          parameterCode: "IP-0001",
           value: 42.5,
         },
       });

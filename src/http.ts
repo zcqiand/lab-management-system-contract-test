@@ -28,10 +28,11 @@ export function client(target: Target): AxiosInstance {
       jar,
       withCredentials: true,
       maxRedirects: 0,
-      // 30s：live 跑 dev server 的现实水位（nextjs dev 每个探针先 login，
-      // 单次 login 实测 7.5-8s，8s 恒间歇性误报 Unreachable——REQ-2026-001 live 实证）。
-      // 声明即必须可达的判定不变，只是不再把「dev 编译慢」当「连不上」。
-      timeout: 30_000,
+      // 120s：live 跑 dev server 的现实水位（nextjs dev 每个探针先 login，
+      // 单次 login 实测 7.5-8s；cleanup 的 list?pageSize=500 在 remote PG + N+1 下
+      // 实测 nextjs 32s / springboot 28s——30s 恒间歇性误报 Unreachable）。
+      // 声明即必须可达的判定不变，只是不再把「dev 慢查询」当「连不上」。
+      timeout: 120_000,
       // 任何状态码都返回，不抛 —— 状态码本身是被比对的对象。
       validateStatus: () => true,
       headers: { "content-type": "application/json" },

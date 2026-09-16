@@ -9,7 +9,12 @@ import { type Target, selectedTargets } from "../src/targets.js";
 import { uniqueName } from "../src/unique.js";
 import { registerCleanup, runCleanups } from "../src/teardown.js";
 
+// 2026-09-16 T11：复合键两端换 lab_dev 真实种子码（原 uniqueName 虚构码在 springboot
+// 真 FK 23503 → 500；SSOT CreateCalculationMethodRequest 必填 inspectionObjectCode +
+// inspectionParameterCode，且无 precision 字段——已删）。(OBJ-SP01-P1, IP-0002) 实测
+// inspection_calculation_methods 0 行——create→cleanup delete 净零。
 const SEED_OBJECT = "OBJ-SP01-P1";
+const SEED_PARAMETER = "IP-0002";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -23,24 +28,21 @@ const ctx: Ctx = { keys: new Map() };
 describe.skipIf(!live)("M96.F02.I02 POST /api/calculation-methods 四方比对 / M00.F01.I01", () => {
   for (const target of targets) {
     it(`${target.name} 创 calculation-method → 200`, async () => {
-      const obj = uniqueName("ct-cm-o");
-      const param = uniqueName("ct-cm-p");
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/calculation-methods",
         body: {
-          inspectionObjectCode: obj,
-          inspectionParameterCode: param,
+          inspectionObjectCode: SEED_OBJECT,
+          inspectionParameterCode: SEED_PARAMETER,
           formula: "value * 2",
-          precision: 2,
         },
       });
       expect([200, 201], `${target.name} POST calc-method 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
-      ctx.keys.set(target.name, `${obj}/${param}`);
-      registerCleanup(`delete-cm:${target.name}:${obj.slice(-6)}`, async () => {
+      ctx.keys.set(target.name, `${SEED_OBJECT}/${SEED_PARAMETER}`);
+      registerCleanup(`delete-cm:${target.name}`, async () => {
         const tr = await probeRequest(target, {
           method: "DELETE",
-          path: `/api/calculation-methods/${obj}/${param}`,
+          path: `/api/calculation-methods/${SEED_OBJECT}/${SEED_PARAMETER}`,
         });
         if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
           console.warn(`[teardown] delete calc-method ${target.name} status=${tr.status}`);

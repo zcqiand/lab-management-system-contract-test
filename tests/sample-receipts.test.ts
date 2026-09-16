@@ -102,8 +102,3 @@ describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I
   });
 });
 
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});

@@ -41,7 +41,9 @@ function assertStatus200(probes: Probe[], label: string) {
 }
 
 function assertBodies(probes: Probe[]) {
-  const drop = ["items", "total"];
+  // wrapDict：pageSize 缺省 = total（数据派生）。aspnetcore memory 空仓 ≠ PG total
+  // → 跨 provider 恒不等，与 items/total 同列 drop。
+  const drop = ["items", "total", "pageSize"];
   const divergences = compareBodies(probes, targets, drop);
   expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
 }
@@ -126,8 +128,3 @@ describe.skipIf(!live)(`M96.F02.I20 GET ${PATH_LINK_STANDARD_PARAMETER} 四方�
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
 });
 
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});

@@ -21,6 +21,20 @@ const PATH_DETAIL = "/api/contracts/00000000-0000-0000-0000-00000000dead";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
+// SSOT CreateContractRequest 必填 6 项：contractCode/clientUnit/projectName/constructionUnit/
+// witnessUnit/witness。msw 时代只发 {code,name}，切真后 3 后端全 400/校验拒 —— T11 实证。
+// tenantId 不随 body 走：SSOT Contract.tenantId 由服务端从 token claim 取（ADR-0019）。
+function contractBody(contractCode: string): Record<string, string> {
+  return {
+    contractCode,
+    clientUnit: `unit ${contractCode}`,
+    projectName: `proj ${contractCode}`,
+    constructionUnit: `cons ${contractCode}`,
+    witnessUnit: `w-unit ${contractCode}`,
+    witness: `witness ${contractCode}`,
+  };
+}
+
 describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
@@ -43,10 +57,12 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`
     }
   });
 
-  it("分页 defaults 全等（page=0, pageSize=20）", () => {
+  it("分页 defaults 全等（page=1, pageSize=20）", () => {
     for (const p of probes) {
       const body = p.body as Record<string, unknown>;
-      expect(body.page, `${p.target} 默认 page 应为 0`).toBe(0);
+      // 2026-09-16 T11 live 实证：家族分页 1-based（nextjs oracle page=1），
+      // msw 时代 0-based 断言是历史欠账。
+      expect(body.page, `${p.target} 默认 page 应为 1`).toBe(1);
       expect(body.pageSize, `${p.target} 默认 pageSize 应为 20`).toBe(20);
     }
   });
@@ -91,11 +107,6 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I0
   });
 });
 
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});
 
 // ────────── Phase 2: 写端点 ──────────
 
@@ -118,11 +129,12 @@ describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对 / M00.F01.I01
       const r = await probeRequest(target, {
         method: "POST",
         path: PATH_LIST,
-        body: { code, name: `contract-test ${code}` },
+        body: contractBody(code),
       });
       expect([200, 201], `${target.name} POST 期望 200/201 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 200)}`).toContain(r.status);
       const body = r.body as Record<string, unknown>;
-      for (const key of ["id", "code", "name"]) {
+      // SSOT Contract：主键是 id，业务编号是 contractCode（不是 msw 时代的 code/name）。
+      for (const key of ["id", "contractCode", "projectName"]) {
         expect(body[key], `${target.name} POST 响应缺 ${key}`).toBeDefined();
       }
       const id = String(body.id);
@@ -144,7 +156,7 @@ describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对 / M00.F01.I01
       const r = await probeRequest(t, {
         method: "POST",
         path: PATH_LIST,
-        body: { code, name: `shape ${code}` },
+        body: contractBody(code),
       });
       expect([200, 201]).toContain(r.status);
       // shape 探针创建的行也要清 —— 不注册 cleanup 会污染共库（total 计数漂移）
@@ -157,7 +169,7 @@ describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对 / M00.F01.I01
       });
       probes.push(r);
     }
-    const drop = ["id", "code", "name"];
+    const drop = ["id", "contractCode", "projectName", "createdAt", "updatedAt"];
     const divergences = compareBodies(probes, targets, drop);
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   }, 60_000);
@@ -165,13 +177,14 @@ describe.skipIf(!live)(`M96.F02.I02 POST ${PATH_LIST} 四方比对 / M00.F01.I01
 
 describe.skipIf(!live)(`M96.F02.I04 PUT /api/contracts/{id} 四方比对 / M01.F04.I01`, () => {
   for (const target of targets) {
-    it(`${target.name} 改 name → 200`, async () => {
+    it(`${target.name} 改 projectName → 200`, async () => {
       const id = ctx.ids.get(target.name);
       if (!id) throw new Error(`${target.name} I02 未创建 contract，跳过 I04`);
       const r = await probeRequest(target, {
         method: "PUT",
         path: `${PATH_LIST}/${id}`,
-        body: { name: `renamed-${uniqueName("ct")}` },
+        // SSOT UpdateContractRequest 全字段可选；Contract 没有 name 字段（msw 欠账）。
+        body: { projectName: `renamed-${uniqueName("ct")}` },
       });
       expect([200], `${target.name} PUT 期望 200 实得 ${r.status}`).toContain(r.status);
     }, 30_000);

@@ -32,7 +32,9 @@ const DROP_404 = [
   "timestamp",
   "traceId",
 ];
-const DROP_LIST = ["items", "total"];
+// pageSize 缺省是数据派生（wrapDict/短信封 = total/items.length）：
+// aspnetcore memory provider 空仓 ≠ PG total → 跨 provider 恒不等，与 items/total 同列 drop。
+const DROP_LIST = ["items", "total", "pageSize"];
 
 describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
@@ -173,8 +175,3 @@ describe.skipIf(!live)(`M96.F02.I08 GET ${PATH_LINK_PARAMETER} 四方比对 / M0
   });
 });
 
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});

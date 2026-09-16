@@ -11,10 +11,14 @@ import { type Target, selectedTargets } from "../src/targets.js";
 import { uniqueName } from "../src/unique.js";
 import { clearCleanups, registerCleanup, runCleanups } from "../src/teardown.js";
 
-const SEED_OBJECT = "OBJ-SP01-P1";
-const SEED_SPECIALTY = "SP01";
-const SEED_PARAMETER = "PRM-CEMENT-STRENGTH";
-const SEED_STANDARD = "GB/T-17671-2021";
+// 2026-09-16 T11：junction link 探测对换 lab_dev 真实种子码（PRM-CEMENT-STRENGTH /
+// GB/T-17671-2021 是 msw 时代虚构码，springboot 真 FK 23503 → 500）。
+// 组合特意选 lab_dev 未占用的 (SP02,OBJ-SP01-P11)/(OBJ-SP01-P11,IP-0002)/
+// (OBJ-SP01-P11,GB 13788-2024)/(GB 13788-2024,IP-0002)——link→unlink 净零，不删种子行。
+const SEED_OBJECT = "OBJ-SP01-P11";
+const SEED_SPECIALTY = "SP02";
+const SEED_PARAMETER = "IP-0002";
+const SEED_STANDARD = "GB 13788-2024";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -42,6 +46,35 @@ function regCleanup(target: Target, label: string, doIt: () => Promise<unknown>)
   });
 }
 
+// aspnetcore LAB_DATA_PROVIDER=memory 启动空仓：固定种子码 SP02 不存在 →
+// object 创建 FK 校验 404 "specialty SP02 not found"（T11 实证，服务端行为正确）。
+// 按目标补种：列表接口查不到才 POST 创建；只在补种成功时生效，不注册删除清理
+// （memory 仓进程级临时；PG 仓已有种子不会走到创建分支）。
+const seedSpecialtyMemo = new Map<string, Promise<void>>();
+function ensureSeedSpecialty(target: Target): Promise<void> {
+  let p = seedSpecialtyMemo.get(target.name);
+  if (!p) {
+    p = (async () => {
+      const list = await probeRequest(target, {
+        method: "GET",
+        path: "/api/inspection/specialties?pageSize=100",
+      });
+      const items = (list.body as { items?: Array<{ code?: string }> })?.items ?? [];
+      if (items.some((s) => s.code === SEED_SPECIALTY)) return;
+      const r = await probeRequest(target, {
+        method: "POST",
+        path: "/api/inspection/specialties",
+        body: { code: SEED_SPECIALTY, officialNo: SEED_SPECIALTY, name: `sp ${SEED_SPECIALTY}` },
+      });
+      if (r.status !== 200 && r.status !== 201) {
+        console.warn(`[ensureSeedSpecialty] ${target.name} POST ${SEED_SPECIALTY} → ${r.status}`);
+      }
+    })();
+    seedSpecialtyMemo.set(target.name, p);
+  }
+  return p;
+}
+
 // ── specialties ──
 describe.skipIf(!live)("M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01", () => {
   beforeAll(() => {
@@ -54,7 +87,9 @@ describe.skipIf(!live)("M96.F02.I02 POST /api/inspection/specialties 四方比�
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/inspection/specialties",
-        body: { code, name: `sp ${code}` },
+        // SSOT CreateInspectionSpecialtyRequest 必填：code/officialNo/name（msw 时代只发 code+name，
+        // 切真后 nextjs NOT NULL official_no 500 / aspnetcore·springboot 校验 400 —— T11 实证）。
+        body: { code, officialNo: code, name: `sp ${code}` },
       });
       expect([200, 201], `${target.name} POST specialty 期望 200/201 实得 ${r.status}`).toContain(r.status);
       bucket("specialties").set(target.name, code);
@@ -97,10 +132,18 @@ describe.skipIf(!live)("M96.F02.I06 POST /api/inspection/objects 四方比对 / 
   for (const target of targets) {
     it(`${target.name} 创 object → 200`, async () => {
       const code = uniqueName("ct-obj");
+      await ensureSeedSpecialty(target);
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/inspection/objects",
-        body: { code, name: `obj ${code}`, inspectionSpecialtyCode: SEED_SPECIALTY },
+        // SSOT CreateInspectionObjectRequest 必填：code/inspectionSpecialtyCode/sourceProjectNo/sourceProjectName/name。
+        body: {
+          code,
+          name: `obj ${code}`,
+          inspectionSpecialtyCode: SEED_SPECIALTY,
+          sourceProjectNo: code,
+          sourceProjectName: `proj ${code}`,
+        },
       });
       expect([200, 201], `${target.name} POST object 期望 200/201 实得 ${r.status}`).toContain(r.status);
       bucket("objects").set(target.name, code);
@@ -146,7 +189,8 @@ describe.skipIf(!live)("M96.F02.I10 POST /api/inspection/parameters 四方比对
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/inspection/parameters",
-        body: { code, name: `prm ${code}` },
+        // SSOT CreateInspectionParameterRequest 必填：code/name/rawName/canonicalName。
+        body: { code, name: `prm ${code}`, rawName: `raw ${code}`, canonicalName: `can ${code}` },
       });
       expect([200, 201], `${target.name} POST parameter 期望 200/201 实得 ${r.status}`).toContain(r.status);
       bucket("parameters").set(target.name, code);
@@ -265,7 +309,12 @@ describe.skipIf(!live)("M96.F02.I24 POST /api/inspection/links/object-parameter 
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/inspection/links/object-parameter",
-        body: { inspectionObjectCode: SEED_OBJECT, inspectionParameterCode: SEED_PARAMETER },
+        // SSOT ObjectParameterLink 必填 qualificationLevel（缺它 aspnetcore 400 是对的，nextjs 宽松掩盖）。
+        body: {
+          inspectionObjectCode: SEED_OBJECT,
+          inspectionParameterCode: SEED_PARAMETER,
+          qualificationLevel: "QUALIFIED",
+        },
       });
       expect([200, 201, 204], `${target.name} link 期望 2xx 实得 ${r.status}`).toContain(r.status);
     }, 30_000);
@@ -291,7 +340,7 @@ describe.skipIf(!live)("M96.F02.I27 POST /api/inspection/links/object-standard �
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/inspection/links/object-standard",
-        body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "judgment" },
+        body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "JUDGMENT" },
       });
       expect([200, 201, 204], `${target.name} link 期望 2xx 实得 ${r.status}`).toContain(r.status);
     }, 30_000);
@@ -304,7 +353,7 @@ describe.skipIf(!live)("M96.F02.I28 DELETE /api/inspection/links/object-standard
       const r = await probeRequest(target, {
         method: "DELETE",
         path: "/api/inspection/links/object-standard",
-        body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "judgment" },
+        body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "JUDGMENT" },
       });
       expect([200, 201, 204], `${target.name} unlink 期望 2xx 实得 ${r.status}`).toContain(r.status);
     }, 30_000);

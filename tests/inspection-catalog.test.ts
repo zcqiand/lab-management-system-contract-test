@@ -35,8 +35,10 @@ function assertPageList(probes: Probe[], label: string) {
 function assertDefaults(probes: Probe[], label: string) {
   for (const p of probes) {
     const body = p.body as Record<string, unknown>;
-    expect(body.page, `${p.target} ${label} 默认 page 应为 0`).toBe(0);
-    expect(body.pageSize, `${p.target} ${label} 默认 pageSize 应为 20`).toBe(20);
+    // 2026-09-16 T11 live 实证：家族分页 1-based；目录列表走 wrapDict 语义
+    // pageSize 缺省 = total（不是静态 20，msw 时代断言已改）。
+    expect(body.page, `${p.target} ${label} 默认 page 应为 1`).toBe(1);
+    expect(body.pageSize, `${p.target} ${label} 默认 pageSize 应为 total`).toBe(body.total as number);
   }
 }
 
@@ -49,7 +51,9 @@ function assertCodeShape(probes: Probe[], label: string) {
 }
 
 function assertBodies(probes: Probe[], label: string) {
-  const drop = ["items", "total"];
+  // pageSize 缺省是数据派生（wrapDict=total）：aspnetcore memory provider 空仓 ≠ PG total，
+  // 跨 provider 恒不可能相等 → 与 items/total 同列 drop。
+  const drop = ["items", "total", "pageSize"];
   const divergences = compareBodies(probes, targets, drop);
   expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
 }
@@ -118,8 +122,3 @@ describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_GRADES} 四方比对 / M04.F08.I0
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes, "grades"));
 });
 
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});

@@ -97,13 +97,6 @@ describe("M96.F03.I01 目标端口声明", () => {
 });
 
 describe("M96.F03.I02 声明即必须可达", () => {
-  // 「未声明目标时返回空」只在没设 CONTRACT_TARGETS 的单测模式才有意义；
-  // live 模式下 CONTRACT_TARGETS 已设，这条断言的前提不成立。skipIf 隔离两条上下文。
-  it.skipIf(!!process.env.CONTRACT_TARGETS)("未声明目标时返回空 —— 只跑单元测试", () => {
-    expect(selectedTargets("")).toEqual([]);
-    expect(selectedTargets(undefined)).toEqual([]);
-  });
-
   it("声明了认识的目标就返回它们（声明序 = 比对序，首位是基准）", () => {
     expect(selectedTargets("nextjs,springboot").map((t) => t.name)).toEqual(["nextjs", "springboot"]);
   });

@@ -38,10 +38,3 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH} 四方比对 / M00.F01.I01`, () 
     expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
   });
 });
-
-// 未声明目标时留一条可见记录。描述里刻意不写功能 ID（未打任何后端）。
-describe.runIf(!live)("四方比对未运行（提示，不覆盖任何功能 ID）", () => {
-  it("打印启用方式", () => {
-    expect(targets.length).toBeLessThan(2);
-  });
-});
