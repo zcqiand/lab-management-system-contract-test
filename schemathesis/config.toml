@@ -5,12 +5,14 @@
 # config.yaml 以此为准修正。
 #
 # ADR-0036 §5 范围扩：默认全 method 跑（GET/POST/PUT/PATCH/DELETE）。
-# method 范围由 run.py 决定（不带 --include-method），hooks.py 读 openapi.yaml
-# 的 x-fuzz: skip 扩展按 case 跳过。
+# method 范围由 run.py 决定（不带 --include-method）；run.py 解析 openapi.yaml
+# 的 x-fuzz: skip 扩展，转 schemathesis 4.x 的 --exclude-path + --exclude-method
+# CLI 对（path+method AND 排除）。
 #
 # 单一修改点：shared 仓 .tsp 文件加 // fuzz:skip 注释 → emit-openapi.ts 后处理
-# 注入 openapi.yaml 的 x-fuzz: skip → hooks.py 跳过。本文件不再维护
-# [[operations]] 排除清单（避免与 shared .tsp 双源漂移）。
+# 注入 openapi.yaml 的 x-fuzz: skip → run.py 解析生成 --exclude-path +
+# --exclude-method 对。本文件不再维护 [[operations]] 排除清单（避免与 shared .tsp
+# 双源漂移）。
 
 # ── checks：三个起点检查，其余全关 ──────────────────────────────
 # not_a_server_error        —— 未文档化 5xx（SSOT 清理的头号猎物）
@@ -29,9 +31,10 @@ enabled = true
 enabled = true
 
 # ── phases ──────────────────────────────────────────────────────
-# ADR-0036：stateful 重新开启（run.py 传 --stateful=links 自动跟踪 response.id
-# 并 cleanup；v0.1 起点；v0.2 加 invariant 差集兜底）。
+# ADR-0036 §5：stateful 重新开启。schemathesis 4.x stateful testing 默认模式就是
+# links（自动跟踪 response.id 并 cleanup）；不是 CLI 参数控制。
 # examples/coverage/fuzzing 保持默认开启。
+# v0.1 起点；v0.2 加 invariant 差集兜底。
 [phases.stateful]
 enabled = true
 
