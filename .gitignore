@@ -16,3 +16,10 @@ schemathesis-report/
 # schemathesis Python 运行时产物
 schemathesis/__pycache__/
 schemathesis/**/__pycache__/
+
+# 调试日志 + Schemathesis 探针产物（用户明令：跳过入库）
+logs/
+schemathesis-report/
+brands_probe.json
+p25.json
+p25sb.json
