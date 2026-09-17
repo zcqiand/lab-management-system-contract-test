@@ -1,13 +1,16 @@
-# Schemathesis 4.27.3 配置（TSP SSOT 清理 Phase E1，2026-09-17）。
+# Schemathesis 4.27.3 配置（TSP SSOT 清理 Phase E1，2026-09-17）+ ADR-0036 全 method 扩。
 #
 # 为什么是 config.toml 不是 config.yaml：schemathesis 4.27.3 的 --config-file
 # 只认 TOML（.yaml 后缀会被按 TOML 解析直接报错，实测）。设计文档写的
 # config.yaml 以此为准修正。
 #
-# method 过滤（只跑 GET）不在本文件：4.x config schema 的根节点没有
-# include-method（只有 [[operations]] 条目内才有），由 run.py 的
-# --include-method GET CLI 参数承担。写方法的随机体会污染 lab_dev 共库
-# 且无法 teardown，Phase 1 硬边界（设计文档 §E2）。
+# ADR-0036 §5 范围扩：默认全 method 跑（GET/POST/PUT/PATCH/DELETE）。
+# method 范围由 run.py 决定（不带 --include-method），hooks.py 读 openapi.yaml
+# 的 x-fuzz: skip 扩展按 case 跳过。
+#
+# 单一修改点：shared 仓 .tsp 文件加 // fuzz:skip 注释 → emit-openapi.ts 后处理
+# 注入 openapi.yaml 的 x-fuzz: skip → hooks.py 跳过。本文件不再维护
+# [[operations]] 排除清单（避免与 shared .tsp 双源漂移）。
 
 # ── checks：三个起点检查，其余全关 ──────────────────────────────
 # not_a_server_error        —— 未文档化 5xx（SSOT 清理的头号猎物）
@@ -26,11 +29,11 @@ enabled = true
 enabled = true
 
 # ── phases ──────────────────────────────────────────────────────
-# stateful 显式关闭：stateful testing 会拿响应里的 id 去打写端点，
-# 与「Phase 1 只跑 GET、不污染 lab_dev 共库」的硬边界冲突（§E2）。
+# ADR-0036：stateful 重新开启（run.py 传 --stateful=links 自动跟踪 response.id
+# 并 cleanup；v0.1 起点；v0.2 加 invariant 差集兜底）。
 # examples/coverage/fuzzing 保持默认开启。
 [phases.stateful]
-enabled = false
+enabled = true
 
 # ── 逐端点豁免 ─────────────────────────────────────────────────
 # 格式：[[operations]] + include-path/include-method 选端点 + 覆写字段。

@@ -137,8 +137,13 @@ def run_target(name: str, base_url: str, spec: Path) -> int:
         base_url,
         "--header",
         f"Authorization: Bearer {token}",
-        "--include-method",
-        "GET",  # Phase 1 只读硬边界（§E2）
+        # ADR-0036 §6：默认全 method 跑（GET/POST/PUT/PATCH/DELETE），
+        # 仅 ops 里 // fuzz:skip 标注的 endpoint 走 hooks.py 跳过。
+        # teardown: --stateful=links 自动跟踪 response.id 并 cleanup（v0.1
+        # 起点；v0.2 加 invariant 差集兜底）。
+        "--stateful=links",
+        "--hooks",
+        str(Path(__file__).resolve().parent / "hooks.py"),
         "--request-timeout",
         REQUEST_TIMEOUT,
         "-n",
