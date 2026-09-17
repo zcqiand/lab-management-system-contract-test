@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:schemathesis": "python schemathesis/run.py"
   },
   "dependencies": {
     "axios": "^1.19.0",

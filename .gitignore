@@ -8,3 +8,7 @@
 
 node_modules/
 .runtime-logs/
+
+# Schemathesis（Phase E1）
+.schemathesis/
+schemathesis-report/

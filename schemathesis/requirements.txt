@@ -1,0 +1,7 @@
+# Phase E1（2026-09-17）：本机 anaconda Python 3.11.7 已预装，本文件是版本钉子，
+# 供环境重建/CI 复现。禁止随手升级——4.x 配置 schema（TOML-only、无根级
+# include-method）是按 4.27.3 实测写的。
+schemathesis==4.27.3
+# PyYAML 是 run.py 做 spec 规格化（容忍 '=' 值标签 → 重dump）的运行依赖，
+# anaconda 自带；显式钉住下限以防精简环境。
+PyYAML>=6.0
