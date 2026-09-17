@@ -6,12 +6,12 @@
 # 同名脚本（2026-09-02 端口分段落地时补齐，见 conventions §6）。
 #
 # 前提 (CI runner 自动满足, 本机要手动确保):
-#   1. 5 sibling 仓已在 ../lab-management-system-{shared,msw,aspnetcore,springboot,nextjs}/
+#   1. 4 sibling 仓已在 ../lab-management-system-{shared,aspnetcore,springboot,nextjs}/
 #      (suite 作为 multi-repo-family 用 gitlink 挂载, 本仓库目录下 output/ 自带)
 #   2. 共享 PG 可达 (本机走 Tailscale 100.79.128.25:5432, 库 lab_dev;
-#      3 真后端 + msw 共库是「前端不可区分」的物理基础)
+#      3 真后端共库是「前端不可区分」的物理基础（msw 仓已删，Phase 4 提前）
 #   3. dotnet 8 SDK + JDK 21 + Maven + Node 24 已装
-#   4. 4 端口 5200/5201/5204/5205 空闲（conventions §6 lab=5200 段）
+#   4. 3 端口 5201/5204/5205 空闲（conventions §6 lab=5200 段；5200 msw 已退役）
 #
 # 与 ci.yml 区别:
 #   - 不 git clone (本机 sibling 已在)
@@ -41,7 +41,6 @@ SUITE_ROOT="$(cd "$CT_ROOT/../.." && pwd)"
 
 # sibling 仓都在 suite 根的 output/ 下, 与 contract-test 平级
 SHARED_DIR="$SUITE_ROOT/output/lab-management-system-shared"
-MSW_DIR="$SUITE_ROOT/output/lab-management-system-msw"
 ASPNETCORE_DIR="$SUITE_ROOT/output/lab-management-system-aspnetcore"
 SPRINGBOOT_DIR="$SUITE_ROOT/output/lab-management-system-springboot"
 NEXTJS_DIR="$SUITE_ROOT/output/lab-management-system-nextjs"
@@ -62,7 +61,7 @@ if [ ${#missing_tools[@]} -gt 0 ]; then
 fi
 
 missing_repos=()
-for d in "$SHARED_DIR" "$MSW_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR"; do
+for d in "$SHARED_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR"; do
   if [ ! -d "$d" ]; then
     missing_repos+=("$d")
   fi
@@ -78,7 +77,7 @@ echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
 # 只杀匹配已知后端进程名的进程, 不动用户其他 node 工作。
 # Windows 上必须用 taskkill (kill -TERM 在 Git Bash 下杀不掉 native 进程)。
 echo "  检查 4 端口 LISTENING 残留进程..."
-for p in 5200 5201 5204 5205; do
+for p in 5201 5204 5205; do
   pids=$(netstat -ano 2>/dev/null | awk -v port=":$p$" '$2 ~ port"$" && $4 == "LISTENING" {print $5}' | sort -u)
   for pid in $pids; do
     if [ -n "$pid" ] && [ "$pid" != "0" ]; then
@@ -102,13 +101,12 @@ echo "=== [2/6] gen-shared (nextjs + springboot) ==="
 # springboot: bash scripts/gen-shared.sh — TypeSpec codegen（OpenAPI → Java client）;
 #   DB schema 消费走 scripts/scaffold-entities.sh（DB-First, ADR-0025/0033, Flyway 已退役）
 # aspnetcore: NSwag 在 csproj build 时自动跑, 不需要单独 step
-# msw: handlers/handlers-array.ts 由 shared emit:handlers 生成, 不需要单独 step
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
 (cd "$SPRINGBOOT_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -5)
 
 # === 3. 后台起 4 后端 ===
 echo ""
-echo "=== [3/6] 后台起 4 后端 (lab=5200 段, conventions §6) ==="
+echo "=== [3/6] 后台起 3 真后端 (lab=5200 段, conventions §6) ==="
 PIDS=()
 
 # lab 家族 JWT 四件套（别复用 saas 的 issuer/audience —— 4 后端 dev token
@@ -133,14 +131,9 @@ LAB_CORS_ENV="LAB_CORS_ALLOWED_ORIGINS=http://localhost:5201,http://localhost:52
 # （no-sso 的 cacheMenus 也走 serviceLogin），缺失启动即崩（2026-09-13 实锤）。
 LAB_NOSSO_ENV="LAB_AUTH_DEV_PASSWORD=dev123456 Lab__Auth__DevPassword=dev123456 LAB_SAAS_SERVICE_USER=alice LAB_SAAS_SERVICE_PASSWORD=dev123456"
 
-# msw: npm start（不是 npm run dev —— tsx watch 热重载时 process.env 丢失,
-# JWT_SIGNING_KEY 缺失 signAccessToken 抛 500, saas 版同坑）。
-# msw 仓无 .env.local, JWT 三件套 + PORT 显式传。
-(cd "$MSW_DIR" && nohup env $LAB_JWT_ENV PORT=5200 npm start >"$CT_ROOT/.runtime-logs/msw.log" 2>&1) & PIDS+=($!)
-
 # aspnetcore: SERVER_PORT shim 接线 + ASPNETCORE_URLS 双保险（dotnet run 默认
 # launch profile 会带自己的 ASPNETCORE_URLS, 显式覆盖才稳）。
-# DB 共库语义（conventions contract-test-run-live.md）：3 真后端 + msw 都连 lab_dev。
+# DB 共库语义（conventions contract-test-run-live.md）：3 真后端都连 lab_dev。
 # PG 密码真值从本仓 gitignored .env.production 提取（那里是 lab_prod, 只取密码,
 # 库名强制换 lab_dev）；LAB_PG_PASSWORD 显式给值时优先。
 LAB_PG_HOST="${LAB_PG_HOST:-100.79.128.25}"
@@ -172,7 +165,7 @@ ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postg
 # SAAS_IDP_URL 指黑洞端口：login route 每次密码登录都会 serviceLogin 拉菜单快照，
 # .env.local 里指向真 saas 部署时每次登录挂 8-10s（快照 fetch 超时），把 next dev
 # 拖到 probeLive 3s 超时 → trace 退化 unit（run6 实锤）。黑洞端口瞬时 ECONNREFUSED
-# → 空快照路径，与 msw/aspnetcore/springboot noop 语义契约等价（/menus 200 []），
+# → 空快照路径，与 aspnetcore/springboot noop 语义契约等价（/menus 200 []），
 # live 四方比对不再依赖外部 saas 部署。进程 env 优先于 .env.local（dotenv 语义）。
 (cd "$NEXTJS_DIR" && nohup env $LAB_NOSSO_ENV SAAS_IDP_URL="http://127.0.0.1:9" npm run dev >"$CT_ROOT/.runtime-logs/nextjs.log" 2>&1) & PIDS+=($!)
 
@@ -207,7 +200,6 @@ healthcheck() {
   return 1
 }
 
-healthcheck msw        "http://localhost:5200/healthz"
 healthcheck aspnetcore "http://localhost:5204/health"
 healthcheck springboot "http://localhost:5205/actuator/health"
 healthcheck nextjs     "http://localhost:5201/api/health"
@@ -215,13 +207,13 @@ healthcheck nextjs     "http://localhost:5201/api/health"
 # === 5. live vitest ===
 echo ""
 echo "=== [5/6] live vitest ==="
-echo "  CONTRACT_TARGETS=msw,aspnetcore,springboot,nextjs"
+echo "  CONTRACT_TARGETS=nextjs,aspnetcore,springboot"
 # vitest 失败不中断 — contract-test 的目的是发现契约分叉, vitest failed 是结果不是故障。
 # 由 [6/6] trace.json shape + L5 软告警统计覆盖率。
 set +e
 (
   cd "$CT_ROOT" && \
-  CONTRACT_TARGETS="msw,aspnetcore,springboot,nextjs" TRACE_MAP=1 npx --no vitest run
+  CONTRACT_TARGETS="nextjs,aspnetcore,springboot" TRACE_MAP=1 npx --no vitest run
 )
 VITEST_EXIT=$?
 set -e
