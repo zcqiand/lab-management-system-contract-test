@@ -71,7 +71,7 @@ describe.skipIf(!live)("M03 7 阶段全 act 模式 SUBMIT/RETURN 端点存在性
   for (const stage of ACT_STAGES) {
     const path = `/api/receipts/${stage}/act`;
 
-    for (const action of ACTIONS.filter((a) => a !== "WITHDRAW")) {
+    for (const action of ACTIONS.filter((a) => a !== "withdraw")) {
       for (const target of targets) {
         it(`${target.name} POST ${path} ${action} 端点接受 body → 2xx/4xx`, async () => {
           const r = await probeRequest(target, {
