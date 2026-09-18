@@ -28,14 +28,18 @@ const ACT_STAGES = [
   "archived",
 ] as const;
 
-const ACTIONS = ["SUBMIT", "RETURN", "WITHDRAW"] as const;
+// 契约枚举值（openapi FlowAction / 各后端生成 enum）：submit / return / withdraw（小写）。
+// 2026-09-18 修正：原稿发 "SUBMIT"/"RETURN"/"WITHDRAW" 大写，全后端 schema 校验 400 拒收，
+// 断言把 4xx 一并放行 → WITHDRAW 分支从未被真正触达（回归空转）。
+const ACTIONS = ["submit", "return", "withdraw"] as const;
 
 describe.skipIf(!live)("M03 7 阶段全 act 模式 WITHDRAW 4 后端一致性回归", () => {
   for (const stage of ACT_STAGES) {
     const path = `/api/receipts/${stage}/act`;
 
-    // WITHDRAW 跨 7 阶段 × 4 后端一致性
-    // SSOT 挂载：F01.I10 / F02.I07 / F03.I14 / F05.I09 / F06.I07 / F07.I07 / F08.I07
+    // WITHDRAW 跨 7 阶段 × 后端一致性
+    // SSOT 挂载（2026-09-18 收敛为 anchor 单 ID，兄弟 I 并入）：
+    //   F01.I08 / F02.I05 / F03.I12 / F05.I07 / F06.I05 / F07.I05 / F08.I05
     for (const target of targets) {
       it(`${target.name} POST ${path} WITHDRAW → 200 或 4xx (接样单不存在)`, async () => {
         const r = await probeRequest(target, {
