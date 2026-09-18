@@ -23,3 +23,6 @@ schemathesis-report/
 brands_probe.json
 p25.json
 p25sb.json
+
+# 四方 live 比对临时产物（裁定 1.6：scratch 不入库）
+vitest-4way*
