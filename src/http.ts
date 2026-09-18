@@ -69,11 +69,45 @@ export async function login(target: Target): Promise<string> {
   return token;
 }
 
+/**
+ * 瞬态超时类消解（Task 4.2，移植自 saas contract-test 同款 20714eb）：
+ * axios 超时（ECONNABORTED 且无响应）在 live run 里是已知的瞬态尖峰（后端 GC pause /
+ * JIT warmup / nextjs dev 首访路由编译），不是真挂——真挂是连接层快速失败
+ * （ECONNREFUSED）或重试同样超时。只对 **GET** 单发重试一次：幂等，双发无害；
+ * POST/PATCH 绝不重试（重复建行）。重试仍超时 → 照旧 UnreachableError（守门不静默吞）。
+ * 注：本仓 axios budget 是 120s（见 client()），单次尖峰通常被它直接吸收；
+ * 这层重试与 globalSetup 预热（prewarm.ts）是「预热吸收冷启动 + 重试吸收残留尖峰」
+ * 的双层兜底，与 saas 家族保持同款语义。
+ */
+function isTimeout(err: unknown): boolean {
+  return (
+    axios.isAxiosError(err) && err.code === "ECONNABORTED" && err.response === undefined
+  );
+}
+
+async function getWithTimeoutRetry(
+  http: AxiosInstance,
+  path: string,
+  config: Record<string, unknown>,
+) {
+  const attempt = () => http.get(path, config);
+  try {
+    return await attempt();
+  } catch (cause) {
+    if (isTimeout(cause)) {
+      return await attempt();
+    }
+    throw cause;
+  }
+}
+
 /** 带 Bearer 打一个 GET，返回可比对的探针。 */
 export async function probeGet(target: Target, path: string, token: string): Promise<Probe> {
   const http = client(target);
   try {
-    const res = await http.get(path, { headers: { authorization: `Bearer ${token}` } });
+    const res = await getWithTimeoutRetry(http, path, {
+      headers: { authorization: `Bearer ${token}` },
+    });
     return { target: target.name, status: res.status, body: res.data };
   } catch (cause) {
     throw new UnreachableError(target.name, cause);
@@ -117,7 +151,7 @@ async function probeWithToken(
     let res;
     switch (method) {
       case "GET":
-        res = await http.get(path, { headers });
+        res = await getWithTimeoutRetry(http, path, { headers });
         break;
       case "DELETE":
         // 契约里有 @body 的 unlink（如 /api/param-interfaces/links）必须带 body——
