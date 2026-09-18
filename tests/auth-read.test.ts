@@ -5,7 +5,7 @@
 // 本文件覆盖：
 //   M96.F02.I03 GET /api/auth/permissions
 //   M96.F02.I04 GET /api/auth/menus
-//   M96.F02.I05 GET /api/auth/sso/authorize （OAuth 2.0 跳板，302 + Location 头比对）
+//   M96.F02.I05 GET /api/auth/sso/authorize （OAuth 2.0 跳板，200 + {authorizeUrl, state} JSON 比对）
 //
 // POST/DELETE（refresh/logout/sso.callback/switch-tenant）属于 Phase 2 写端点。
 import { beforeAll, describe, expect, it } from "vitest";
