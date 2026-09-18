@@ -47,7 +47,7 @@ describe.skipIf(!live)("M03 7 阶段全 act 模式 WITHDRAW 4 后端一致性回
           path,
           body: {
             ids: ["00000000-0000-0000-0000-00000000dead"],
-            action: "WITHDRAW",
+            action: "withdraw",
             operator: "ct-act-withdraw",
           },
         });
