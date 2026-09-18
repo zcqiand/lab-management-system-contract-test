@@ -30,6 +30,10 @@ const DEFAULT_HEALTH = "/health";
 
 const PER_TARGET_CAP_MS = 90_000;
 const TOTAL_CAP_MS = 180_000;
+// 封顶语义：预算在**跨步边界**复查（health 就绪后、login 后各查一次 deadline），
+// 不中断在途调用——单次 health 探针 5s 超时，封顶实际可溢出 ≤5s 有界；
+// 登录段溢出有界于单次 axios 调用（评审修正：半开后端 TCP 通永不响应时，
+// 若不复查 deadline，90s/180s 封顶盖不住 axios 120s budget，单目标最坏 ~7 分钟）。
 const POLL_INTERVAL_MS = 1_000;
 const HEALTH_PROBE_TIMEOUT_MS = 5_000;
 
@@ -83,10 +87,24 @@ export async function prewarmTargets(targets: readonly Target[]): Promise<void> 
       );
       continue;
     }
+    // 评审修正：deadline 同样盖住登录预热段——health 就绪但预算已被前面的目标耗尽时
+    // （或 axios 调用吃掉了大半预算），在此跳过登录预热，健康轮询结论保留。
+    if (Date.now() >= deadline) {
+      console.warn(
+        `[prewarm] ${target.name} health 已就绪但预热预算耗尽，跳过其登录预热（不染色本轮）`,
+      );
+      continue;
+    }
     const t0 = Date.now();
     try {
       const token = await login(target);
-      await probeGet(target, "/api/auth/me", token);
+      if (Date.now() >= deadline) {
+        console.warn(
+          `[prewarm] ${target.name} 登录已完成但预算耗尽，跳过 /api/auth/me 探针（不染色本轮）`,
+        );
+      } else {
+        await probeGet(target, "/api/auth/me", token);
+      }
       console.log(`[prewarm] ${target.name} 预热完成（health ✓ + 登录链 + /api/auth/me，${Date.now() - t0}ms）`);
     } catch (cause) {
       console.warn(
