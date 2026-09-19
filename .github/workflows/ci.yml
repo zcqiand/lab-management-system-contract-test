@@ -46,17 +46,22 @@ jobs:
       JWT_TTL_SECONDS: "3600"
       JWT_REFRESH_TTL_SECONDS: "604800"
       # CORS allowlist（契约值 = 两后端 .env.example；aspnetcore RequireCorsOrigins
-      # fail-fast，缺失启动即崩）。dev 目录登录密码（两后端 key 拼法不同都给）+
-      # springboot no-sso profile（默认 sso 会要求 LAB_SAAS_* 三件套）。
+      # fail-fast，缺失启动即崩）。dev 目录登录密码（两后端 key 拼法不同都给）。
       LAB_CORS_ALLOWED_ORIGINS: http://localhost:5201,http://localhost:5202,http://localhost:5203,http://localhost:5101
       LAB_AUTH_DEV_PASSWORD: dev123456
       Lab__Auth__DevPassword: dev123456
-      LAB_PROFILE: no-sso
-      # saas 服务账号（springboot SsoBeansConfig 任何 profile 都 @PostConstruct 校验）
+      # springboot 恒真链 SSO env（no-sso profile 已删，2026-09-20 人裁）：SaasAuthClient
+      # 构造期 fail-fast，5 个 saas key 缺一启动即崩；BASE_URL 指黑洞端口——瞬时
+      # ECONNREFUSED → 登录降级空菜单快照（与 SAAS_IDP_URL 同款），比对不依赖外部 saas。
+      LAB_SAAS_BASE_URL: http://127.0.0.1:9
+      LAB_SAAS_CLIENT_ID: lab-management
+      LAB_SAAS_CLIENT_SECRET: lab-management-secret
+      LAB_SAAS_DEFAULT_TENANT_ID: "00000000-0000-0000-0000-000000000001"
       LAB_SAAS_SERVICE_USER: alice
       LAB_SAAS_SERVICE_PASSWORD: dev123456
+      LAB_SAAS_SERVICE_CLIENT_ID: lab-management
       # nextjs login route requireEnv(SAAS_IDP_URL)，缺失登录 500 级联全挂。
-      # 指黑洞端口：serviceLogin 瞬时失败 → 空菜单快照（noop 语义契约等价），
+      # 指黑洞端口：serviceLogin 瞬时失败 → 空菜单快照（saas 不可达降级语义，契约等价），
       # live/CI 三方比对不依赖外部 saas 部署（start-family.sh 同步）。
       SAAS_IDP_URL: http://127.0.0.1:9
       TRACE_MAP: "1"
@@ -131,8 +136,17 @@ jobs:
           mkdir -p .runtime-logs
           PIDS=()
 
-          (cd ../lab-management-system-aspnetcore && nohup dotnet run --project src/Lab.AspNetCore.csproj > .runtime-logs/aspnetcore.log 2>&1) & PIDS+=($!)
-          (cd ../lab-management-system-springboot && nohup mvn -q spring-boot:run > .runtime-logs/springboot.log 2>&1) & PIDS+=($!)
+          # DATABASE_URL 三方言按后端注入：上方 job 级 postgresql:// URI 只服务 nextjs
+          # （postgres.js 只吃 URI；?schema=public 是 Npgsql 不认的关键字）。aspnetcore
+          # 的 Npgsql 走 Host=... 关键字形态（镜像 start-family.sh ASPNETCORE_PG_URL 与
+          # aspnetcore deploy 注入），LAB_DATA_PROVIDER=ef 在 aspnetcore 批收敛恒 ef 后
+          # 成死键，保留至该批落地供过渡。springboot 吃 jdbc: 前缀。
+          (cd ../lab-management-system-aspnetcore && nohup env LAB_DATA_PROVIDER=ef \
+            DATABASE_URL="Host=localhost;Port=5432;Database=lab_dev;Username=lab;Password=lab" \
+            dotnet run --project src/Lab.AspNetCore.csproj > .runtime-logs/aspnetcore.log 2>&1) & PIDS+=($!)
+          (cd ../lab-management-system-springboot && nohup env \
+            DATABASE_URL="jdbc:postgresql://localhost:5432/lab_dev" DATABASE_USER=lab DATABASE_PASSWORD=lab \
+            mvn -q spring-boot:run > .runtime-logs/springboot.log 2>&1) & PIDS+=($!)
           (cd ../lab-management-system-nextjs && nohup npm run dev > .runtime-logs/nextjs.log 2>&1) & PIDS+=($!)
 
           cleanup() {

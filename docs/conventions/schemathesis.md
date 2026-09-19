@@ -17,7 +17,7 @@ CONTRACT_TARGETS=nextjs,springboot npm run test:schemathesis
 - 目标端口：nextjs :5201 / aspnetcore :5204 / springboot :5205（conventions §6）
 - 前置：本机 anaconda Python 3.11 + `schemathesis==4.27.3`（版本钉子见
   `schemathesis/requirements.txt`；`python -m schemathesis.cli --version` 可验证）
-- 认证：run.py 先 `POST /api/auth/login`（alice/dev123456，no-sso dev 形态，
+- 认证：run.py 先 `POST /api/auth/login`（alice/dev123456 dev 密码登录，恒真链，
   响应字段名是 `token`）拿 Bearer，再 `--header Authorization` 注入
 - 每端点用例数默认 25，可用 `SCHEMATHESIS_MAX_EXAMPLES` 调
 - JSON 报告落在 `schemathesis-report/<target>.json`（失败复现命令在里面）

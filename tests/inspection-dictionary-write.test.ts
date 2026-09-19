@@ -46,34 +46,9 @@ function regCleanup(target: Target, label: string, doIt: () => Promise<unknown>)
   });
 }
 
-// aspnetcore LAB_DATA_PROVIDER=memory 启动空仓：固定种子码 SP02 不存在 →
-// object 创建 FK 校验 404 "specialty SP02 not found"（T11 实证，服务端行为正确）。
-// 按目标补种：列表接口查不到才 POST 创建；只在补种成功时生效，不注册删除清理
-// （memory 仓进程级临时；PG 仓已有种子不会走到创建分支）。
-const seedSpecialtyMemo = new Map<string, Promise<void>>();
-function ensureSeedSpecialty(target: Target): Promise<void> {
-  let p = seedSpecialtyMemo.get(target.name);
-  if (!p) {
-    p = (async () => {
-      const list = await probeRequest(target, {
-        method: "GET",
-        path: "/api/inspection/specialties?pageSize=100",
-      });
-      const items = (list.body as { items?: Array<{ code?: string }> })?.items ?? [];
-      if (items.some((s) => s.code === SEED_SPECIALTY)) return;
-      const r = await probeRequest(target, {
-        method: "POST",
-        path: "/api/inspection/specialties",
-        body: { code: SEED_SPECIALTY, officialNo: SEED_SPECIALTY, name: `sp ${SEED_SPECIALTY}` },
-      });
-      if (r.status !== 200 && r.status !== 201) {
-        console.warn(`[ensureSeedSpecialty] ${target.name} POST ${SEED_SPECIALTY} → ${r.status}`);
-      }
-    })();
-    seedSpecialtyMemo.set(target.name, p);
-  }
-  return p;
-}
+// 3 真后端恒 ef 直连 lab_dev（memory 空仓模式已删，2026-09-20 人裁）：
+// 固定种子码 SP02 是 shared/seeds + V015 smoke seed 的真种子，ef 直连必有，
+// 无需任何按目标补种分支。
 
 // ── specialties ──
 describe.skipIf(!live)("M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01", () => {
@@ -132,7 +107,6 @@ describe.skipIf(!live)("M96.F02.I06 POST /api/inspection/objects 四方比对 / 
   for (const target of targets) {
     it(`${target.name} 创 object → 200`, async () => {
       const code = uniqueName("ct-obj");
-      await ensureSeedSpecialty(target);
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/inspection/objects",

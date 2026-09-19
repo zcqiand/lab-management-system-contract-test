@@ -15,9 +15,9 @@ conventions §6 lab=5200 段，2026-09-02 起与 saas 家族端口错开可并�
 ## 2. 铁律
 
 - **「同输出」= 前端不可区分**。判定 = status 全等 + schema 校验 + `normalize()` 后全等
-- **认证形态兼容（硬约束）**：后端两种 SSO 形态都必须能打——`no-sso`（dev 默认，
-  admin/dev123456 直登）与真 saas OAuth 2.0（`LAB_SSO_PROFILE=default` + saas 家族在跑）。
-  两种形态 `/api/auth/login` 契约面必须一致；测试不得假设 noop 假 token 语义
+- **恒真链（2026-09-20 人裁，硬约束）**：后端恒走真 saas OAuth 2.0 客户端，no-sso
+  降级模式已全家族删除（lab 后端 ADR-0008 §6 废止注记）。dev 密码登录内部走 saas
+  换 token/菜单快照，saas 不可达时降级空快照（契约等价）；测试不得假设 noop 假 token 语义
 - **normalize 剔除清单是契约**：增删走 ADR。lab 响应 token 字段名是 `token`（非 accessToken）
 - **ID 默认保留直比**：3 真后端共用 lab_dev PG，ID 参与比对且应当相等；Phase 2 起 msw/`ID_KEYS` 剔除路径已删除（spec §3.3）
 - **比对基准恒为 probes[0]**：`CONTRACT_TARGETS` 声明序首位是基准（2026-09-15 Phase 2 去 msw，spec §3.3）
@@ -46,7 +46,7 @@ TypeScript + vitest + axios + tough-cookie jar（HTTP 层，不受 fetch 屏蔽 
 
 - 功能清单（唯一锚点） → `docs/functions/function-tree.md`；改它走 `/tree-change`
 - 决策 → suite `docs/adr/0015-contract-test-repo.md`（normalize 契约）+ `0013-alignment-has-two-directions.md`
-- SSO 双形态设计 → lab 后端 ADR-0008（no-sso noop vs 真 saas OAuth）
+- SSO 恒真链设计 → lab 后端 ADR-0008（no-sso 降级 profile 已废，§6 废止注记）
 - 参照实现 → `../saas-identity-platform-contract-test`（本仓由它派生，坑已沉淀）
 
 ## 6. 工作循环

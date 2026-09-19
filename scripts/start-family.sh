@@ -122,14 +122,18 @@ LAB_JWT_ENV="JWT_SIGNING_KEY=dev-key-32-bytes-minimum-length! JWT_ISSUER=lab-man
 # 默认」，显式 env 声明是正道）。
 LAB_CORS_ENV="LAB_CORS_ALLOWED_ORIGINS=http://localhost:5201,http://localhost:5202,http://localhost:5203,http://localhost:5101"
 
-# no-sso profile 共用：dev 目录登录 + dev 密码（契约值 .env.example；contract-test
-# auth.test.ts 的登录断言吃这个目录）。两个后端 key 拼法不同：aspnetcore 读分层
-# Lab:Auth:DevPassword（env 双下划线 Lab__Auth__DevPassword），springboot 读 flat
-# LAB_AUTH_DEV_PASSWORD。springboot 不显式 LAB_PROFILE=no-sso 会默认 sso profile，
-# 启动即要求 LAB_SAAS_CLIENT_ID/SECRET/DEFAULT_TENANT_ID 三件套。
-# LAB_SAAS_SERVICE_USER/PASSWORD：SsoBeansConfig @PostConstruct 任何 profile 都校验
-# （no-sso 的 cacheMenus 也走 serviceLogin），缺失启动即崩（2026-09-13 实锤）。
-LAB_NOSSO_ENV="LAB_AUTH_DEV_PASSWORD=dev123456 Lab__Auth__DevPassword=dev123456 LAB_SAAS_SERVICE_USER=alice LAB_SAAS_SERVICE_PASSWORD=dev123456"
+# dev 密码登录（契约值 .env.example；contract-test auth.test.ts 的登录断言吃这个目录）。
+# 两个后端 key 拼法不同：aspnetcore 读分层 Lab:Auth:DevPassword（env 双下划线
+# Lab__Auth__DevPassword），springboot/nextjs 读 flat LAB_AUTH_DEV_PASSWORD。
+# no-sso 降级模式已按 2026-09-20 人裁全家族删除，恒真链（lab 后端 ADR-0008 §6）。
+LAB_DEV_AUTH_ENV="LAB_AUTH_DEV_PASSWORD=dev123456 Lab__Auth__DevPassword=dev123456"
+
+# springboot 恒真链 SSO env：SaasAuthClient 构造期 fail-fast（saas-base/client-id/
+# secret/default-tenant/service-client-id 缺一 bean 创建即崩）+ SsoBeansConfig
+# @PostConstruct 校验服务账号三件套（密码登录拉菜单快照走 serviceLogin）。
+# BASE_URL 指黑洞端口：瞬时 ECONNREFUSED → 登录降级空菜单快照（与下方 nextjs
+# SAAS_IDP_URL 同款先例），live 比对不依赖外部 saas 部署。
+LAB_SB_SSO_ENV="LAB_SAAS_BASE_URL=http://127.0.0.1:9 LAB_SAAS_CLIENT_ID=lab-management LAB_SAAS_CLIENT_SECRET=lab-management-secret LAB_SAAS_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000001 LAB_SAAS_SERVICE_USER=alice LAB_SAAS_SERVICE_PASSWORD=dev123456 LAB_SAAS_SERVICE_CLIENT_ID=lab-management"
 
 # aspnetcore: SERVER_PORT shim 接线 + ASPNETCORE_URLS 双保险（dotnet run 默认
 # launch profile 会带自己的 ASPNETCORE_URLS, 显式覆盖才稳）。
@@ -147,14 +151,15 @@ if [ -z "$LAB_PG_PASSWORD" ]; then
 fi
 : "${LAB_PG_PASSWORD:=qiand68+++}"
 ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD}"
-(cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_NOSSO_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
-  LAB_DATA_PROVIDER=memory LAB_SSO_PROFILE=no-sso \
+# LAB_DATA_PROVIDER=ef：真库直连（上方 DATABASE_URL，memory 模式下原本闲置）。
+# no-sso 降级已删——aspnetcore 批收敛恒 ef 后本 key 成死键，保留至该批落地供过渡。
+(cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
+  LAB_DATA_PROVIDER=ef \
   DATABASE_URL="$ASPNETCORE_PG_URL" \
   dotnet run --project src/Lab.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 
 # springboot: SERVER_PORT relaxed binding。同上共库 lab_dev（JDBC 四件套）。
-(cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_NOSSO_ENV SERVER_PORT=5205 \
-  LAB_PROFILE=no-sso \
+(cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV $LAB_SB_SSO_ENV SERVER_PORT=5205 \
   DATABASE_URL="jdbc:postgresql://${LAB_PG_HOST}:5432/lab_dev" \
   DATABASE_USER=postgres DATABASE_PASSWORD="$LAB_PG_PASSWORD" DATABASE_NAME=lab_dev \
   mvn -q spring-boot:run >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
@@ -165,9 +170,9 @@ ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postg
 # SAAS_IDP_URL 指黑洞端口：login route 每次密码登录都会 serviceLogin 拉菜单快照，
 # .env.local 里指向真 saas 部署时每次登录挂 8-10s（快照 fetch 超时），把 next dev
 # 拖到 probeLive 3s 超时 → trace 退化 unit（run6 实锤）。黑洞端口瞬时 ECONNREFUSED
-# → 空快照路径，与 aspnetcore/springboot noop 语义契约等价（/menus 200 []），
+# → 空快照路径，与 aspnetcore/springboot saas 不可达空快照语义契约等价（/menus 200 []），
 # live 四方比对不再依赖外部 saas 部署。进程 env 优先于 .env.local（dotenv 语义）。
-(cd "$NEXTJS_DIR" && nohup env $LAB_NOSSO_ENV SAAS_IDP_URL="http://127.0.0.1:9" npm run dev >"$CT_ROOT/.runtime-logs/nextjs.log" 2>&1) & PIDS+=($!)
+(cd "$NEXTJS_DIR" && nohup env $LAB_DEV_AUTH_ENV SAAS_IDP_URL="http://127.0.0.1:9" npm run dev >"$CT_ROOT/.runtime-logs/nextjs.log" 2>&1) & PIDS+=($!)
 
 cleanup() {
   echo ""

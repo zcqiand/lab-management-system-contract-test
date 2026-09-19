@@ -4,19 +4,19 @@
 // + lab-management-system-shared/sql/migrations/V015__smoke_seed_dict.sql（真后端共库 seed）。
 //
 // lab 与 saas 的差异：单租户、字典主键是业务 code（如 SP01）不是 UUID。
-// tenantId 用 seed 快照的字面量 TENANT-001（真后端 no-sso noop 同款，ADR-0008）。
+// tenantId 用 seed 快照的字面量 TENANT-001（真后端恒真链下 membership 信 saas，
+// seed 快照字面量保留供构造带参路径）。
 //
-// **认证形态兼容（2026-09-02 硬约束）**：后端接真 saas OAuth 2.0
-// （LAB_SSO_PROFILE=default）时，/api/auth/login 内部走 service account
-// 换 saas token，但请求/响应契约面与 no-sso 完全一致——本套件两种形态都能打，
-// 且三方比对会强制两种形态的登录响应 shape 不得分叉。
+// **恒真链（2026-09-20 人裁，no-sso 降级已删）**：/api/auth/login 密码登录内部走
+// saas 服务账号换 token/菜单快照；saas 不可达时降级空快照。三方比对会强制
+// 登录响应 shape 不得分叉。
 //
 // 改 seed → 直接改 shared/seeds + shared 迁移，同仓同源；漏一处 = 后端分叉 = L5 假红。
 
 export const SEED = {
-  /** seed 用户 id；真后端 no-sso noop whoami 同款 USER-A。 */
+  /** seed 用户 id；真后端 whoami 同款 USER-A。 */
   userId: "USER-A",
-  /** seed tenants[0] + noop SaasMeClient.tenants() 一致。 */
+  /** seed tenants[0] + 真后端 /api/auth/me 租户列表一致。 */
   tenantId: "TENANT-001",
   tenants: {
     city: "TENANT-001",

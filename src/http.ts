@@ -43,11 +43,9 @@ export function client(target: Target): AxiosInstance {
 /**
  * 登录拿 token。走真实登录路径（lab BASE=/api 无 v1；响应字段名 token 非 accessToken）。
  *
- * 认证形态兼容（2026-09-02 硬约束）：后端两种 SSO 形态都必须能打——
- *   - no-sso（dev 默认）：本地凭证 admin/dev123456 直登
- *   - 真 saas OAuth 2.0（LAB_SSO_PROFILE=default + saas 全家在跑）：本地密码登录
- *     内部走 service account 换 saas token，契约面不变（响应 shape 相同）
- * 两种形态登录响应 shape 必须一致——这正是四方比对要守住的契约。
+ * 恒真链（2026-09-20 人裁，no-sso 降级已删）：dev 密码登录内部走 saas 服务账号
+ * 换 token/菜单快照；saas 不可达时降级空快照（契约等价）。三方比对守住登录
+ * 响应 shape 不分叉的契约。
  */
 export async function login(target: Target): Promise<string> {
   const http = client(target);

@@ -82,7 +82,7 @@ def selected_targets() -> list[str]:
 
 
 def login(base_url: str, name: str) -> str:
-    """POST /api/auth/login 引导 Bearer token（no-sso dev 形态，字段名 token）。"""
+    """POST /api/auth/login 引导 Bearer token（dev 密码登录，恒真链；字段名 token）。"""
     body = json.dumps(SEED_USER).encode("utf-8")
     req = urllib.request.Request(
         base_url + "/api/auth/login",

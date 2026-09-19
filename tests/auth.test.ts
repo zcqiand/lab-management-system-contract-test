@@ -3,8 +3,9 @@
 // 选它的理由（与 saas I03 同款）：语义只读（登录不碰共库唯一约束）、4 后端都实现、
 // 且它是所有后续探针的前置（http.ts login() 走的就是这条路径）。
 //
-// 认证形态兼容：no-sso（admin 直登）与真 saas OAuth（service account 内部换 token）
-// 的响应契约面必须一致 —— 本测试就是那条「两种形态不得分叉」的守卫。
+// 恒真链（2026-09-20 人裁，no-sso 降级已删）：密码登录内部走 saas 服务账号换
+// token/菜单快照，三后端响应契约面必须一致 —— 本测试就是那条「登录 shape 不得
+// 分叉」的守卫。
 //
 // 跑法：CONTRACT_TARGETS=nextjs,aspnetcore,springboot npx vitest run
 // 未声明 CONTRACT_TARGETS → 整组跳过（fnReporter 记 inert，不计入 trace）。
