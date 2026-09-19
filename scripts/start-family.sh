@@ -151,10 +151,8 @@ if [ -z "$LAB_PG_PASSWORD" ]; then
 fi
 : "${LAB_PG_PASSWORD:=qiand68+++}"
 ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD}"
-# LAB_DATA_PROVIDER=ef：真库直连（上方 DATABASE_URL，memory 模式下原本闲置）。
-# no-sso 降级已删——aspnetcore 批收敛恒 ef 后本 key 成死键，保留至该批落地供过渡。
+# 恒 ef（LAB_DATA_PROVIDER key 已随 5.48 aspnetcore 批删除）：真库直连上方 DATABASE_URL。
 (cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
-  LAB_DATA_PROVIDER=ef \
   DATABASE_URL="$ASPNETCORE_PG_URL" \
   dotnet run --project src/Lab.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 

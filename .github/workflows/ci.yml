@@ -139,9 +139,8 @@ jobs:
           # DATABASE_URL 三方言按后端注入：上方 job 级 postgresql:// URI 只服务 nextjs
           # （postgres.js 只吃 URI；?schema=public 是 Npgsql 不认的关键字）。aspnetcore
           # 的 Npgsql 走 Host=... 关键字形态（镜像 start-family.sh ASPNETCORE_PG_URL 与
-          # aspnetcore deploy 注入），LAB_DATA_PROVIDER=ef 在 aspnetcore 批收敛恒 ef 后
-          # 成死键，保留至该批落地供过渡。springboot 吃 jdbc: 前缀。
-          (cd ../lab-management-system-aspnetcore && nohup env LAB_DATA_PROVIDER=ef \
+          # aspnetcore deploy 注入；恒 ef 后无 provider key，2026-09-20 人裁）。springboot 吃 jdbc: 前缀。
+          (cd ../lab-management-system-aspnetcore && nohup env \
             DATABASE_URL="Host=localhost;Port=5432;Database=lab_dev;Username=lab;Password=lab" \
             dotnet run --project src/Lab.AspNetCore.csproj > .runtime-logs/aspnetcore.log 2>&1) & PIDS+=($!)
           (cd ../lab-management-system-springboot && nohup env \
