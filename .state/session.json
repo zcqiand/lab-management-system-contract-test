@@ -6,7 +6,8 @@
     "probeRequest DELETE 补发 body（此前只传 headers，@body unlink 全被吞：msw 假 204/真后端假红）",
     "axios 超时 8s→30s（nextjs dev login 实测 7.5-8s）",
     "normalize 放行 \"\" 时间戳（ADR-0025 家族约定）+ 单测锁定；I07 前清残留 + I08 幂等断言",
-    "5 轮收敛 live 四方 AC-2 全绿；commit db26c1e"
+    "5 轮收敛 live 四方 AC-2 全绿；commit db26c1e",
+    "2026-09-19 wave 收尾：live full trace_cmd 再生（CONTRACT_TARGETS=nextjs,aspnetcore,springboot + TRACE_MAP=1）→ trace mode=live 412 fn；full 419 passed/5 failed(424)；WITHDRAW 定向 63/63 对照超 21 水位；5 失败=menus 503×2（lab 后端 service-account 登录缺 clientId，新池项）+nextjs catalog/grades PUT 30s 超时与 DELETE 500+aspnetcore PUT samples ext 500（已知分叉）"
   ],
   "next": [
     "skipIf(!live) 结构性洞（门绿=没测）REQ 立项候选——live 目标 <2 时应警告或红"
