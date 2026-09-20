@@ -47,7 +47,15 @@ export function client(target: Target): AxiosInstance {
  * 换 token/菜单快照；saas 不可达时降级空快照（契约等价）。三方比对守住登录
  * 响应 shape 不分叉的契约。
  */
-export async function login(target: Target): Promise<string> {
+export async function login(target: Target, force = false): Promise<string> {
+  // 5.54 live 实证：每次探针都全量 login（单次 7.5-8s）× 全套件数百探针 = 主要耗时源，
+  // gate L4 3600s 封顶被 login 洪水打穿（EXIT=2 超时）。按 target 缓存 token——
+  // 在册约束是「token 不跨后端复用」（跨后端陈旧 token 401），同后端复用不受限；
+  // 401 时 probeRequest 会 force 重登一次自愈（后端中途被重启的场景）。
+  if (!force) {
+    const cached = tokenCache.get(target.name);
+    if (cached) return cached;
+  }
   const http = client(target);
   let res;
   try {
@@ -64,8 +72,11 @@ export async function login(target: Target): Promise<string> {
   if (!token) {
     throw new Error(`${target.name}: 登录 200 但响应里没有 token`);
   }
+  tokenCache.set(target.name, token);
   return token;
 }
+
+const tokenCache = new Map<string, string>();
 
 /**
  * 瞬态超时类消解（Task 4.2，移植自 saas contract-test 同款 20714eb）：
@@ -173,10 +184,20 @@ async function probeWithToken(
   }
 }
 
-/** 单目标探针（method-通用）。未传 token 时先 login。 */
+/** 单目标探针（method-通用）。未传 token 时先 login（走缓存）。 */
 export async function probeRequest(target: Target, opts: ProbeRequestOptions): Promise<Probe> {
-  const token = opts.token ?? (await login(target));
-  return probeWithToken(target, opts.method, opts.path, token, opts.body);
+  if (opts.token) {
+    return probeWithToken(target, opts.method, opts.path, opts.token, opts.body);
+  }
+  let res = await probeWithToken(target, opts.method, opts.path, await login(target), opts.body);
+  // 401 自愈：缓存 token 陈旧（后端中途重启/密钥轮换）→ force 重登一次再发。
+  // 只对「token 由本函数自取」的路径生效；显式传 token 的调用方语义是「用我给的 token 断言 401」，
+  // 绝不重试（否则把「预期 401 的用例」重登成 200，吃掉断言）。写方法也只重试这一次且仅在 401 时，
+  // 非 401 失败绝不双发（重复建行）。
+  if (res.status === 401) {
+    res = await probeWithToken(target, opts.method, opts.path, await login(target, true), opts.body);
+  }
+  return res;
 }
 
 /** 对一组目标跑同一个请求（method-通用）。登录各自进行。 */
