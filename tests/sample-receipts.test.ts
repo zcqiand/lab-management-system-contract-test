@@ -113,10 +113,9 @@ describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I
 // 断言形态 = 各后端自身自洽（同一后端「不传」全集 vs 两态子集 + 谓词回验 + 命中锚），
 // 不做跨后端 items/total 直比（items/total 漂移既有 drop 惯例，见上）。
 //
-// aspnetcore 暂不参与本套件：其 regen + SampleReceiptService filter 实现是 5.57
-// 尾项（5204 进程占 exe 锁，构建必 MSB3027，控制器转池项）——尾项落地后把它加回
-// FILTER_TARGETS 即可。skipIf(!live)：未设 CONTRACT_TARGETS 时静默跳过（unit 层）。
-const FILTER_TARGETS: Target[] = targets.filter((t) => t.name !== "aspnetcore");
+// aspnetcore 已随 5.66 尾项落地（regen 至 shared 61093d4+ + SampleReceiptService
+// filter 三态实现），重新参与本套件。skipIf(!live)：未设 CONTRACT_TARGETS 时静默跳过（unit 层）。
+const FILTER_TARGETS: Target[] = targets;
 // SSOT 覆盖解析器只认字面字符串常量；pageSize=500 取全量（分页截断会破坏子集关系）。
 const PATH_LIST_FULL = "/api/receipts?pageSize=500";
 const PATH_LIST_NOT_YET = "/api/receipts?pageSize=500&filter=not_yet";
@@ -129,7 +128,7 @@ interface ReceiptItem {
 }
 
 describe.skipIf(!live)(
-  `M03.F01.I01 GET ${PATH_LIST} filter 三态语义（5.57，nextjs+springboot）`,
+  `M03.F01.I01 GET ${PATH_LIST} filter 三态语义（5.57，nextjs+springboot+aspnetcore）`,
   () => {
     it("not_yet/submitted 都是全集的真子集且互斥，谓词回验命中", async () => {
       for (const t of FILTER_TARGETS) {
