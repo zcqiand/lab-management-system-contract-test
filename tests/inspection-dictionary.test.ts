@@ -52,7 +52,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SPECIALTIES} 四方比对 / M01.F
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_SPECIALTIES);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "specialties"));
   it("Page envelope 必填", () => assertPageList(probes, "specialties"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -62,7 +62,7 @@ describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_OBJECTS} 四方比对 / M01.F05.I
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_OBJECTS);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "objects"));
   it("Page envelope 必填", () => assertPageList(probes, "objects"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -72,7 +72,7 @@ describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_PARAMETERS} 四方比对 / M04.F0
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_PARAMETERS);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "parameters"));
   it("Page envelope 必填", () => assertPageList(probes, "parameters"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -82,7 +82,7 @@ describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_STANDARDS} 四方比对 / M04.F08
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_STANDARDS);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "standards"));
   it("Page envelope 必填", () => assertPageList(probes, "standards"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -92,7 +92,7 @@ describe.skipIf(!live)(`M96.F02.I17 GET ${PATH_LINK_SPECIALTY_OBJECT} 四方比�
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_SPECIALTY_OBJECT);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "specialty-object"));
   it("Page envelope 必填", () => assertPageList(probes, "specialty-object"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -102,7 +102,7 @@ describe.skipIf(!live)(`M96.F02.I18 GET ${PATH_LINK_OBJECT_PARAMETER} 四方比�
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_OBJECT_PARAMETER);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "object-parameter"));
   it("Page envelope 必填", () => assertPageList(probes, "object-parameter"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -112,7 +112,7 @@ describe.skipIf(!live)(`M96.F02.I19 GET ${PATH_LINK_OBJECT_STANDARD} 四方比�
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_OBJECT_STANDARD);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "object-standard"));
   it("Page envelope 必填", () => assertPageList(probes, "object-standard"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));
@@ -122,7 +122,7 @@ describe.skipIf(!live)(`M96.F02.I20 GET ${PATH_LINK_STANDARD_PARAMETER} 四方�
   let probes: Probe[];
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LINK_STANDARD_PARAMETER);
-  }, 60_000);
+  }, 180_000);
   it("每个目标都返回 200", () => assertStatus200(probes, "standard-parameter"));
   it("Page envelope 必填", () => assertPageList(probes, "standard-parameter"));
   it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes));

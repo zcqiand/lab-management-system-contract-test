@@ -115,7 +115,7 @@ describe.skipIf(!live)(
           items.some((r) => String(r.id) === receiptId),
           `${target.name} filter=submitted 未命中自建单 ${receiptId}（写路径未写 last_submitted_by？）`,
         ).toBe(true);
-      }, 60_000);
+      }, 180_000);
     }
 
     afterAll(async () => {

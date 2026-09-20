@@ -73,11 +73,26 @@ describe.skipIf(!live)("M96.F02.I05 DELETE /api/technical-requirements/{object}/
     for (const target of targets) {
       const key = ctx.keys.get(target.name);
       if (!key) continue;
+      // 三后端共库 + 固定种子三键（FK 只认真实码，无法 per-target unique）：
+      // 前一个目标的 DELETE 会删掉共享行 → 每个目标删前先预清+重建（5.54 live 实证：
+      // aspnetcore create 修复后 springboot 撞 404）。
+      await probeRequest(target, { method: "DELETE", path: `/api/technical-requirements/${key}` });
+      const c = await probeRequest(target, {
+        method: "POST",
+        path: "/api/technical-requirements",
+        body: {
+          inspectionObjectCode: SEED_OBJECT,
+          inspectionParameterCode: SEED_PARAMETER,
+          judgmentStandardCode: SEED_STANDARD,
+          requirement: "≥ 42.5 MPa",
+        },
+      });
+      expect([200, 201], `${target.name} DELETE 前重建 tr 期望 2xx 实得 ${c.status}`).toContain(c.status);
       const r = await probeRequest(target, { method: "DELETE", path: `/api/technical-requirements/${key}` });
       expect([200, 204], `${target.name} DELETE tr 期望 200/204 实得 ${r.status}`).toContain(r.status);
       ctx.keys.delete(target.name);
     }
-  }, 60_000);
+  }, 180_000);
 
   afterAll(async () => {
     await runCleanups();

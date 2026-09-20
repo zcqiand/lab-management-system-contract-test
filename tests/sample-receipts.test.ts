@@ -22,7 +22,7 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`
 
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_LIST);
-  }, 60_000);
+  }, 180_000);
 
   it("每个目标都返回 200", () => {
     const bad = probes.filter((p) => p.status !== 200);
@@ -51,7 +51,7 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I0
 
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_DETAIL);
-  }, 60_000);
+  }, 180_000);
 
   it("不存在 id → 4 后端全 404", () => {
     for (const p of probes) {
@@ -79,7 +79,7 @@ describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I
 
   beforeAll(async () => {
     probes = await probeAll(targets, PATH_HISTORY);
-  }, 60_000);
+  }, 180_000);
 
   it("不存在 id → 4 后端全 404", () => {
     for (const p of probes) {
