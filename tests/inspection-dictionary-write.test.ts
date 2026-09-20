@@ -267,13 +267,27 @@ describe.skipIf(!live)("M96.F02.I21 POST /api/inspection/links/specialty-object 
 describe.skipIf(!live)("M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对 / M06.F08.I06", () => {
   for (const target of targets) {
     it(`${target.name} unlink(SP01, OBJ-SP01-P1) → 200/204`, async () => {
+      // 3 真后端共库（lab_dev）：SB 的 unlink 先删共享行会毒化 ASP 的首次 unlink
+      // （sequential SB→ASP），故 unlink 测试自足地先 link（upsert）保证本目标有行可删。
+      await probeRequest(target, {
+        method: "POST",
+        path: "/api/inspection/links/specialty-object",
+        body: { inspectionSpecialtyCode: SEED_SPECIALTY, inspectionObjectCode: SEED_OBJECT },
+      });
       const r = await probeRequest(target, {
         method: "DELETE",
         path: "/api/inspection/links/specialty-object",
         body: { inspectionSpecialtyCode: SEED_SPECIALTY, inspectionObjectCode: SEED_OBJECT },
       });
       expect([200, 201, 204], `${target.name} unlink 期望 2xx 实得 ${r.status}`).toContain(r.status);
-    }, 30_000);
+      // 幂等：重复 unlink 未命中同样 204（契约 unlink = void，Task 2.6 推广 REQ-2026-001 语义）
+      const r2 = await probeRequest(target, {
+        method: "DELETE",
+        path: "/api/inspection/links/specialty-object",
+        body: { inspectionSpecialtyCode: SEED_SPECIALTY, inspectionObjectCode: SEED_OBJECT },
+      });
+      expect([200, 201, 204], `${target.name} 重复 unlink 期望幂等 2xx 实得 ${r2.status}`).toContain(r2.status);
+    }, 90_000);
   }
 });
 
@@ -298,13 +312,30 @@ describe.skipIf(!live)("M96.F02.I24 POST /api/inspection/links/object-parameter 
 describe.skipIf(!live)("M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对 / M06.F07.I05", () => {
   for (const target of targets) {
     it(`${target.name} unlink(OBJ, PRM) → 200/204`, async () => {
+      // 共库防毒化：先 link（upsert）保证本目标有行可删（见 I22 注）。
+      await probeRequest(target, {
+        method: "POST",
+        path: "/api/inspection/links/object-parameter",
+        body: {
+          inspectionObjectCode: SEED_OBJECT,
+          inspectionParameterCode: SEED_PARAMETER,
+          qualificationLevel: "QUALIFIED",
+        },
+      });
       const r = await probeRequest(target, {
         method: "DELETE",
         path: "/api/inspection/links/object-parameter",
         body: { inspectionObjectCode: SEED_OBJECT, inspectionParameterCode: SEED_PARAMETER },
       });
       expect([200, 201, 204], `${target.name} unlink 期望 2xx 实得 ${r.status}`).toContain(r.status);
-    }, 30_000);
+      // 幂等：重复 unlink 未命中同样 204（契约 unlink = void，Task 2.6 推广 REQ-2026-001 语义）
+      const r2 = await probeRequest(target, {
+        method: "DELETE",
+        path: "/api/inspection/links/object-parameter",
+        body: { inspectionObjectCode: SEED_OBJECT, inspectionParameterCode: SEED_PARAMETER },
+      });
+      expect([200, 201, 204], `${target.name} 重复 unlink 期望幂等 2xx 实得 ${r2.status}`).toContain(r2.status);
+    }, 90_000);
   }
 });
 
@@ -324,13 +355,26 @@ describe.skipIf(!live)("M96.F02.I27 POST /api/inspection/links/object-standard �
 describe.skipIf(!live)("M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对 / M06.F05.I04", () => {
   for (const target of targets) {
     it(`${target.name} unlink(OBJ, STD, role=judgment) → 200/204`, async () => {
+      // 共库防毒化：先 link（upsert）保证本目标有行可删（见 I22 注）。
+      await probeRequest(target, {
+        method: "POST",
+        path: "/api/inspection/links/object-standard",
+        body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "JUDGMENT" },
+      });
       const r = await probeRequest(target, {
         method: "DELETE",
         path: "/api/inspection/links/object-standard",
         body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "JUDGMENT" },
       });
       expect([200, 201, 204], `${target.name} unlink 期望 2xx 实得 ${r.status}`).toContain(r.status);
-    }, 30_000);
+      // 幂等：重复 unlink 未命中同样 204（契约 unlink = void，Task 2.6 推广 REQ-2026-001 语义）
+      const r2 = await probeRequest(target, {
+        method: "DELETE",
+        path: "/api/inspection/links/object-standard",
+        body: { inspectionObjectCode: SEED_OBJECT, inspectionStandardCode: SEED_STANDARD, role: "JUDGMENT" },
+      });
+      expect([200, 201, 204], `${target.name} 重复 unlink 期望幂等 2xx 实得 ${r2.status}`).toContain(r2.status);
+    }, 90_000);
   }
 });
 
@@ -350,13 +394,26 @@ describe.skipIf(!live)("M96.F02.I30 POST /api/inspection/links/standard-paramete
 describe.skipIf(!live)("M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对 / M03.F03.I08", () => {
   for (const target of targets) {
     it(`${target.name} unlink(STD, PRM) → 200/204`, async () => {
+      // 共库防毒化：先 link（upsert）保证本目标有行可删（见 I22 注）。
+      await probeRequest(target, {
+        method: "POST",
+        path: "/api/inspection/links/standard-parameter",
+        body: { inspectionStandardCode: SEED_STANDARD, inspectionParameterCode: SEED_PARAMETER },
+      });
       const r = await probeRequest(target, {
         method: "DELETE",
         path: "/api/inspection/links/standard-parameter",
         body: { inspectionStandardCode: SEED_STANDARD, inspectionParameterCode: SEED_PARAMETER },
       });
       expect([200, 201, 204], `${target.name} unlink 期望 2xx 实得 ${r.status}`).toContain(r.status);
-    }, 30_000);
+      // 幂等：重复 unlink 未命中同样 204（契约 unlink = void，Task 2.6 推广 REQ-2026-001 语义）
+      const r2 = await probeRequest(target, {
+        method: "DELETE",
+        path: "/api/inspection/links/standard-parameter",
+        body: { inspectionStandardCode: SEED_STANDARD, inspectionParameterCode: SEED_PARAMETER },
+      });
+      expect([200, 201, 204], `${target.name} 重复 unlink 期望幂等 2xx 实得 ${r2.status}`).toContain(r2.status);
+    }, 90_000);
   }
 
   afterAll(async () => {
