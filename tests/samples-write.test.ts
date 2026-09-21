@@ -89,4 +89,60 @@ describe.skipIf(!live)("M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03
       expect([200, 404], `${target.name} PUT sample ext 期望 200/404 实得 ${r.status}`).toContain(r.status);
     }
   }, 60_000);
+
+  // 评审 M1（Task 5.85b）：上一条只断 status∈{200,404}，实现退化成「恒 404」仍绿
+  // （red-first 已实证：把 id 强制成 dead 后旧套件 8/8 照绿，见 task-585-report）。
+  // 这条用真实 sample 走「PUT ext → 200 → GET 回读一致」，恒 404 / 回读丢失都会红。
+  it("真实 sample → PUT ext 200 → GET 回读 ext 一致（恒 404 退化必红）", async () => {
+    for (const target of targets) {
+      // 前置：拿一个真实 sample id。优先自己创（I05 已把 I03 创的删掉）；创不出再取列表首个。
+      let id = "";
+      let created = false;
+      const post = await probeRequest(target, {
+        method: "POST",
+        path: "/api/samples",
+        body: { receiptId: SEED_RECEIPT, sampleCode: uniqueName("ct-smp-ext"), ext: {} },
+      });
+      if (post.status === 200 || post.status === 201) {
+        id = String((post.body as Record<string, unknown>).id ?? "");
+        created = id !== "";
+      }
+      if (!created) {
+        const list = await probeRequest(target, { method: "GET", path: "/api/samples?page=0&ps=1" });
+        const items = (list.body as { items?: { id?: string }[] }).items ?? [];
+        id = String(items[0]?.id ?? "");
+      }
+      expect(
+        id,
+        `${target.name} 拿不到真实 sample（POST=${post.status}，列表回退也空）——ext 回读断言无法执行，这不是可静默跳过的场景`,
+      ).not.toBe("");
+
+      const value = `ct-${uniqueName("ext")}`;
+      const put = await probeRequest(target, {
+        method: "PUT",
+        path: `/api/samples/${id}/ext`,
+        body: { ext: { ctProbe: value } },
+      });
+      expect(
+        put.status,
+        `${target.name} 真实 sample PUT ext 期望 200 实得 ${put.status}（恒 404 = 实现退化）`,
+      ).toBe(200);
+
+      const got = await probeRequest(target, { method: "GET", path: `/api/samples/${id}` });
+      expect(got.status, `${target.name} GET sample 期望 200 实得 ${got.status}`).toBe(200);
+      const ext = (got.body as { ext?: Record<string, unknown> }).ext;
+      expect(
+        ext?.ctProbe,
+        `${target.name} ext 回读不一致：写入 ${value}，回读 ${JSON.stringify(ext)}`,
+      ).toBe(value);
+
+      if (created) {
+        // 本用例自创的 sample 自行清理（runCleanups 已在 I05 afterAll 消费过，注册不再生效）
+        const del = await probeRequest(target, { method: "DELETE", path: `/api/samples/${id}` });
+        if (del.status !== 200 && del.status !== 204 && del.status !== 404) {
+          console.warn(`[teardown] delete sample ${target.name} status=${del.status}`);
+        }
+      }
+    }
+  }, 180_000);
 });
