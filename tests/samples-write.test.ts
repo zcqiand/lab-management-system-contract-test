@@ -145,4 +145,50 @@ describe.skipIf(!live)("M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03
       }
     }
   }, 180_000);
+
+  // 5.89（5.85 评审 MINOR-1）：契约 ext 必填（sample.tsp UpdateSampleExtRequest.ext 无 ?）
+  // ——缺 ext 三后端统一 400。修前真值三分叉（red-first 实证）：nextjs `?? {}` 静默清空
+  // 原 ext 返 200 / springboot NPE→500 / aspnetcore ArgumentNullException→500。
+  // 必须用真实 sample id：dead id 会先吃 404，掩盖 400 校验分支。
+  it("缺 ext → 400（契约必填字段，真实 sample）", async () => {
+    for (const target of targets) {
+      let id = "";
+      let created = false;
+      const post = await probeRequest(target, {
+        method: "POST",
+        path: "/api/samples",
+        body: { receiptId: SEED_RECEIPT, sampleCode: uniqueName("ct-smp-noext"), ext: {} },
+      });
+      if (post.status === 200 || post.status === 201) {
+        id = String((post.body as Record<string, unknown>).id ?? "");
+        created = id !== "";
+      }
+      if (id === "") {
+        const list = await probeRequest(target, { method: "GET", path: "/api/samples?page=0&ps=1" });
+        const items = (list.body as { items?: { id?: string }[] }).items ?? [];
+        id = String(items[0]?.id ?? "");
+      }
+      expect(
+        id,
+        `${target.name} 拿不到真实 sample（POST=${post.status}，列表回退也空）——缺 ext 断言无法执行`,
+      ).not.toBe("");
+
+      const r = await probeRequest(target, {
+        method: "PUT",
+        path: `/api/samples/${id}/ext`,
+        body: {},
+      });
+      expect(
+        r.status,
+        `${target.name} 缺 ext 期望 400 实得 ${r.status} body=${JSON.stringify(r.body).slice(0, 120)}`,
+      ).toBe(400);
+
+      if (created) {
+        const del = await probeRequest(target, { method: "DELETE", path: `/api/samples/${id}` });
+        if (del.status !== 200 && del.status !== 204 && del.status !== 404) {
+          console.warn(`[teardown] delete sample ${target.name} status=${del.status}`);
+        }
+      }
+    }
+  }, 180_000);
 });
