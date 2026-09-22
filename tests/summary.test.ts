@@ -7,6 +7,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences, type Probe } from "../src/compare.js";
 import { probeAll } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH_SUMMARY = "/api/summary";
@@ -18,8 +19,8 @@ const live = targets.length >= 2;
 describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SUMMARY} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_SUMMARY);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_SUMMARY));
   }, 180_000);
 
   it("每个目标都返回 200", () => {
@@ -47,8 +48,8 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_SUMMARY} 四方比对 / M01.F05.I
 describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_STATS} 四方比对 / M00.F01.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_STATS);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_STATS));
   }, 180_000);
 
   it("每个目标都返回 200", () => {

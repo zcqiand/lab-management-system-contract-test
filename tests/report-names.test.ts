@@ -10,6 +10,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences, type Probe } from "../src/compare.js";
 import { probeAll } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH_LIST = "/api/report-names";
@@ -39,8 +40,8 @@ const DROP_LIST = ["items", "total", "pageSize"];
 describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_LIST);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_LIST));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -67,8 +68,8 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`
 describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对 / M00.F01.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_DETAIL);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_DETAIL));
   }, 60_000);
 
   it("不存在 code → 4 后端全 404", () => {
@@ -94,8 +95,8 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH_DETAIL} 四方比对 / M00.F01.I0
 describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_LINK_OBJECT} 四方比对 / M04.F06.I02`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_LINK_OBJECT);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_LINK_OBJECT));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -122,8 +123,8 @@ describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_LINK_OBJECT} 四方比对 / M04.F
 describe.skipIf(!live)(`M96.F02.I07 GET ${PATH_LINK_STANDARD} 四方比对 / M04.F06.I03`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_LINK_STANDARD);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_LINK_STANDARD));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -150,8 +151,8 @@ describe.skipIf(!live)(`M96.F02.I07 GET ${PATH_LINK_STANDARD} 四方比对 / M04
 describe.skipIf(!live)(`M96.F02.I08 GET ${PATH_LINK_PARAMETER} 四方比对 / M04.F06.I04`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_LINK_PARAMETER);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_LINK_PARAMETER));
   }, 60_000);
 
   it("每个目标都返回 200", () => {

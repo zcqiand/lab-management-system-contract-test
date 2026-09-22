@@ -12,6 +12,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences, type Probe } from "../src/compare.js";
 import { probeAll, probeRequest } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH_PERMISSIONS = "/api/auth/permissions";
@@ -24,8 +25,8 @@ const live = targets.length >= 2;
 describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_PERMISSIONS} 四方比对 / M01.F04.I02`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_PERMISSIONS);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_PERMISSIONS));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -50,8 +51,8 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_PERMISSIONS} 四方比对 / M01.F
 describe.skipIf(!live)(`M96.F02.I04 GET ${PATH_MENUS} 四方比对 / M01.F04.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_MENUS);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_MENUS));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -84,7 +85,7 @@ describe.skipIf(!live)(`M96.F02.I04 GET ${PATH_MENUS} 四方比对 / M01.F04.I01
 describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对 / M01.F05.I02`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
+  beforeAll(async (ctx) => {
     // query 必须齐全：response_type=code + client_id + redirect_uri + state。
     const authz = new URLSearchParams({
       response_type: "code",
@@ -93,13 +94,15 @@ describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_SSO_AUTHORIZE} 四方比对 / M01
       state: "ct-state-fixture",
     });
     probes = [];
-    for (const t of targets) {
-      const probe = await probeRequest(t, {
-        method: "GET",
-        path: `${PATH_SSO_AUTHORIZE}?${authz.toString()}`,
-      });
-      probes.push(probe);
-    }
+    await withLiveExecSuite(ctx.name, async () => {
+      for (const t of targets) {
+        const probe = await probeRequest(t, {
+          method: "GET",
+          path: `${PATH_SSO_AUTHORIZE}?${authz.toString()}`,
+        });
+        probes.push(probe);
+      }
+    });
   }, 60_000);
 
   it("4 后端都返回 200（JSON 跳板，不是 302/5xx）", () => {

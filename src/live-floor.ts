@@ -22,6 +22,8 @@ export interface LiveExecRow {
 
 /**
  * suite 名解析序（vitest 2.1.9 实测，见 tests/live-floor.test.ts 回归用例）：
+ * 0. hookSuiteName——withLiveExecSuite beforeAll 通道（钩子运行期 vitest 无 API 可取
+ *    suite 名，钩子首参 ctx 是唯一通道，经包装器置入动态作用域）。
  * 1. 显式 override——beforeAll 钩子内两个 getter 都拿不到 describe（getCurrentSuite 返回根
  *    default suite 的空名 ""、getCurrentTest 是 undefined），钩子只能靠自身首参（即 suite
  *    task 对象）把名字穿进来，Task 2 接线时用。
@@ -30,6 +32,7 @@ export interface LiveExecRow {
  * 全部落空 → null，探针不登记：预热不得虚增执行面。
  */
 function currentSuiteName(override?: string): string | null {
+  if (hookSuiteName) return hookSuiteName;
   if (override) return override;
   try {
     const fromTest = getCurrentTest()?.suite?.name;
@@ -37,6 +40,20 @@ function currentSuiteName(override?: string): string | null {
     return getCurrentSuite()?.name || null;
   } catch {
     return null; // 防御：vitest 运行时内部态在极端时序下可能不可用
+  }
+}
+
+/** beforeAll 归因通道：钩子运行期 vitest 无 API 可取 suite 名（2.1.9 实证），
+ * 钩子首参 ctx 是唯一通道。钩子体内探针调用经本包装获得归因；包装器清零晚于
+ * 全部 await，单 worker 串行（fileParallelism: false）下动态作用域安全。 */
+let hookSuiteName: string | null = null;
+
+export async function withLiveExecSuite<T>(suiteName: string, fn: () => Promise<T>): Promise<T> {
+  hookSuiteName = suiteName;
+  try {
+    return await fn();
+  } finally {
+    hookSuiteName = null;
   }
 }
 

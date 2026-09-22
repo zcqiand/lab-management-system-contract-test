@@ -6,6 +6,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, compareBodies, formatDivergences, type Probe } from "../src/compare.js";
 import { login, probeAll, probeGet } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH_LIST = "/api/receipts";
@@ -20,8 +21,8 @@ const live = targets.length >= 2;
 describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_LIST);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_LIST));
   }, 180_000);
 
   it("每个目标都返回 200", () => {
@@ -49,8 +50,8 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`
 describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I02`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_DETAIL);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_DETAIL));
   }, 180_000);
 
   it("不存在 id → 4 后端全 404", () => {
@@ -77,8 +78,8 @@ describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I0
 describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I02`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_HISTORY);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_HISTORY));
   }, 180_000);
 
   it("不存在 id → 4 后端全 404", () => {

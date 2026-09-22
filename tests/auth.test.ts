@@ -14,6 +14,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareAll, formatDivergences, type Probe } from "../src/compare.js";
 import { client, SEED_USER, probeAllRequest } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH = "/api/auth/login";
@@ -24,12 +25,14 @@ const live = targets.length >= 2;
 describe.skipIf(!live)(`M96.F02.I01 POST ${PATH} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
 
-  beforeAll(async () => {
-    probes = await probeAllRequest(targets, {
-      method: "POST",
-      path: PATH,
-      body: SEED_USER,
-    });
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () =>
+      probeAllRequest(targets, {
+        method: "POST",
+        path: PATH,
+        body: SEED_USER,
+      }),
+    );
   }, 60_000);
 
   it("每个目标都返回 200", () => {

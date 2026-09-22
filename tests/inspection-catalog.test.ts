@@ -12,6 +12,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { compareBodies, formatDivergences, type Probe } from "../src/compare.js";
 import { probeAll } from "../src/http.js";
+import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 
 const PATH_BRANDS = "/api/catalog/brands";
@@ -60,8 +61,8 @@ function assertBodies(probes: Probe[], label: string) {
 
 describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_BRANDS} 四方比对 / M01.F05.I01`, () => {
   let probes: Probe[];
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_BRANDS);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_BRANDS));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -76,8 +77,8 @@ describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_BRANDS} 四方比对 / M01.F05.I0
 
 describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_MODELS} 四方比对 / M01.F05.I02`, () => {
   let probes: Probe[];
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_MODELS);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_MODELS));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -92,8 +93,8 @@ describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_MODELS} 四方比对 / M01.F05.I0
 
 describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_SPECS} 四方比对 / M04.F07.I02`, () => {
   let probes: Probe[];
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_SPECS);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_SPECS));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
@@ -108,8 +109,8 @@ describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_SPECS} 四方比对 / M04.F07.I02
 
 describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_GRADES} 四方比对 / M04.F08.I03`, () => {
   let probes: Probe[];
-  beforeAll(async () => {
-    probes = await probeAll(targets, PATH_GRADES);
+  beforeAll(async (ctx) => {
+    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_GRADES));
   }, 60_000);
 
   it("每个目标都返回 200", () => {
