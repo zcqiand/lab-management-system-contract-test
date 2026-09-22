@@ -116,6 +116,7 @@
 |---|---|---|---|---|---|
 | M96.F03.I01 | 目标端口声明 | 接口 | 前端+后端 | nextjs:5201 / aspnetcore:5204 / springboot:5205（conventions §6，2026-09-02 与 saas 家族错开），显式字面量，非 env 兜底 | 已上线 |
 | M96.F03.I02 | 声明即必须可达 | 接口 | 前端+后端 | `CONTRACT_TARGETS` 列了却连不上 = 红；名字不认识 = 抛错，不静默忽略 | 已上线 |
+| M96.F03.I03 | live 执行面下限登记 | 接口 | 前端+后端 | 探针层 live-exec.jsonl side channel + trace.live_floor 三值 declared/effective/executed_per_describe_min（REQ-2026-014 / ADR-0040，探活全过但 describe 执行面塌缩的机读降级信号） | 已上线 |
 
 ---
 
