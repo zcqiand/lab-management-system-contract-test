@@ -11,6 +11,24 @@ import { wrapper } from "axios-cookiejar-support";
 import type { Probe } from "./compare.js";
 import type { Target } from "./targets.js";
 
+// ADR-0040 live-exec side channel：**有意不用静态 import**——http.js 在 globalSetup
+// 的模块图上（tests/globalSetup.ts → prewarm/cleanup-pg → http），而 live-floor.ts
+// 顶部 import "vitest"（getCurrentSuite），vitest 2.x 在 globalSetup 上下文导入
+// vitest 直接崩（整个 run Unhandled Error「Vitest failed to access its internal
+// state」，静态/动态 import 均复现，2026-09-22 实证）。改为 worker 上下文内首次
+// 探针时惰性动态导入：globalSetup 预热探针不导入也不登记（预热不得虚增执行面，
+// live-floor 本就靠 getCurrentSuite 在无 suite 上下文 no-op，语义一致）；worker 内
+// recordProbe 行为与静态导入等价，append 尽力而为，失败不染测试结果。
+let liveFloorModule: Promise<typeof import("./live-floor.js")> | null = null;
+
+function recordProbe(target: string, status: number): void {
+  if (!process.env.VITEST_WORKER_ID) return;
+  liveFloorModule ??= import("./live-floor.js");
+  void liveFloorModule
+    .then((m) => m.recordProbe(target, status))
+    .catch(() => {});
+}
+
 /** 3 真后端 dev 目录共有的账号（2026-09-02 收敛，与 saas seed V016 alice 同源）。显式字面量，不走 env 兜底。 */
 export const SEED_USER = { username: "alice", password: "dev123456" } as const;
 
@@ -117,6 +135,7 @@ export async function probeGet(target: Target, path: string, token: string): Pro
     const res = await getWithTimeoutRetry(http, path, {
       headers: { authorization: `Bearer ${token}` },
     });
+    recordProbe(target.name, res.status);
     return { target: target.name, status: res.status, body: res.data };
   } catch (cause) {
     throw new UnreachableError(target.name, cause);
@@ -178,6 +197,7 @@ async function probeWithToken(
         res = await http.put(path, body, { headers });
         break;
     }
+    recordProbe(target.name, res.status);
     return { target: target.name, status: res.status, body: res.data };
   } catch (cause) {
     throw new UnreachableError(target.name, cause);

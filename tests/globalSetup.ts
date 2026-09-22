@@ -9,11 +9,22 @@
 // 双层兜底: 本钩子 + afterAll runCleanups。
 // - globalSetup 防上次跑残留污染
 // - registerCleanup 清本次跑（Ctrl+C 中断时也能清当次行）
+import { rmSync } from "node:fs";
+import path from "node:path";
+
 import { cleanupAllProbeRows } from "../src/cleanup-pg.js";
 import { prewarmTargets } from "../src/prewarm.js";
 import { selectedTargets } from "../src/targets.js";
 
 export async function setup(): Promise<void> {
+  // ADR-0040：live/unit 两模式都清 live-exec.jsonl 残留——unit 模式留旧文件，
+  // 下次 flush 会把陈旧分组当成本 run 执行面（spec §2 生命周期）。
+  // 有意不用 src/live-floor.ts 的 resetLiveExecLog()：该模块顶部 import "vitest"
+  // （getCurrentSuite），而 vitest 2.x 在 globalSetup 上下文导入 vitest 直接崩
+  // （「Vitest failed to access its internal state」，静态与动态 import 均复现，
+  // 2026-09-22 实证）。此处按 live-floor.ts 的 LIVE_EXEC_FILE 同款路径内联删除；
+  // 两处路径必须同步改（消费侧 resetLiveExecLog 的语义与本行等价）。
+  rmSync(path.resolve(".state", "live-exec.jsonl"), { force: true });
   if (!process.env.CONTRACT_TARGETS) return;
   // selectedTargets() 对不认识的目标名抛 TargetError —— 显式声明写错名是配置错误，
   // 不是环境瞬时问题，按「声明了就必须可达」fail-fast，不属预热豁免范围。

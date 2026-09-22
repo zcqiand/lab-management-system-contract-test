@@ -1,4 +1,5 @@
 .state/trace.json
+.state/live-exec.jsonl
 .state/gate.json
 
 # Claude 临时文件
