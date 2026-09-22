@@ -8,7 +8,9 @@
 // 主进程、测试在 worker——磁盘是唯一可达通道。fileParallelism: false 已串行化，无并发写。
 import { appendFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import { getCurrentSuite } from "vitest";
+// 必须从 vitest/suite 导入——vitest 2.1.9 根入口（dist/index.d.ts）不导出这些 API，
+// 从根导入拿到 undefined，recordProbe 会永久 no-op（修复轮 1 实锤，见 node_modules grep）。
+import { getCurrentSuite, getCurrentTest } from "vitest/suite";
 
 const LIVE_EXEC_FILE = path.resolve(".state", "live-exec.jsonl");
 
@@ -18,18 +20,32 @@ export interface LiveExecRow {
   status: number;
 }
 
-/** suite 名取不到（globalSetup/prewarm 等非 vitest 运行时上下文）→ null，探针不登记：预热不得虚增执行面。 */
-function currentSuiteName(): string | null {
+/**
+ * suite 名解析序（vitest 2.1.9 实测，见 tests/live-floor.test.ts 回归用例）：
+ * 1. 显式 override——beforeAll 钩子内两个 getter 都拿不到 describe（getCurrentSuite 返回根
+ *    default suite 的空名 ""、getCurrentTest 是 undefined），钩子只能靠自身首参（即 suite
+ *    task 对象）把名字穿进来，Task 2 接线时用。
+ * 2. getCurrentTest()?.suite?.name——it() 运行期的正解，返回真正所属 describe 的标题。
+ * 3. getCurrentSuite()?.name——collect 期上下文兜底；运行期它是 ""（falsy）→ 归 null。
+ * 全部落空 → null，探针不登记：预热不得虚增执行面。
+ */
+function currentSuiteName(override?: string): string | null {
+  if (override) return override;
   try {
-    return getCurrentSuite()?.name ?? null;
+    const fromTest = getCurrentTest()?.suite?.name;
+    if (fromTest) return fromTest;
+    return getCurrentSuite()?.name || null;
   } catch {
     return null; // 防御：vitest 运行时内部态在极端时序下可能不可用
   }
 }
 
-/** 探针出口点调用（probeGet / probeWithToken 成功拿到响应处）。无 suite 上下文则 no-op。 */
-export function recordProbe(target: string, status: number): void {
-  const suite = currentSuiteName();
+/**
+ * 探针出口点调用（probeGet / probeWithToken 成功拿到响应处）。无 suite 上下文则 no-op。
+ * suiteOverride：beforeAll 内钩子把首参（suite task）的 name 穿进来的通道；it() 内不必传。
+ */
+export function recordProbe(target: string, status: number, suiteOverride?: string): void {
+  const suite = currentSuiteName(suiteOverride);
   if (!suite) return;
   mkdirSync(path.dirname(LIVE_EXEC_FILE), { recursive: true });
   const row: LiveExecRow = { suite, target, status };

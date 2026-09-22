@@ -1,9 +1,9 @@
 // tests/live-floor.test.ts
 // ADR-0040 live 执行面 side channel 单测（spec §2/§3，unit 层，无真后端）。
 // 直接读写真实 .state/live-exec.jsonl（gitignore 内），afterEach 必清。
-import { appendFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { appendFileSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
-import { deleteLiveExecLog, readLiveExecGroups, resetLiveExecLog } from "../src/live-floor.js";
+import { deleteLiveExecLog, readLiveExecGroups, recordProbe, resetLiveExecLog } from "../src/live-floor.js";
 
 afterEach(() => {
   resetLiveExecLog();
@@ -49,6 +49,26 @@ describe("readLiveExecGroups（jsonl 合并）", () => {
     );
     const groups = readLiveExecGroups()!;
     expect(groups.get("A")).toEqual(new Set(["nextjs"]));
+  });
+});
+
+describe("recordProbe 真实 vitest 上下文", () => {
+  it("it() 内调用真实落盘，suite 字段 == 外层 describe 标题（非空串/非 undefined）", () => {
+    recordProbe("some-target", 200);
+    const text = readFileSync(".state/live-exec.jsonl", "utf-8");
+    const lines = text.split("\n").filter((l) => l.trim());
+    expect(lines).toHaveLength(1);
+    const row = JSON.parse(lines[0]) as { suite: string; target: string; status: number };
+    expect(row.suite).toBe("recordProbe 真实 vitest 上下文");
+    expect(row.target).toBe("some-target");
+    expect(row.status).toBe(200);
+  });
+
+  it("suiteOverride 显式传入时优先于自动探测（beforeAll 通道）", () => {
+    recordProbe("other-target", 404, "显式 override 的 suite");
+    const text = readFileSync(".state/live-exec.jsonl", "utf-8");
+    const row = JSON.parse(text.split("\n").filter((l) => l.trim())[0]) as { suite: string };
+    expect(row.suite).toBe("显式 override 的 suite");
   });
 });
 
