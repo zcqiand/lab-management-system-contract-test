@@ -1,8 +1,26 @@
 // tests/fnReporter-live-floor.test.ts
 // fnReporter v8 live_floor 三态分立单测（spec §3；fixture 直接操纵 .state/live-exec.jsonl）。
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { afterEach, describe, expect, it } from "vitest";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { computeLiveFloor } from "./fnReporter.js";
+
+// W4 端到端实锤（2026-09-23，saas 镜像同修）：live 全量轮按 size 序执行，小 fixture 文件
+// 排队尾时 afterEach 删掉真实 side channel → fnReporter flush 读缺文件 →
+// executed_per_describe_min=null（side channel 故障假信号）。本仓当前 file size 序恰好
+// fixture 不在队尾（live 实证 {3,3,3}），属潜伏 flake——快照/恢复防患。
+// beforeAll 快照 + afterAll 恢复：unit 轮本就无真实数据，快照 miss → 恢复=删，行为不变。
+let stash: string | null = null;
+beforeAll(() => {
+  try {
+    stash = readFileSync(".state/live-exec.jsonl", "utf-8");
+  } catch {
+    stash = null;
+  }
+});
+afterAll(() => {
+  if (stash === null) rmSync(".state/live-exec.jsonl", { force: true });
+  else writeFileSync(".state/live-exec.jsonl", stash, "utf-8");
+});
 
 afterEach(() => {
   rmSync(".state/live-exec.jsonl", { force: true });
