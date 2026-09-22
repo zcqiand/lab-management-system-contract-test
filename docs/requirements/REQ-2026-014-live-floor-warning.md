@@ -5,7 +5,7 @@
 | 提出人 | suite-operator（tracker Task 2.5，`2026-09-18-family-leftovers-remediation`） |
 | 提出日期 | 2026-09-20 |
 | 优先级 | P1 |
-| 状态 | 待评审 |
+| 状态 | 已实现（ADR-0040 T-3，2026-09-22） |
 | 关联 ADR | ADR-0037（gate 分档 unit/full）；ADR-0035（seven-stage act mode）；ADR-0016（contract-test live mode） |
 
 ## 1. 需求描述
@@ -55,7 +55,7 @@
 
 | 编号 | 场景（给定） | 操作（当） | 预期（则） |
 |---|---|---|---|
-| AC-1 | 仅 1 个目标后端在线，其余停服 | 跑 full 档 live gate | 输出含**可机读**的降级标记（gate.json 结构化字段或 trace 顶层字段，非纯人读文案）；gate 是否因此变红不在本 REQ 范围 |
+| AC-1 | 探活全过（mode=live）但 describe 执行面塌缩至 <2（评审 minor① 修正锚点——「仅 1 目标在线」现状已被 v7+require_live 设防，非本需求验收对象） | 单测级故障注入（Task 4.2 先例同型）+ gate 级 fixture | 输出含可机读降级标记（trace.live_floor + gate.json live_floor_degraded）；full 档 rc=1 |
 | AC-2 | ≥2 个目标后端在线，CONTRACT_TARGETS 显式声明 | 同上 | 无降级标记；gate 输出与现状语义一致 |
 | AC-3 | 现网基线 | 同上 | 现有 412 条 trace（inert 且携带 fns = 0 条）语义不回退：条数、inert 判定、skip=0 硬门行为均不变；本需求只**加**信号，不改任何既有判定 |
 
@@ -64,8 +64,8 @@
 | 任务 ID | 任务描述 | 类型 | 负责人 | 预估 | 状态 |
 |---|---|---|---|---|---|
 | T-1 | 本 REQ 立项文档（本文件） | 文档 | suite-operator | 0.05 d | 已完成 |
-| T-2 | ADR：裁决候选 A/B、红绿边界、WARNING 是否升级 | 决策 | human | — | 待开始（人裁前置） |
-| T-3 | 实现（候选定后另立计划；涉 gate-runner 属 exit 2 类） | 开发 | — | — | 阻塞于 T-2 |
+| T-2 | ADR：裁决候选 A/B、红绿边界、WARNING 是否升级 | 决策 | human | — | 已完成（ADR-0040） |
+| T-3 | 实现（候选定后另立计划；涉 gate-runner 属 exit 2 类） | 开发 | — | — | 已完成（本批 commit） |
 
 ## 4. 功能影响（需求与功能对齐的唯一位置）
 
@@ -105,3 +105,4 @@ gate-runner 判定链可能新增 WARNING 级输出（候选 B）或 trace schem
 **变更日志**：
 
 - 2026-09-20 创建 REQ-2026-014（tracker Task 2.5：圈定 live 执行面 <2 目标的降级信号问题，只写文档不实现）
+- 2026-09-22 状态推进至已实现（ADR-0040 T-3：fnReporter v8 live_floor 三值 + suite L5 消费 + full 档红，端到端 live 实证见 tracker Task 2.5 Step 2 勾闭批注）
