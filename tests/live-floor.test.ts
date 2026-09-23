@@ -1,9 +1,21 @@
 // tests/live-floor.test.ts
 // ADR-0040 live 执行面 side channel 单测（spec §2/§3，unit 层，无真后端）。
 // 直接读写真实 .state/live-exec.jsonl（gitignore 内），afterEach 必清。
-import { appendFileSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import {
+  appendFileSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  mkdirSync,
+} from "node:fs";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import { deleteLiveExecLog, readLiveExecGroups, recordProbe, resetLiveExecLog, withLiveExecSuite } from "../src/live-floor.js";
+import {
+  deleteLiveExecLog,
+  readLiveExecGroups,
+  recordProbe,
+  resetLiveExecLog,
+  withLiveExecSuite,
+} from "../src/live-floor.js";
 
 // W4 端到端实锤（2026-09-23，saas 镜像同修）：live 全量轮按 size 序执行，小 fixture 文件
 // 排队尾时 afterEach 删掉真实 side channel → fnReporter flush 读缺文件 →
@@ -41,7 +53,11 @@ describe("readLiveExecGroups（jsonl 合并）", () => {
         JSON.stringify({ suite: "A 比对", target: "nextjs", status: 200 }),
         JSON.stringify({ suite: "A 比对", target: "springboot", status: 404 }),
         JSON.stringify({ suite: "A 比对", target: "nextjs", status: 200 }),
-        JSON.stringify({ suite: "B 写路径", target: "aspnetcore", status: 201 }),
+        JSON.stringify({
+          suite: "B 写路径",
+          target: "aspnetcore",
+          status: 201,
+        }),
         "",
       ].join("\n"),
       "utf-8",
@@ -62,7 +78,9 @@ describe("readLiveExecGroups（jsonl 合并）", () => {
     mkdirSync(".state", { recursive: true });
     appendFileSync(
       ".state/live-exec.jsonl",
-      "{broken json\n" + JSON.stringify({ suite: "A", target: "nextjs", status: 200 }) + "\n",
+      "{broken json\n" +
+        JSON.stringify({ suite: "A", target: "nextjs", status: 200 }) +
+        "\n",
       "utf-8",
     );
     const groups = readLiveExecGroups()!;
@@ -76,7 +94,11 @@ describe("recordProbe 真实 vitest 上下文", () => {
     const text = readFileSync(".state/live-exec.jsonl", "utf-8");
     const lines = text.split("\n").filter((l) => l.trim());
     expect(lines).toHaveLength(1);
-    const row = JSON.parse(lines[0]) as { suite: string; target: string; status: number };
+    const row = JSON.parse(lines[0]) as {
+      suite: string;
+      target: string;
+      status: number;
+    };
     expect(row.suite).toBe("recordProbe 真实 vitest 上下文");
     expect(row.target).toBe("some-target");
     expect(row.status).toBe(200);
@@ -85,7 +107,9 @@ describe("recordProbe 真实 vitest 上下文", () => {
   it("suiteOverride 显式传入时优先于自动探测（beforeAll 通道）", () => {
     recordProbe("other-target", 404, "显式 override 的 suite");
     const text = readFileSync(".state/live-exec.jsonl", "utf-8");
-    const row = JSON.parse(text.split("\n").filter((l) => l.trim())[0]) as { suite: string };
+    const row = JSON.parse(text.split("\n").filter((l) => l.trim())[0]) as {
+      suite: string;
+    };
     expect(row.suite).toBe("显式 override 的 suite");
   });
 
@@ -94,7 +118,9 @@ describe("recordProbe 真实 vitest 上下文", () => {
       recordProbe("wrapped-target", 200);
     });
     const text = readFileSync(".state/live-exec.jsonl", "utf-8");
-    const row = JSON.parse(text.split("\n").filter((l) => l.trim())[0]) as { suite: string };
+    const row = JSON.parse(text.split("\n").filter((l) => l.trim())[0]) as {
+      suite: string;
+    };
     // wrapper 名优先：若无 wrapper，it() 运行期自动探测会归到本 describe 标题
     expect(row.suite).toBe("外层描述");
   });

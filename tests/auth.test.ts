@@ -22,62 +22,78 @@ const PATH = "/api/auth/login";
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 POST ${PATH} 四方比对 / M01.F05.I01`, () => {
-  let probes: Probe[];
+describe.skipIf(!live)(
+  `M96.F02.I01 POST ${PATH} 四方比对 / M01.F05.I01`,
+  () => {
+    let probes: Probe[];
 
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () =>
-      probeAllRequest(targets, {
-        method: "POST",
-        path: PATH,
-        body: SEED_USER,
-      }),
-    );
-  }, 60_000);
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAllRequest(targets, {
+          method: "POST",
+          path: PATH,
+          body: SEED_USER,
+        }),
+      );
+    }, 60_000);
 
-  it("每个目标都返回 200", () => {
-    const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
-  });
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
 
-  it("必填字段齐全（LoginResponse required: token/user/tenants）", () => {
-    for (const p of probes) {
-      const body = p.body as Record<string, unknown>;
-      expect(body.token, `${p.target} 少了 token`).toBeTruthy();
-      expect(body.user, `${p.target} 少了 user`).toBeDefined();
-      expect(Array.isArray(body.tenants), `${p.target} 的 tenants 不是数组`).toBe(true);
-    }
-  });
+    it("必填字段齐全（LoginResponse required: token/user/tenants）", () => {
+      for (const p of probes) {
+        const body = p.body as Record<string, unknown>;
+        expect(body.token, `${p.target} 少了 token`).toBeTruthy();
+        expect(body.user, `${p.target} 少了 user`).toBeDefined();
+        expect(
+          Array.isArray(body.tenants),
+          `${p.target} 的 tenants 不是数组`,
+        ).toBe(true);
+      }
+    });
 
-  it("tenants 行必填齐全（MyTenant required: tenantId/code/name/roleIds）", () => {
-    for (const p of probes) {
-      for (const row of (p.body as { tenants: Record<string, unknown>[] }).tenants) {
-        for (const key of ["tenantId", "code", "name", "roleIds"]) {
-          expect(row[key], `${p.target} 的租户行少了 ${key}`).toBeDefined();
+    it("tenants 行必填齐全（MyTenant required: tenantId/code/name/roleIds）", () => {
+      for (const p of probes) {
+        for (const row of (p.body as { tenants: Record<string, unknown>[] })
+          .tenants) {
+          for (const key of ["tenantId", "code", "name", "roleIds"]) {
+            expect(row[key], `${p.target} 的租户行少了 ${key}`).toBeDefined();
+          }
         }
       }
-    }
-  });
-
-  it("错误凭证 → 4xx 全等（前端 catch 分支由状态码决定）", async () => {
-    const bad = await probeAllRequest(targets, {
-      method: "POST",
-      path: PATH,
-      body: { username: SEED_USER.username, password: "wrong-password" },
     });
-    for (const p of bad) {
-      expect(p.status, `${p.target} 错误密码应 4xx，得到 ${p.status}`).toBeGreaterThanOrEqual(400);
-      expect(p.status).toBeLessThan(500);
-    }
-    const statuses = new Set(bad.map((p) => Math.floor(p.status / 100)));
-    expect(statuses.size, `4xx 家族分叉: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toBe(1);
-  });
 
-  it("normalize 后所有目标全等（token/refreshToken 已在 ALWAYS_VOLATILE 剔除）", () => {
-    const divergences = compareAll(probes, targets);
-    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
-  });
-});
+    it("错误凭证 → 4xx 全等（前端 catch 分支由状态码决定）", async () => {
+      const bad = await probeAllRequest(targets, {
+        method: "POST",
+        path: PATH,
+        body: { username: SEED_USER.username, password: "wrong-password" },
+      });
+      for (const p of bad) {
+        expect(
+          p.status,
+          `${p.target} 错误密码应 4xx，得到 ${p.status}`,
+        ).toBeGreaterThanOrEqual(400);
+        expect(p.status).toBeLessThan(500);
+      }
+      const statuses = new Set(bad.map((p) => Math.floor(p.status / 100)));
+      expect(
+        statuses.size,
+        `4xx 家族分叉: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toBe(1);
+    });
+
+    it("normalize 后所有目标全等（token/refreshToken 已在 ALWAYS_VOLATILE 剔除）", () => {
+      const divergences = compareAll(probes, targets);
+      expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+    });
+  },
+);
 
 // 保留 client 导入引用（错误分支探针未来切 axios 直连时用）；当前 probeAllRequest 已覆盖。
 void client;

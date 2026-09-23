@@ -48,7 +48,10 @@ function currentSuiteName(override?: string): string | null {
  * 全部 await，单 worker 串行（fileParallelism: false）下动态作用域安全。 */
 let hookSuiteName: string | null = null;
 
-export async function withLiveExecSuite<T>(suiteName: string, fn: () => Promise<T>): Promise<T> {
+export async function withLiveExecSuite<T>(
+  suiteName: string,
+  fn: () => Promise<T>,
+): Promise<T> {
   hookSuiteName = suiteName;
   try {
     return await fn();
@@ -61,7 +64,11 @@ export async function withLiveExecSuite<T>(suiteName: string, fn: () => Promise<
  * 探针出口点调用（probeGet / probeWithToken 成功拿到响应处）。无 suite 上下文则 no-op。
  * suiteOverride：beforeAll 内钩子把首参（suite task）的 name 穿进来的通道；it() 内不必传。
  */
-export function recordProbe(target: string, status: number, suiteOverride?: string): void {
+export function recordProbe(
+  target: string,
+  status: number,
+  suiteOverride?: string,
+): void {
   const suite = currentSuiteName(suiteOverride);
   if (!suite) return;
   mkdirSync(path.dirname(LIVE_EXEC_FILE), { recursive: true });

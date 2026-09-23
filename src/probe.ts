@@ -76,7 +76,11 @@ export async function probeOnce(
     // 判活 = HTTP 2xx（status 区间；与 prewarm 原语义一致，真实 Response 与 res.ok 等价）
     const status = Number(res.status);
     const ok = Number.isFinite(status) && status >= 200 && status < 300;
-    return { ok, durationMs: Date.now() - startedAt, reason: ok ? "" : `HTTP ${res.status}` };
+    return {
+      ok,
+      durationMs: Date.now() - startedAt,
+      reason: ok ? "" : `HTTP ${res.status}`,
+    };
   } catch (cause) {
     return {
       ok: false,
@@ -100,7 +104,9 @@ export interface ProbeWithRetryOptions {
 }
 
 /** 定长重试探活：任一次成功即判活；全部尝试失败才判死并携带逐次证据。 */
-export async function probeWithRetry(opts: ProbeWithRetryOptions): Promise<ProbeResult> {
+export async function probeWithRetry(
+  opts: ProbeWithRetryOptions,
+): Promise<ProbeResult> {
   const total = opts.attempts ?? DEFAULT_ATTEMPTS;
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const backoff = opts.backoffMs ?? DEFAULT_BACKOFF_MS;
@@ -120,6 +126,8 @@ export async function probeWithRetry(opts: ProbeWithRetryOptions): Promise<Probe
     attempts,
     reason:
       `${total}/${total} 次探针失败: ` +
-      attempts.map((a, i) => `#${i + 1} ${a.durationMs}ms ${a.reason}`).join("; "),
+      attempts
+        .map((a, i) => `#${i + 1} ${a.durationMs}ms ${a.reason}`)
+        .join("; "),
   };
 }

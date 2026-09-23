@@ -14,11 +14,15 @@ import {
 
 describe("M96.F01.I02 日期归一化到 UTC Z", () => {
   it("把 +00:00 偏移改写成 Z", () => {
-    expect(normalizeDate("2026-08-29T10:00:00+00:00")).toBe("2026-08-29T10:00:00.000Z");
+    expect(normalizeDate("2026-08-29T10:00:00+00:00")).toBe(
+      "2026-08-29T10:00:00.000Z",
+    );
   });
 
   it("把非零偏移换算到 UTC", () => {
-    expect(normalizeDate("2026-08-29T18:00:00+08:00")).toBe("2026-08-29T10:00:00.000Z");
+    expect(normalizeDate("2026-08-29T18:00:00+08:00")).toBe(
+      "2026-08-29T10:00:00.000Z",
+    );
   });
 
   it("Jackson 与 System.Text.Json 的两种写法归一后相等", () => {
@@ -49,7 +53,9 @@ describe("M96.F01.I04 递归排序 object key 与数组", () => {
   });
 
   it("数组顺序不属于契约", () => {
-    expect(stable({ roleIds: ["r2", "r1"] })).toBe(stable({ roleIds: ["r1", "r2"] }));
+    expect(stable({ roleIds: ["r2", "r1"] })).toBe(
+      stable({ roleIds: ["r1", "r2"] }),
+    );
   });
 
   it("嵌套对象数组也按稳定键排", () => {
@@ -74,7 +80,10 @@ describe("M96.F01.I01 剔除非确定性字段", () => {
   it("ID 不进任何剔除路径 —— 三个真后端共库，UUID 本来就该相等", () => {
     // 这是 2026-08-29 落地时对 ADR-0015 的修正：无脑剔 ID 会丢掉最强的一路信号。
     // 2026-09-15 Phase 2 去 msw 后，比对里已没有任何含内存 fixture 的场景。
-    const kept = normalize({ id: "t1", userId: "u1" }) as Record<string, unknown>;
+    const kept = normalize({ id: "t1", userId: "u1" }) as Record<
+      string,
+      unknown
+    >;
     expect(kept.id).toBe("t1");
     expect(kept.userId).toBe("u1");
   });
@@ -82,11 +91,15 @@ describe("M96.F01.I01 剔除非确定性字段", () => {
 
 describe("M96.F01 normalize 不吞掉真实差异", () => {
   it("字段值不同仍然不等", () => {
-    expect(stable({ status: "active" })).not.toBe(stable({ status: "suspended" }));
+    expect(stable({ status: "active" })).not.toBe(
+      stable({ status: "suspended" }),
+    );
   });
 
   it("数组长度不同仍然不等", () => {
-    expect(stable({ roleIds: ["r1"] })).not.toBe(stable({ roleIds: ["r1", "r2"] }));
+    expect(stable({ roleIds: ["r1"] })).not.toBe(
+      stable({ roleIds: ["r1", "r2"] }),
+    );
   });
 
   it("多出一个字段仍然不等", () => {
@@ -106,44 +119,60 @@ describe("M96.F01 assertTimestampShape 年份边界（ADR-0015-amend，下界=19
   });
 
   it("下界：1970-01-01T00:00:00Z 合法（= UnixEpoch / EPOCH / new Date(0)）", () => {
-    expect(assertTimestampShape({ createdAt: "1970-01-01T00:00:00.000Z" })).toEqual([]);
+    expect(
+      assertTimestampShape({ createdAt: "1970-01-01T00:00:00.000Z" }),
+    ).toEqual([]);
   });
 
   it("下界 -1：1969-12-31T23:59:59Z 非法", () => {
-    const errs = assertTimestampShape({ createdAt: "1969-12-31T23:59:59.000Z" });
+    const errs = assertTimestampShape({
+      createdAt: "1969-12-31T23:59:59.000Z",
+    });
     expect(errs.length).toBeGreaterThan(0);
     expect(errs[0]?.reason).toBe("year_range");
   });
 
   it("上界：2100-12-31T23:59:59Z 合法", () => {
-    expect(assertTimestampShape({ updatedAt: "2100-12-31T23:59:59.000Z" })).toEqual([]);
+    expect(
+      assertTimestampShape({ updatedAt: "2100-12-31T23:59:59.000Z" }),
+    ).toEqual([]);
   });
 
   it("上界 +1：2101-01-01T00:00:00Z 非法", () => {
-    const errs = assertTimestampShape({ updatedAt: "2101-01-01T00:00:00.000Z" });
+    const errs = assertTimestampShape({
+      updatedAt: "2101-01-01T00:00:00.000Z",
+    });
     expect(errs.length).toBeGreaterThan(0);
     expect(errs[0]?.reason).toBe("year_range");
   });
 
   it("C# DateTimeOffset.MinValue（年份 0001）非法", () => {
-    const errs = assertTimestampShape({ createdAt: "0001-01-01T00:00:00+00:00" });
+    const errs = assertTimestampShape({
+      createdAt: "0001-01-01T00:00:00+00:00",
+    });
     expect(errs.length).toBeGreaterThan(0);
     expect(errs[0]?.reason).toBe("year_range");
   });
 
   it("Hibernate -infinity sentinel（年份 -292275055）非法（走 format 错，Date.parse NaN）", () => {
-    const errs = assertTimestampShape({ updatedAt: "-292275055-05-16T23:00:00.000Z" });
+    const errs = assertTimestampShape({
+      updatedAt: "-292275055-05-16T23:00:00.000Z",
+    });
     expect(errs.length).toBeGreaterThan(0);
     // Date.parse 对负 5 位数年份 + 5 位月份返回 NaN，所以是 format 而非 year_range
     expect(["format", "year_range"]).toContain(errs[0]?.reason);
   });
 
   it("业务时间戳（2026）合法", () => {
-    expect(assertTimestampShape({ createdAt: "2026-09-01T10:00:00.000Z" })).toEqual([]);
+    expect(
+      assertTimestampShape({ createdAt: "2026-09-01T10:00:00.000Z" }),
+    ).toEqual([]);
   });
 
   it("非 TIMESTAMP_KEYS 字段不参与年份断言", () => {
-    expect(assertTimestampShape({ randomField: "1969-12-31T23:59:59.000Z" })).toEqual([]);
+    expect(
+      assertTimestampShape({ randomField: "1969-12-31T23:59:59.000Z" }),
+    ).toEqual([]);
   });
 
   it("数组里的 TIMESTAMP_KEYS 字段也走年份断言", () => {
@@ -157,6 +186,8 @@ describe("M96.F01 assertTimestampShape 年份边界（ADR-0015-amend，下界=19
 
   it("TIMESTAMP_KEYS 暴露的下划线版（created_at）也覆盖", () => {
     expect(TIMESTAMP_KEYS).toContain("created_at");
-    expect(assertTimestampShape({ created_at: "1970-01-01T00:00:00.000Z" })).toEqual([]);
+    expect(
+      assertTimestampShape({ created_at: "1970-01-01T00:00:00.000Z" }),
+    ).toEqual([]);
   });
 });

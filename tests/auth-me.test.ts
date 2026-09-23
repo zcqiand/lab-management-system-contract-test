@@ -23,14 +23,20 @@ describe.skipIf(!live)(`M96.F02.I02 GET ${PATH} 四方比对 / M00.F01.I01`, () 
 
   it("每个目标都返回 200", () => {
     const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
+    expect(
+      bad,
+      `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+    ).toEqual([]);
   });
 
   it("必填字段齐全（CurrentUserSession required: user/tenants）", () => {
     for (const p of probes) {
       const body = p.body as Record<string, unknown>;
       expect(body.user, `${p.target} 少了 user`).toBeDefined();
-      expect(Array.isArray(body.tenants), `${p.target} 的 tenants 不是数组`).toBe(true);
+      expect(
+        Array.isArray(body.tenants),
+        `${p.target} 的 tenants 不是数组`,
+      ).toBe(true);
     }
   });
 

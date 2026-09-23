@@ -1,26 +1,28 @@
 {
-  "schema": 1,
-  "project": "lab-management-system-contract-test",
-  "current_task": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,412 fn)，full 419p/5f/424、WITHDRAW 定向 63/63",
-  "done": [
-    "probeRequest DELETE 补发 body（此前只传 headers，@body unlink 全被吞：msw 假 204/真后端假红）",
-    "axios 超时 8s→30s（nextjs dev login 实测 7.5-8s）",
-    "normalize 放行 \"\" 时间戳（ADR-0025 家族约定）+ 单测锁定；I07 前清残留 + I08 幂等断言",
-    "5 轮收敛 live 四方 AC-2 全绿；commit db26c1e",
-    "2026-09-19 wave 收尾：live full trace_cmd 再生（CONTRACT_TARGETS=nextjs,aspnetcore,springboot + TRACE_MAP=1）→ trace mode=live 412 fn；full 419 passed/5 failed(424)；WITHDRAW 定向 63/63 对照超 21 水位；5 失败=menus 503×2（lab 后端 service-account 登录缺 clientId，新池项）+nextjs catalog/grades PUT 30s 超时与 DELETE 500+aspnetcore PUT samples ext 500（已知分叉）"
-  ],
-  "next": [
-    "skipIf(!live) 结构性洞（门绿=没测）REQ 立项候选——live 目标 <2 时应警告或红"
-  ],
-  "open_questions": [],
-  "dont": [
-    "gate 报「trace.json 是 unit 模式」时禁改 stack.json require_live——走 start-family.sh 出 live trace",
-    "后端语义变更必须同 commit 同步断言（contract-test-rule）"
-  ],
-  "active_branch": "master",
-  "last_session_at": "2026-09-19",
-  "done_add": [
-    "2026-09-19 wave 收尾：live full trace_cmd 再生（CONTRACT_TARGETS=nextjs,aspnetcore,springboot + TRACE_MAP=1）→ trace mode=live 412 fn；full 419 passed/5 failed(424)；WITHDRAW 定向 63/63 对照超 21 水位；5 失败=menus 503×2（lab 后端 service-account 登录缺 clientId，新池项）+nextjs catalog/grades PUT 30s 超时与 DELETE 500+aspnetcore PUT samples ext 500（已知分叉）"
-  ],
-  "last_session_summary": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,412 fn)，full 419p/5f/424、WITHDRAW 定向 63/63"
+ "schema": 1,
+ "project": "lab-management-system-contract-test",
+ "current_task": "ADR-0040 T-3 live_floor 批收账：live full EXIT=0 {3,3,3} + AC-1 故障注入 EXIT=1（commits 2b926e7..f89ada2，含 withLiveExecSuite 40 钩子接线与 fixture 快照恢复）",
+ "done": [
+  "probeRequest DELETE 补发 body（此前只传 headers，@body unlink 全被吞：msw 假 204/真后端假红）",
+  "axios 超时 8s→30s（nextjs dev login 实测 7.5-8s）",
+  "normalize 放行 \"\" 时间戳（ADR-0025 家族约定）+ 单测锁定；I07 前清残留 + I08 幂等断言",
+  "5 轮收敛 live 四方 AC-2 全绿；commit db26c1e",
+  "2026-09-19 wave 收尾：live full trace_cmd 再生（CONTRACT_TARGETS=nextjs,aspnetcore,springboot + TRACE_MAP=1）→ trace mode=live 412 fn；full 419 passed/5 failed(424)；WITHDRAW 定向 63/63 对照超 21 水位；5 失败=menus 503×2（lab 后端 service-account 登录缺 clientId，新池项）+nextjs catalog/grades PUT 30s 超时与 DELETE 500+aspnetcore PUT samples ext 500（已知分叉）"
+ ],
+ "next": [
+  "skipIf(!live) 结构性洞（门绿=没测）REQ 立项候选——live 目标 <2 时应警告或红"
+ ],
+ "open_questions": [],
+ "dont": [
+  "gate 报「trace.json 是 unit 模式」时禁改 stack.json require_live——走 start-family.sh 出 live trace",
+  "后端语义变更必须同 commit 同步断言（contract-test-rule）",
+  "注意：2026-09-23 收工跑 gate --all 时 L4 unit 轮已把本仓 trace.json 覆写为 unit 模式（live {3,3,3} 证据在 git+日志）——下次 live 验证按 docs/conventions/contract-test-run-live.md 重开（export CONTRACT_TARGETS+TRACE_MAP=1）"
+ ],
+ "active_branch": "master",
+ "last_session_at": "2026-09-23",
+ "done_add": [
+  "2026-09-19 wave 收尾：live full trace_cmd 再生（CONTRACT_TARGETS=nextjs,aspnetcore,springboot + TRACE_MAP=1）→ trace mode=live 412 fn；full 419 passed/5 failed(424)；WITHDRAW 定向 63/63 对照超 21 水位；5 失败=menus 503×2（lab 后端 service-account 登录缺 clientId，新池项）+nextjs catalog/grades PUT 30s 超时与 DELETE 500+aspnetcore PUT samples ext 500（已知分叉）",
+  "ADR-0040 T-3 live_floor 降级信号落地（2026-09-22/23 批）：探针层 live-exec.jsonl side channel + fnReporter v8 写 trace.live_floor{declared,effective,executed} + suite L5 消费（塌缩 full 档红/null 只警）+ gate 注入 GATE_TIER 与 live_floor_degraded 字段；live full gate EXIT=0 实证 live_floor{3,3,3}；AC-1 gate 级故障注入 EXIT=1 + [WARN][live-floor] 塌缩文案；终审 CLEAN。lab-ct commits 2b926e7..f89ada2（9 commits）：side channel/出口登记/40 钩子接线/fnReporter v8/ADR-0001（L0 存量债）/REQ-2026-014 状态推进+AC-1 真洞锚点/fixture 快照恢复"
+ ],
+ "last_session_summary": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,412 fn)，full 419p/5f/424、WITHDRAW 定向 63/63"
 }

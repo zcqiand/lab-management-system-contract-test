@@ -2,7 +2,12 @@
 // 2026-09-15 Phase 2 去 msw：比对基准 = probes[0]（声明序首位）。
 import { describe, expect, it } from "vitest";
 
-import { type Probe, compareAll, compareBodies, compareStatuses } from "../src/compare.js";
+import {
+  type Probe,
+  compareAll,
+  compareBodies,
+  compareStatuses,
+} from "../src/compare.js";
 import { TARGETS, TargetError, selectedTargets } from "../src/targets.js";
 
 const REAL = [TARGETS.nextjs, TARGETS.aspnetcore, TARGETS.springboot];
@@ -34,8 +39,12 @@ describe("M96.F02.I01 status 全等", () => {
 describe("M96.F02.I02 normalize 后 body 全等", () => {
   it("只有字段顺序/日期格式不同 → 不算分歧", () => {
     const probes = [
-      probe("nextjs", 200, [{ status: "active", joinedAt: "2026-08-29T10:00:00Z" }]),
-      probe("aspnetcore", 200, [{ joinedAt: "2026-08-29T10:00:00+00:00", status: "active" }]),
+      probe("nextjs", 200, [
+        { status: "active", joinedAt: "2026-08-29T10:00:00Z" },
+      ]),
+      probe("aspnetcore", 200, [
+        { joinedAt: "2026-08-29T10:00:00+00:00", status: "active" },
+      ]),
     ];
     expect(compareBodies(probes, REAL)).toEqual([]);
   });
@@ -89,7 +98,11 @@ describe("M96.F02 比对基准恒为 probes[0]（Phase 2 去 msw）", () => {
 
 describe("M96.F03.I01 目标端口声明", () => {
   it("三个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段）", () => {
-    expect(Object.keys(TARGETS).sort()).toEqual(["aspnetcore", "nextjs", "springboot"]);
+    expect(Object.keys(TARGETS).sort()).toEqual([
+      "aspnetcore",
+      "nextjs",
+      "springboot",
+    ]);
     expect(TARGETS.nextjs.baseUrl).toContain(":5201");
     expect(TARGETS.aspnetcore.baseUrl).toContain(":5204");
     expect(TARGETS.springboot.baseUrl).toContain(":5205");
@@ -98,7 +111,10 @@ describe("M96.F03.I01 目标端口声明", () => {
 
 describe("M96.F03.I02 声明即必须可达", () => {
   it("声明了认识的目标就返回它们（声明序 = 比对序，首位是基准）", () => {
-    expect(selectedTargets("nextjs,springboot").map((t) => t.name)).toEqual(["nextjs", "springboot"]);
+    expect(selectedTargets("nextjs,springboot").map((t) => t.name)).toEqual([
+      "nextjs",
+      "springboot",
+    ]);
   });
 
   it("声明了不认识的名字 → 抛错，不静默忽略", () => {
@@ -109,7 +125,10 @@ describe("M96.F03.I02 声明即必须可达", () => {
 
 describe("M96.F02 compareAll 汇总", () => {
   it("status 与 body 的分歧都收进来", () => {
-    const probes = [probe("nextjs", 200, [{ a: 1 }]), probe("springboot", 500, { code: "BOOM" })];
+    const probes = [
+      probe("nextjs", 200, [{ a: 1 }]),
+      probe("springboot", 500, { code: "BOOM" }),
+    ];
     expect(compareAll(probes, REAL).length).toBeGreaterThanOrEqual(2);
   });
 });

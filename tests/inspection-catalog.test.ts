@@ -10,7 +10,11 @@
 // 4 个表必须手写 4 段。
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { compareBodies, formatDivergences, type Probe } from "../src/compare.js";
+import {
+  compareBodies,
+  formatDivergences,
+  type Probe,
+} from "../src/compare.js";
 import { probeAll } from "../src/http.js";
 import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
@@ -29,7 +33,10 @@ function assertPageList(probes: Probe[], label: string) {
     for (const key of ["page", "pageSize", "total", "items"]) {
       expect(body[key], `${p.target} ${label} 缺 ${key}`).toBeDefined();
     }
-    expect(Array.isArray(body.items), `${p.target} ${label} items 应是数组`).toBe(true);
+    expect(
+      Array.isArray(body.items),
+      `${p.target} ${label} items 应是数组`,
+    ).toBe(true);
   }
 }
 
@@ -39,15 +46,22 @@ function assertDefaults(probes: Probe[], label: string) {
     // 2026-09-16 T11 live 实证：家族分页 1-based；目录列表走 wrapDict 语义
     // pageSize 缺省 = total（不是静态 20，msw 时代断言已改）。
     expect(body.page, `${p.target} ${label} 默认 page 应为 1`).toBe(1);
-    expect(body.pageSize, `${p.target} ${label} 默认 pageSize 应为 total`).toBe(body.total as number);
+    expect(body.pageSize, `${p.target} ${label} 默认 pageSize 应为 total`).toBe(
+      body.total as number,
+    );
   }
 }
 
 function assertCodeShape(probes: Probe[], label: string) {
   for (const p of probes) {
-    const body = p.body as Record<string, unknown> & { items?: Array<Record<string, unknown>> };
+    const body = p.body as Record<string, unknown> & {
+      items?: Array<Record<string, unknown>>;
+    };
     if ((body.items?.length ?? 0) === 0) continue;
-    expect(body.items![0]!["code"], `${p.target} ${label} 首行缺 code`).toBeDefined();
+    expect(
+      body.items![0]!["code"],
+      `${p.target} ${label} 首行缺 code`,
+    ).toBeDefined();
   }
 }
 
@@ -59,67 +73,106 @@ function assertBodies(probes: Probe[], label: string) {
   expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
 }
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_BRANDS} 四方比对 / M01.F05.I01`, () => {
-  let probes: Probe[];
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_BRANDS));
-  }, 60_000);
+describe.skipIf(!live)(
+  `M96.F02.I01 GET ${PATH_BRANDS} 四方比对 / M01.F05.I01`,
+  () => {
+    let probes: Probe[];
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_BRANDS),
+      );
+    }, 60_000);
 
-  it("每个目标都返回 200", () => {
-    const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
-  });
-  it("Page envelope 必填", () => assertPageList(probes, "brands"));
-  it("分页 defaults 全等（page=0, pageSize=20）", () => assertDefaults(probes, "brands"));
-  it("seed 首行 shape（code）", () => assertCodeShape(probes, "brands"));
-  it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes, "brands"));
-});
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
+    it("Page envelope 必填", () => assertPageList(probes, "brands"));
+    it("分页 defaults 全等（page=0, pageSize=20）", () =>
+      assertDefaults(probes, "brands"));
+    it("seed 首行 shape（code）", () => assertCodeShape(probes, "brands"));
+    it("normalize 后骨架全等（items/total 漂移，drop）", () =>
+      assertBodies(probes, "brands"));
+  },
+);
 
-describe.skipIf(!live)(`M96.F02.I05 GET ${PATH_MODELS} 四方比对 / M01.F05.I02`, () => {
-  let probes: Probe[];
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_MODELS));
-  }, 60_000);
+describe.skipIf(!live)(
+  `M96.F02.I05 GET ${PATH_MODELS} 四方比对 / M01.F05.I02`,
+  () => {
+    let probes: Probe[];
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_MODELS),
+      );
+    }, 60_000);
 
-  it("每个目标都返回 200", () => {
-    const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
-  });
-  it("Page envelope 必填", () => assertPageList(probes, "models"));
-  it("分页 defaults 全等（page=0, pageSize=20）", () => assertDefaults(probes, "models"));
-  it("seed 首行 shape（code）", () => assertCodeShape(probes, "models"));
-  it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes, "models"));
-});
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
+    it("Page envelope 必填", () => assertPageList(probes, "models"));
+    it("分页 defaults 全等（page=0, pageSize=20）", () =>
+      assertDefaults(probes, "models"));
+    it("seed 首行 shape（code）", () => assertCodeShape(probes, "models"));
+    it("normalize 后骨架全等（items/total 漂移，drop）", () =>
+      assertBodies(probes, "models"));
+  },
+);
 
-describe.skipIf(!live)(`M96.F02.I09 GET ${PATH_SPECS} 四方比对 / M04.F07.I02`, () => {
-  let probes: Probe[];
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_SPECS));
-  }, 60_000);
+describe.skipIf(!live)(
+  `M96.F02.I09 GET ${PATH_SPECS} 四方比对 / M04.F07.I02`,
+  () => {
+    let probes: Probe[];
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_SPECS),
+      );
+    }, 60_000);
 
-  it("每个目标都返回 200", () => {
-    const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
-  });
-  it("Page envelope 必填", () => assertPageList(probes, "specs"));
-  it("分页 defaults 全等（page=0, pageSize=20）", () => assertDefaults(probes, "specs"));
-  it("seed 首行 shape（code）", () => assertCodeShape(probes, "specs"));
-  it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes, "specs"));
-});
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
+    it("Page envelope 必填", () => assertPageList(probes, "specs"));
+    it("分页 defaults 全等（page=0, pageSize=20）", () =>
+      assertDefaults(probes, "specs"));
+    it("seed 首行 shape（code）", () => assertCodeShape(probes, "specs"));
+    it("normalize 后骨架全等（items/total 漂移，drop）", () =>
+      assertBodies(probes, "specs"));
+  },
+);
 
-describe.skipIf(!live)(`M96.F02.I13 GET ${PATH_GRADES} 四方比对 / M04.F08.I03`, () => {
-  let probes: Probe[];
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_GRADES));
-  }, 60_000);
+describe.skipIf(!live)(
+  `M96.F02.I13 GET ${PATH_GRADES} 四方比对 / M04.F08.I03`,
+  () => {
+    let probes: Probe[];
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_GRADES),
+      );
+    }, 60_000);
 
-  it("每个目标都返回 200", () => {
-    const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
-  });
-  it("Page envelope 必填", () => assertPageList(probes, "grades"));
-  it("分页 defaults 全等（page=0, pageSize=20）", () => assertDefaults(probes, "grades"));
-  it("seed 首行 shape（code）", () => assertCodeShape(probes, "grades"));
-  it("normalize 后骨架全等（items/total 漂移，drop）", () => assertBodies(probes, "grades"));
-});
-
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
+    it("Page envelope 必填", () => assertPageList(probes, "grades"));
+    it("分页 defaults 全等（page=0, pageSize=20）", () =>
+      assertDefaults(probes, "grades"));
+    it("seed 首行 shape（code）", () => assertCodeShape(probes, "grades"));
+    it("normalize 后骨架全等（items/total 漂移，drop）", () =>
+      assertBodies(probes, "grades"));
+  },
+);

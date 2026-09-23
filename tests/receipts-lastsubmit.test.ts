@@ -42,17 +42,26 @@ describe.skipIf(!live)(
           [200, 201],
           `${target.name} POST contracts 期望 2xx 实得 ${cr.status}`,
         ).toContain(cr.status);
-        const contractId = String((cr.body as Record<string, unknown>).id ?? "");
-        expect(contractId, `${target.name} POST contracts 响应无 id`).toBeTruthy();
+        const contractId = String(
+          (cr.body as Record<string, unknown>).id ?? "",
+        );
+        expect(
+          contractId,
+          `${target.name} POST contracts 响应无 id`,
+        ).toBeTruthy();
 
         // 2. categoryCode 取真值（receipts_category_fk → inspection_report_names.code）
         const rn = await probeRequest(target, {
           method: "GET",
           path: "/api/report-names?pageSize=1",
         });
-        const rnItems = (rn.body as { items?: Array<{ code?: string }> }).items ?? [];
+        const rnItems =
+          (rn.body as { items?: Array<{ code?: string }> }).items ?? [];
         const categoryCode = rnItems[0]?.code;
-        expect(categoryCode, `${target.name} report-names 无可用类别`).toBeTruthy();
+        expect(
+          categoryCode,
+          `${target.name} report-names 无可用类别`,
+        ).toBeTruthy();
 
         // 3. 自建接样单（receiving 新单，无流转记录）
         const rr = await probeRequest(target, {
@@ -73,31 +82,45 @@ describe.skipIf(!live)(
           `${target.name} POST receipts 期望 2xx 实得 ${rr.status}`,
         ).toContain(rr.status);
         const receiptId = String((rr.body as Record<string, unknown>).id ?? "");
-        expect(receiptId, `${target.name} POST receipts 响应无 id`).toBeTruthy();
+        expect(
+          receiptId,
+          `${target.name} POST receipts 响应无 id`,
+        ).toBeTruthy();
 
         // teardown：先删 receipt（FK RESTRICT）再删 contract
-        registerCleanup(`delete-ls-pair:${target.name}:${receiptId.slice(-8)}`, async () => {
-          const dr = await probeRequest(target, {
-            method: "DELETE",
-            path: `/api/receipts/${receiptId}`,
-          });
-          if (![200, 204, 404].includes(dr.status)) {
-            console.warn(`[teardown] ${target.name} delete receipt status=${dr.status}`);
-          }
-          const dc = await probeRequest(target, {
-            method: "DELETE",
-            path: `/api/contracts/${contractId}`,
-          });
-          if (![200, 204, 404].includes(dc.status)) {
-            console.warn(`[teardown] ${target.name} delete contract status=${dc.status}`);
-          }
-        });
+        registerCleanup(
+          `delete-ls-pair:${target.name}:${receiptId.slice(-8)}`,
+          async () => {
+            const dr = await probeRequest(target, {
+              method: "DELETE",
+              path: `/api/receipts/${receiptId}`,
+            });
+            if (![200, 204, 404].includes(dr.status)) {
+              console.warn(
+                `[teardown] ${target.name} delete receipt status=${dr.status}`,
+              );
+            }
+            const dc = await probeRequest(target, {
+              method: "DELETE",
+              path: `/api/contracts/${contractId}`,
+            });
+            if (![200, 204, 404].includes(dc.status)) {
+              console.warn(
+                `[teardown] ${target.name} delete contract status=${dc.status}`,
+              );
+            }
+          },
+        );
 
         // 4. act submit —— 5.69 起 springboot/aspnetcore 写路径补写 last_submitted_by
         const ar = await probeRequest(target, {
           method: "POST",
           path: PATH_ACT_RECEIVING,
-          body: { ids: [receiptId], action: "submit", operator: "ct-ls-operator" },
+          body: {
+            ids: [receiptId],
+            action: "submit",
+            operator: "ct-ls-operator",
+          },
         });
         expect(
           [200, 201],
@@ -109,8 +132,12 @@ describe.skipIf(!live)(
           method: "GET",
           path: PATH_LIST_SUBMITTED,
         });
-        expect(fr.status, `${target.name} filter=submitted 期望 200 实得 ${fr.status}`).toBe(200);
-        const items = (fr.body as { items?: Array<{ id?: string }> }).items ?? [];
+        expect(
+          fr.status,
+          `${target.name} filter=submitted 期望 200 实得 ${fr.status}`,
+        ).toBe(200);
+        const items =
+          (fr.body as { items?: Array<{ id?: string }> }).items ?? [];
         expect(
           items.some((r) => String(r.id) === receiptId),
           `${target.name} filter=submitted 未命中自建单 ${receiptId}（写路径未写 last_submitted_by？）`,

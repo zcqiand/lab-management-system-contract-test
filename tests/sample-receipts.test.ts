@@ -4,7 +4,12 @@
 // 本文件覆盖：GET list + GET {id} + GET {id}/history。
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { compareAll, compareBodies, formatDivergences, type Probe } from "../src/compare.js";
+import {
+  compareAll,
+  compareBodies,
+  formatDivergences,
+  type Probe,
+} from "../src/compare.js";
 import { login, probeAll, probeGet } from "../src/http.js";
 import { withLiveExecSuite } from "../src/live-floor.js";
 import { type Target, selectedTargets } from "../src/targets.js";
@@ -13,96 +18,137 @@ const PATH_LIST = "/api/receipts";
 const DEAD_ID = "00000000-0000-0000-0000-00000000dead";
 // SSOT 覆盖解析器只认字面字符串常量（见 scripts/check_ssot_coverage.mjs constMap 收集）。
 const PATH_DETAIL = "/api/receipts/00000000-0000-0000-0000-00000000dead";
-const PATH_HISTORY = "/api/receipts/00000000-0000-0000-0000-00000000dead/history";
+const PATH_HISTORY =
+  "/api/receipts/00000000-0000-0000-0000-00000000dead/history";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
 
-describe.skipIf(!live)(`M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`, () => {
-  let probes: Probe[];
+describe.skipIf(!live)(
+  `M96.F02.I01 GET ${PATH_LIST} 四方比对 / M01.F05.I01`,
+  () => {
+    let probes: Probe[];
 
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_LIST));
-  }, 180_000);
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_LIST),
+      );
+    }, 180_000);
 
-  it("每个目标都返回 200", () => {
-    const bad = probes.filter((p) => p.status !== 200);
-    expect(bad, `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`).toEqual([]);
-  });
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
 
-  it("Page<SampleReceipt> envelope 必填", () => {
-    for (const p of probes) {
-      const body = p.body as Record<string, unknown>;
-      for (const key of ["page", "pageSize", "total", "items"]) {
-        expect(body[key], `${p.target} receipts list 缺 ${key}`).toBeDefined();
+    it("Page<SampleReceipt> envelope 必填", () => {
+      for (const p of probes) {
+        const body = p.body as Record<string, unknown>;
+        for (const key of ["page", "pageSize", "total", "items"]) {
+          expect(
+            body[key],
+            `${p.target} receipts list 缺 ${key}`,
+          ).toBeDefined();
+        }
+        expect(Array.isArray(body.items), `${p.target} items 应是数组`).toBe(
+          true,
+        );
       }
-      expect(Array.isArray(body.items), `${p.target} items 应是数组`).toBe(true);
-    }
-  });
+    });
 
-  it("normalize 后骨架全等（items/total 漂移，drop）", () => {
-    const drop = ["items", "total"];
-    const divergences = compareBodies(probes, targets, drop);
-    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
-  });
-});
+    it("normalize 后骨架全等（items/total 漂移，drop）", () => {
+      const drop = ["items", "total"];
+      const divergences = compareBodies(probes, targets, drop);
+      expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+    });
+  },
+);
 
-describe.skipIf(!live)(`M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I02`, () => {
-  let probes: Probe[];
+describe.skipIf(!live)(
+  `M96.F02.I03 GET ${PATH_DETAIL} 四方比对 / M01.F04.I02`,
+  () => {
+    let probes: Probe[];
 
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_DETAIL));
-  }, 180_000);
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_DETAIL),
+      );
+    }, 180_000);
 
-  it("不存在 id → 4 后端全 404", () => {
-    for (const p of probes) {
-      expect(p.status, `${p.target} 期望 404 实得 ${p.status}`).toBe(404);
-    }
-  });
+    it("不存在 id → 4 后端全 404", () => {
+      for (const p of probes) {
+        expect(p.status, `${p.target} 期望 404 实得 ${p.status}`).toBe(404);
+      }
+    });
 
-  it("404 envelope shape 全等", () => {
-    const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
-    const divergences = compareBodies(probes, targets, drop);
-    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
-  });
+    it("404 envelope shape 全等", () => {
+      const drop = [
+        "code",
+        "message",
+        "error",
+        "error_description",
+        "details",
+        "path",
+        "timestamp",
+        "traceId",
+      ];
+      const divergences = compareBodies(probes, targets, drop);
+      expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+    });
 
-  it("status 全等", () => {
-    const divergences = compareAll(probes, targets);
-    expect(
-      divergences.filter((d) => d.kind === "status"),
-      `\n${formatDivergences(divergences)}\n`,
-    ).toEqual([]);
-  });
-});
+    it("status 全等", () => {
+      const divergences = compareAll(probes, targets);
+      expect(
+        divergences.filter((d) => d.kind === "status"),
+        `\n${formatDivergences(divergences)}\n`,
+      ).toEqual([]);
+    });
+  },
+);
 
-describe.skipIf(!live)(`M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I02`, () => {
-  let probes: Probe[];
+describe.skipIf(!live)(
+  `M96.F02.I06 GET ${PATH_HISTORY} 四方比对 / M04.F06.I02`,
+  () => {
+    let probes: Probe[];
 
-  beforeAll(async (ctx) => {
-    probes = await withLiveExecSuite(ctx.name, () => probeAll(targets, PATH_HISTORY));
-  }, 180_000);
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAll(targets, PATH_HISTORY),
+      );
+    }, 180_000);
 
-  it("不存在 id → 4 后端全 404", () => {
-    for (const p of probes) {
-      expect(p.status, `${p.target} 期望 404 实得 ${p.status}`).toBe(404);
-    }
-  });
+    it("不存在 id → 4 后端全 404", () => {
+      for (const p of probes) {
+        expect(p.status, `${p.target} 期望 404 实得 ${p.status}`).toBe(404);
+      }
+    });
 
-  it("404 envelope shape 全等", () => {
-    const drop = ["code", "message", "error", "error_description", "details", "path", "timestamp", "traceId"];
-    const divergences = compareBodies(probes, targets, drop);
-    expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
-  });
+    it("404 envelope shape 全等", () => {
+      const drop = [
+        "code",
+        "message",
+        "error",
+        "error_description",
+        "details",
+        "path",
+        "timestamp",
+        "traceId",
+      ];
+      const divergences = compareBodies(probes, targets, drop);
+      expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+    });
 
-  it("status 全等", () => {
-    const divergences = compareAll(probes, targets);
-    expect(
-      divergences.filter((d) => d.kind === "status"),
-      `\n${formatDivergences(divergences)}\n`,
-    ).toEqual([]);
-  });
-});
-
+    it("status 全等", () => {
+      const divergences = compareAll(probes, targets);
+      expect(
+        divergences.filter((d) => d.kind === "status"),
+        `\n${formatDivergences(divergences)}\n`,
+      ).toEqual([]);
+    });
+  },
+);
 
 // ── 5.57 receipts list filter 三态语义（shared 61093d4 入契约）──────────────
 //
@@ -140,11 +186,15 @@ describe.skipIf(!live)(
         const notYetRes = await probeGet(t, PATH_LIST_NOT_YET, token);
         const submittedRes = await probeGet(t, PATH_LIST_SUBMITTED, token);
         expect(notYetRes.status, `${t.name} filter=not_yet 期望 200`).toBe(200);
-        expect(submittedRes.status, `${t.name} filter=submitted 期望 200`).toBe(200);
+        expect(submittedRes.status, `${t.name} filter=submitted 期望 200`).toBe(
+          200,
+        );
 
         const allItems = all.items ?? [];
-        const notYet = (notYetRes.body as { items?: ReceiptItem[] }).items ?? [];
-        const submitted = (submittedRes.body as { items?: ReceiptItem[] }).items ?? [];
+        const notYet =
+          (notYetRes.body as { items?: ReceiptItem[] }).items ?? [];
+        const submitted =
+          (submittedRes.body as { items?: ReceiptItem[] }).items ?? [];
 
         // 谓词回验：filter 结果每行必须满足对应谓词
         for (const r of notYet) {
@@ -169,18 +219,27 @@ describe.skipIf(!live)(
         const notYetIds = new Set(notYet.map((r) => String(r.id)));
         const submittedIds = new Set(submitted.map((r) => String(r.id)));
         for (const id of notYetIds) {
-          expect(allIds.has(id), `${t.name} not_yet id=${id} 不在全集`).toBe(true);
+          expect(allIds.has(id), `${t.name} not_yet id=${id} 不在全集`).toBe(
+            true,
+          );
         }
         for (const id of submittedIds) {
-          expect(allIds.has(id), `${t.name} submitted id=${id} 不在全集`).toBe(true);
-          expect(notYetIds.has(id), `${t.name} id=${id} 同时命中两态`).toBe(false);
+          expect(allIds.has(id), `${t.name} submitted id=${id} 不在全集`).toBe(
+            true,
+          );
+          expect(notYetIds.has(id), `${t.name} id=${id} 同时命中两态`).toBe(
+            false,
+          );
         }
 
         // 命中锚：全集里满足谓词的行必须出现在对应 filter 结果里（数据存在才触发）
         for (const r of allItems) {
           const id = String(r.id);
           if ((r.flowHistory ?? []).length === 0) {
-            expect(notYetIds.has(id), `${t.name} 新单 id=${id} 未被 not_yet 命中`).toBe(true);
+            expect(
+              notYetIds.has(id),
+              `${t.name} 新单 id=${id} 未被 not_yet 命中`,
+            ).toBe(true);
           } else if (r.lastSubmittedBy) {
             expect(
               submittedIds.has(id),

@@ -65,7 +65,10 @@ describe("prewarmTargets 降级分支（故障注入，unit 层）", () => {
   });
 
   it("b. login 抛错 → resolve 不 throw、probeGet 不再调用、warn 含目标名", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ status: 200 })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ status: 200 })),
+    );
     login.mockRejectedValue(new Error("登录链炸了"));
     await expect(prewarmTargets([TARGETS.aspnetcore])).resolves.toBeUndefined();
     expect(probeGet).not.toHaveBeenCalled();
@@ -75,7 +78,10 @@ describe("prewarmTargets 降级分支（故障注入，unit 层）", () => {
   });
 
   it("c. 登录挂起耗尽预算 → 跳过 /api/auth/me、resolve 不 throw、warn 含目标名", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ status: 200 })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ status: 200 })),
+    );
     let resolveLogin!: (t: string) => void;
     login.mockImplementation(
       () =>

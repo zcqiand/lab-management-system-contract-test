@@ -29,8 +29,14 @@ export const ALWAYS_VOLATILE: readonly string[] = [
  * 新加字段必须 append 到末尾，不能改既有顺序（按 lint 规则）。
  */
 export const TIMESTAMP_KEYS: readonly string[] = [
-  "createdAt", "updatedAt", "created_at", "updated_at",
-  "deletedAt", "deleted_at", "lastLoginAt", "last_login_at",
+  "createdAt",
+  "updatedAt",
+  "created_at",
+  "updated_at",
+  "deletedAt",
+  "deleted_at",
+  "lastLoginAt",
+  "last_login_at",
 ];
 
 /**
@@ -51,7 +57,8 @@ function isPlausibleTimestamp(value: string): boolean {
 }
 
 /** 老 `normalize()` 用：宽松 ISO 8601（接受空格、TZ、秒精度），只用于「值归一」。 */
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/;
+const ISO_DATE =
+  /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/;
 
 /**
  * ADR-0015-amend：时间戳年份合理性范围。
@@ -83,7 +90,12 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
 // contract-test 对各 target 的 uniqueName 调用每次生成不同 random tag，各后端
 // 真持久化的 tag 必然不一致。normalize 时把已知测试 prefix 的 username/email
 // 后 6 char 随机 tag 抹平为固定占位，prefix 仍可比对。
-const TEST_USER_PREFIXES = ["shape-", "invite-", "ct-u2-", "contract-test-user-"] as const;
+const TEST_USER_PREFIXES = [
+  "shape-",
+  "invite-",
+  "ct-u2-",
+  "contract-test-user-",
+] as const;
 const RANDOM_TAG_RE = /(-[a-z0-9]{6})(?=[@.]|$)/;
 function maskRandomTag(value: unknown): unknown {
   if (typeof value !== "string") return value;
@@ -99,10 +111,17 @@ function sortKey(v: unknown): string {
   return JSON.stringify(v);
 }
 
-export function normalize(value: unknown, options: NormalizeOptions = {}): unknown {
+export function normalize(
+  value: unknown,
+  options: NormalizeOptions = {},
+): unknown {
   // ADR-0015-amend：时间戳字段值进默认 drop —— 不比值（4 后端写完成时刻必差几秒到几毫秒）。
   // 格式合法性独立走 assertTimestampShape 验证。drop 后 shape 必全等。
-  const drop = new Set<string>([...ALWAYS_VOLATILE, ...TIMESTAMP_KEYS, ...(options.drop ?? [])]);
+  const drop = new Set<string>([
+    ...ALWAYS_VOLATILE,
+    ...TIMESTAMP_KEYS,
+    ...(options.drop ?? []),
+  ]);
   return walk(value, drop);
 }
 
@@ -161,7 +180,12 @@ export function assertTimestampShape(
   return errors;
 }
 
-function walkShape(value: unknown, path: readonly string[], keys: readonly string[], errors: TimestampShapeError[]): void {
+function walkShape(
+  value: unknown,
+  path: readonly string[],
+  keys: readonly string[],
+  errors: TimestampShapeError[],
+): void {
   if (value === null || value === undefined) return;
   if (Array.isArray(value)) {
     for (let i = 0; i < value.length; i++) {
@@ -176,11 +200,19 @@ function walkShape(value: unknown, path: readonly string[], keys: readonly strin
         if (v === "") continue;
         const ms = Date.parse(v);
         if (Number.isNaN(ms)) {
-          errors.push({ path: [...path, k].join("."), value: v, reason: "format" });
+          errors.push({
+            path: [...path, k].join("."),
+            value: v,
+            reason: "format",
+          });
         } else {
           const year = new Date(ms).getUTCFullYear();
           if (year < TS_YEAR_MIN || year > TS_YEAR_MAX) {
-            errors.push({ path: [...path, k].join("."), value: v, reason: "year_range" });
+            errors.push({
+              path: [...path, k].join("."),
+              value: v,
+              reason: "year_range",
+            });
           }
         }
         continue;

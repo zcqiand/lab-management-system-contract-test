@@ -4,17 +4,24 @@
   "functions": {
     "modules": 2,
     "features": 4,
-    "items": 35
+    "items": 36
   },
-  "warnings_total": 6,
+  "warnings_total": 9,
   "warnings": {
+    "已上线但无设计映射": [
+      "M96.F03.I03"
+    ],
+    "已上线但无测试引用": [
+      "M96.F03.I03"
+    ],
     "已上线但不在任何流程且非孤儿白名单": [
       "M96.F01.I01",
       "M96.F01.I02",
       "M96.F01.I03",
       "M96.F01.I04",
       "M96.F03.I01",
-      "M96.F03.I02"
+      "M96.F03.I02",
+      "M96.F03.I03"
     ]
   },
   "unreachable_shipped": [],
@@ -392,6 +399,8 @@
         "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > aspnetcore 改 name → 200",
         "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > nextjs 改 name → 200",
         "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > springboot 改 name → 200",
+        "M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07 > 真实 sample → PUT ext 200 → GET 回读 ext 一致（恒 404 退化必红）",
+        "M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07 > 缺 ext → 400（契约必填字段，真实 sample）",
         "M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07 > 补录 ext → 200 或 404（id 不存在）"
       ],
       "entry": []
@@ -802,6 +811,16 @@
         "M96.F03.I02 声明即必须可达 > 声明了不认识的名字 → 抛错，不静默忽略",
         "M96.F03.I02 声明即必须可达 > 声明了认识的目标就返回它们（声明序 = 比对序，首位是基准）"
       ],
+      "entry": []
+    },
+    "M96.F03.I03": {
+      "name": "live 执行面下限登记",
+      "status": "已上线",
+      "type": "接口",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [],
       "entry": []
     }
   }

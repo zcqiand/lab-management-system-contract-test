@@ -33,62 +33,71 @@ const ACT_STAGES = [
 // 断言把 4xx 一并放行 → WITHDRAW 分支从未被真正触达（回归空转）。
 const ACTIONS = ["submit", "return", "withdraw"] as const;
 
-describe.skipIf(!live)("M03 7 阶段全 act 模式 WITHDRAW 4 后端一致性回归", () => {
-  for (const stage of ACT_STAGES) {
-    const path = `/api/receipts/${stage}/act`;
+describe.skipIf(!live)(
+  "M03 7 阶段全 act 模式 WITHDRAW 4 后端一致性回归",
+  () => {
+    for (const stage of ACT_STAGES) {
+      const path = `/api/receipts/${stage}/act`;
 
-    // WITHDRAW 跨 7 阶段 × 后端一致性
-    // SSOT 挂载（2026-09-18 收敛为 anchor 单 ID，兄弟 I 并入）：
-    //   F01.I08 / F02.I05 / F03.I12 / F05.I07 / F06.I05 / F07.I05 / F08.I05
-    for (const target of targets) {
-      it(`${target.name} POST ${path} WITHDRAW → 200 或 4xx (接样单不存在)`, async () => {
-        const r = await probeRequest(target, {
-          method: "POST",
-          path,
-          body: {
-            ids: ["00000000-0000-0000-0000-00000000dead"],
-            action: "withdraw",
-            operator: "ct-act-withdraw",
-          },
-        });
-        // 接样单 id 不存在时 4 后端可能 200+空数组 / 4xx —— 这都是契约面
-        expect(
-          [200, 201, 400, 404, 422],
-          `${target.name} ${path} WITHDRAW 期望 2xx/4xx 实得 ${r.status}`,
-        ).toContain(r.status);
-        if (r.status === 200 || r.status === 201) {
-          const body = r.body as unknown;
-          expect(Array.isArray(body), `${target.name} ${path} 响应应是数组`).toBe(true);
-        }
-      }, 30_000);
-    }
-  }
-});
-
-describe.skipIf(!live)("M03 7 阶段全 act 模式 SUBMIT/RETURN 端点存在性回归", () => {
-  // SUBMIT/RETURN 仅打端点存在性 + body 接受性 —— 不强求 200
-  // (业务流转需要合法阶段前置，孤立 id 必 4xx)
-  for (const stage of ACT_STAGES) {
-    const path = `/api/receipts/${stage}/act`;
-
-    for (const action of ACTIONS.filter((a) => a !== "withdraw")) {
+      // WITHDRAW 跨 7 阶段 × 后端一致性
+      // SSOT 挂载（2026-09-18 收敛为 anchor 单 ID，兄弟 I 并入）：
+      //   F01.I08 / F02.I05 / F03.I12 / F05.I07 / F06.I05 / F07.I05 / F08.I05
       for (const target of targets) {
-        it(`${target.name} POST ${path} ${action} 端点接受 body → 2xx/4xx`, async () => {
+        it(`${target.name} POST ${path} WITHDRAW → 200 或 4xx (接样单不存在)`, async () => {
           const r = await probeRequest(target, {
             method: "POST",
             path,
             body: {
               ids: ["00000000-0000-0000-0000-00000000dead"],
-              action,
-              operator: "ct-act-submit-return",
+              action: "withdraw",
+              operator: "ct-act-withdraw",
             },
           });
+          // 接样单 id 不存在时 4 后端可能 200+空数组 / 4xx —— 这都是契约面
           expect(
             [200, 201, 400, 404, 422],
-            `${target.name} ${path} ${action} 期望 2xx/4xx 实得 ${r.status}`,
+            `${target.name} ${path} WITHDRAW 期望 2xx/4xx 实得 ${r.status}`,
           ).toContain(r.status);
+          if (r.status === 200 || r.status === 201) {
+            const body = r.body as unknown;
+            expect(
+              Array.isArray(body),
+              `${target.name} ${path} 响应应是数组`,
+            ).toBe(true);
+          }
         }, 30_000);
       }
     }
-  }
-});
+  },
+);
+
+describe.skipIf(!live)(
+  "M03 7 阶段全 act 模式 SUBMIT/RETURN 端点存在性回归",
+  () => {
+    // SUBMIT/RETURN 仅打端点存在性 + body 接受性 —— 不强求 200
+    // (业务流转需要合法阶段前置，孤立 id 必 4xx)
+    for (const stage of ACT_STAGES) {
+      const path = `/api/receipts/${stage}/act`;
+
+      for (const action of ACTIONS.filter((a) => a !== "withdraw")) {
+        for (const target of targets) {
+          it(`${target.name} POST ${path} ${action} 端点接受 body → 2xx/4xx`, async () => {
+            const r = await probeRequest(target, {
+              method: "POST",
+              path,
+              body: {
+                ids: ["00000000-0000-0000-0000-00000000dead"],
+                action,
+                operator: "ct-act-submit-return",
+              },
+            });
+            expect(
+              [200, 201, 400, 404, 422],
+              `${target.name} ${path} ${action} 期望 2xx/4xx 实得 ${r.status}`,
+            ).toContain(r.status);
+          }, 30_000);
+        }
+      }
+    }
+  },
+);

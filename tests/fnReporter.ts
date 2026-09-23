@@ -55,7 +55,8 @@ const DECLARED_TARGETS = (process.env.CONTRACT_TARGETS ?? "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
-let EFFECTIVE_MODE: "live" | "unit" = DECLARED_TARGETS.length >= 2 ? "live" : "unit";
+let EFFECTIVE_MODE: "live" | "unit" =
+  DECLARED_TARGETS.length >= 2 ? "live" : "unit";
 let EFFECTIVE_TARGETS: string[] = [...DECLARED_TARGETS];
 
 // 与 .github/workflows/ci.yml 的 healthcheck 路径对齐 —— 真源是 ci.yml,
@@ -109,7 +110,8 @@ function collectTests(
     const name = t.name || "";
     const fullName = prefix ? `${prefix} > ${name}` : name;
     if (t.type === "test") out.push({ fullName, task: t });
-    else if (t.type === "suite" && t.tasks) collectTests(t.tasks, fullName, out);
+    else if (t.type === "suite" && t.tasks)
+      collectTests(t.tasks, fullName, out);
   }
   return out;
 }
@@ -124,7 +126,11 @@ export interface LiveFloor {
 }
 
 /** 导出仅为单测可达（同 probeLive 先例，tests/fnReporter-live-floor.test.ts）。 */
-export function computeLiveFloor(mode: "live" | "unit", declared: number, effective: number): LiveFloor {
+export function computeLiveFloor(
+  mode: "live" | "unit",
+  declared: number,
+  effective: number,
+): LiveFloor {
   const groups = readLiveExecGroups();
   let executed: number | null;
   if (groups === null) {
@@ -195,15 +201,25 @@ export default class FnReporter implements Partial<Reporter> {
     if (!this.namespaces) this.namespaces = loadNamespaces();
     const state = t.task.result?.state;
     const mode = t.task.mode;
-    const isInert = state === "skip" || state === "todo" || mode === "skip" || mode === "todo";
+    const isInert =
+      state === "skip" ||
+      state === "todo" ||
+      mode === "skip" ||
+      mode === "todo";
 
     // 仅本仓命名空间的 ID 算 trace。跨命名空间当描述性引用，丢弃。
     const all = extractFns(t.fullName);
     const fns =
-      this.namespaces.size === 0 ? [] : all.filter((id) => this.namespaces!.has(id.slice(0, 2)));
+      this.namespaces.size === 0
+        ? []
+        : all.filter((id) => this.namespaces!.has(id.slice(0, 2)));
 
     if (fns.length === 0 && !isInert) return;
-    this.entries.push({ test: t.fullName, fns: isInert ? [] : fns.sort(), inert: isInert });
+    this.entries.push({
+      test: t.fullName,
+      fns: isInert ? [] : fns.sort(),
+      inert: isInert,
+    });
   }
 
   /** 用原型方法定义钩子（vitest 2.x 的 instanceof 检查不接受实例属性箭头函数）。 */

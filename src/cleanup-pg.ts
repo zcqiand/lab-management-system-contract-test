@@ -39,23 +39,103 @@ interface ResourceSpec {
 }
 
 const RESOURCE_SPECS: readonly ResourceSpec[] = [
-  { listPath: "/api/contracts", matchField: "code", idField: "id", deletePathTemplate: "/api/contracts/{*}" },
-  { listPath: "/api/catalog/brands", matchField: "code", idField: "code", deletePathTemplate: "/api/catalog/brands/{*}" },
-  { listPath: "/api/catalog/models", matchField: "code", idField: "code", deletePathTemplate: "/api/catalog/models/{*}" },
-  { listPath: "/api/catalog/specs", matchField: "code", idField: "code", deletePathTemplate: "/api/catalog/specs/{*}" },
-  { listPath: "/api/catalog/grades", matchField: "code", idField: "code", deletePathTemplate: "/api/catalog/grades/{*}" },
-  { listPath: "/api/inspection/specialties", matchField: "code", idField: "code", deletePathTemplate: "/api/inspection/specialties/{*}" },
-  { listPath: "/api/inspection/objects", matchField: "code", idField: "code", deletePathTemplate: "/api/inspection/objects/{*}" },
-  { listPath: "/api/inspection/parameters", matchField: "code", idField: "code", deletePathTemplate: "/api/inspection/parameters/{*}" },
-  { listPath: "/api/inspection/standards", matchField: "code", idField: "code", deletePathTemplate: "/api/inspection/standards/{*}" },
-  { listPath: "/api/param-interfaces", matchField: "code", idField: "code", deletePathTemplate: "/api/param-interfaces/{*}" },
-  { listPath: "/api/report-names", matchField: "code", idField: "code", deletePathTemplate: "/api/report-names/{*}" },
-  { listPath: "/api/receipts", matchField: "contractId", idField: "id", deletePathTemplate: "/api/receipts/{*}" },
-  { listPath: "/api/samples", matchField: "name", idField: "id", deletePathTemplate: "/api/samples/{*}" },
-  { listPath: "/api/test-records", matchField: "sampleId", idField: "id", deletePathTemplate: "/api/test-records/{*}" },
+  {
+    listPath: "/api/contracts",
+    matchField: "code",
+    idField: "id",
+    deletePathTemplate: "/api/contracts/{*}",
+  },
+  {
+    listPath: "/api/catalog/brands",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/catalog/brands/{*}",
+  },
+  {
+    listPath: "/api/catalog/models",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/catalog/models/{*}",
+  },
+  {
+    listPath: "/api/catalog/specs",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/catalog/specs/{*}",
+  },
+  {
+    listPath: "/api/catalog/grades",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/catalog/grades/{*}",
+  },
+  {
+    listPath: "/api/inspection/specialties",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/inspection/specialties/{*}",
+  },
+  {
+    listPath: "/api/inspection/objects",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/inspection/objects/{*}",
+  },
+  {
+    listPath: "/api/inspection/parameters",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/inspection/parameters/{*}",
+  },
+  {
+    listPath: "/api/inspection/standards",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/inspection/standards/{*}",
+  },
+  {
+    listPath: "/api/param-interfaces",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/param-interfaces/{*}",
+  },
+  {
+    listPath: "/api/report-names",
+    matchField: "code",
+    idField: "code",
+    deletePathTemplate: "/api/report-names/{*}",
+  },
+  {
+    listPath: "/api/receipts",
+    matchField: "contractId",
+    idField: "id",
+    deletePathTemplate: "/api/receipts/{*}",
+  },
+  {
+    listPath: "/api/samples",
+    matchField: "name",
+    idField: "id",
+    deletePathTemplate: "/api/samples/{*}",
+  },
+  {
+    listPath: "/api/test-records",
+    matchField: "sampleId",
+    idField: "id",
+    deletePathTemplate: "/api/test-records/{*}",
+  },
   // technical-requirements / calculation-methods 主键是 code 三/二段复合；4 后端 DELETE 路径相同。
-  { listPath: "/api/technical-requirements", matchField: "inspectionObjectCode", idField: "inspectionObjectCode", deletePathTemplate: "/api/technical-requirements/{*}" },
-  { listPath: "/api/calculation-methods", matchField: "inspectionObjectCode", idField: "inspectionObjectCode", deletePathTemplate: "/api/calculation-methods/{*}" },
+  {
+    listPath: "/api/technical-requirements",
+    matchField: "inspectionObjectCode",
+    idField: "inspectionObjectCode",
+    deletePathTemplate: "/api/technical-requirements/{*}",
+  },
+  {
+    listPath: "/api/calculation-methods",
+    matchField: "inspectionObjectCode",
+    idField: "inspectionObjectCode",
+    deletePathTemplate: "/api/calculation-methods/{*}",
+  },
 ];
 
 interface Row {
@@ -65,7 +145,10 @@ interface Row {
   name?: string;
 }
 
-async function cleanupResource(target: Target, spec: ResourceSpec): Promise<void> {
+async function cleanupResource(
+  target: Target,
+  spec: ResourceSpec,
+): Promise<void> {
   const token = await login(target);
   // 大页码拿全量 —— SSOT family pagination defaults pageSize=20，写测试本轮累计一般 < 100 行。
   const list = await probeRequest(target, {
@@ -78,7 +161,7 @@ async function cleanupResource(target: Target, spec: ResourceSpec): Promise<void
     return;
   }
   const body = list.body as { items?: Row[] } | Row[] | undefined;
-  const items: Row[] = Array.isArray(body) ? body : body?.items ?? [];
+  const items: Row[] = Array.isArray(body) ? body : (body?.items ?? []);
   for (const row of items) {
     const matchValue = String(row[spec.matchField] ?? "");
     if (!PROBE_PREFIX_RE.test(matchValue)) continue;
@@ -110,7 +193,10 @@ export async function cleanupAllProbeRows(): Promise<void> {
         await cleanupResource(t, spec);
       } catch (cause) {
         // 不抛 —— 清理失败不应阻塞测试运行；下次跑还会再清。
-        console.warn(`[cleanup-pg] ${t.name} ${spec.listPath} cleanup failed:`, cause);
+        console.warn(
+          `[cleanup-pg] ${t.name} ${spec.listPath} cleanup failed:`,
+          cause,
+        );
       }
     }
   }

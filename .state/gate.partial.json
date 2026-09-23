@@ -3,20 +3,23 @@
   "project": "lab-management-system-contract-test",
   "tier": "full",
   "excluded_tier": [],
-  "passed": true,
+  "passed": false,
   "partial": true,
   "ran": [
-    "L2"
+    "L5"
   ],
-  "checked_at": "2026-09-20T18:37:51+0800",
+  "checked_at": "2026-09-23T00:16:52+0800",
   "gates": [
     {
-      "level": "L2",
-      "name": "SSOT 覆盖",
-      "passed": true,
-      "returncode": 0,
-      "duration_s": 0.141,
-      "output": "L5 SSOT 覆盖检查 — family=lab-management-system | shared SSOT=118 | covered=118 | gaps=0                \n─────────────────────────────────────────────────────────────────────────────────────────────────── \n✅ contract-test 100% 覆盖 shared SSOT 全部端点                                                            \n\n── §2 reverse 端点扫描（私生端点 = 后端实现但 shared openapi.yaml 无）──\n   契约基准：generated/openapi/openapi.yaml paths=119 (method×path=119)\n   [nextjs     ] 扫描 62 文件 / 118 端点，白名单豁免 1\n   [aspnetcore ] 扫描 19 文件 / 119 端点，白名单豁免 0\n   [springboot ] 扫描 26 文件 / 119 端点，白名单豁免 0\n✅ 消费后端无私生端点（nextjs/aspnetcore/springboot ↔ openapi.yaml 全对齐）\n\n── §3 gen-shared marker 新鲜度（api_synced_sha ↔ shared HEAD）──\n   shared HEAD = 88a9b32b2cac\n   [nextjs     ] ✓ 88a9b32b2cac\n   [aspnetcore ] ✓ 88a9b32b2cac\n   [springboot ] ✓ 88a9b32b2cac\n   [react      ] ✓ 88a9b32b2cac\n   [vue        ] ✓ 88a9b32b2cac\n✅ 五个消费仓 marker 全部刷到 shared HEAD\n\n── §4 手写 SDK 层告警（WARN 不阻断；SDK/类型应全部走生成物）──\n   ⚠ [nextjs     ] src\\api\\legacy-client.ts — 手写 axios 实例 + 路由映射表（应迁 orval 生成 hooks）\n   → WARN 不阻断；迁移计划见 docs/superpowers/specs/2026-09-17-tsp-ssot-cleanup-design.md Phase C。"
+      "level": "L5",
+      "name": "引用完整性",
+      "passed": false,
+      "returncode": 1,
+      "duration_s": 0.109,
+      "output": "[WARN][live-floor] live 执行面塌缩: executed_per_describe_min=1 < 2 (declared=3, effective=3)。出路：起够目标后端重跑，或显式 --tier unit（验收只认 full，ADR-0037；本门红出自 ADR-0040）。\r\n[LIVE-FLOOR-DEGRADED] {\"executed_per_describe_min\": 1}\r\n  live 执行面塌缩且当前为 full 档：门红（ADR-0040）。修复提示见上方 [WARN][live-floor] 行。",
+      "live_floor_degraded": {
+        "executed_per_describe_min": 1
+      }
     }
   ]
 }

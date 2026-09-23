@@ -61,12 +61,13 @@ async function waitHealthy(
   }
 }
 
-
 /**
  * 对声明目标逐一预热。任何一步失败 → console.warn 并继续下一个目标，绝不 throw。
  * 顺序串行（与 fileParallelism: false 的串行测试一致），总预算 TOTAL_CAP_MS 兜底。
  */
-export async function prewarmTargets(targets: readonly Target[]): Promise<void> {
+export async function prewarmTargets(
+  targets: readonly Target[],
+): Promise<void> {
   if (targets.length === 0) return;
   const totalDeadline = Date.now() + TOTAL_CAP_MS;
   console.log(
@@ -77,7 +78,10 @@ export async function prewarmTargets(targets: readonly Target[]): Promise<void> 
     if (Date.now() >= totalDeadline) {
       console.warn(
         `[prewarm] 总预算 ${TOTAL_CAP_MS / 1000}s 耗尽，跳过剩余目标预热（不染色本轮）` +
-          `—— 未预热: ${targets.slice(targets.indexOf(target)).map((t) => t.name).join(", ")}`,
+          `—— 未预热: ${targets
+            .slice(targets.indexOf(target))
+            .map((t) => t.name)
+            .join(", ")}`,
       );
       return;
     }
@@ -90,7 +94,9 @@ export async function prewarmTargets(targets: readonly Target[]): Promise<void> 
           `—— 后续测试照常跑，若真挂会由测试/Cleanup 照常暴露`,
       );
       for (const [i, a] of attempts.entries()) {
-        console.warn(`  - 探针#${i + 1} ${a.durationMs}ms ${a.reason || "HTTP 2xx"}`);
+        console.warn(
+          `  - 探针#${i + 1} ${a.durationMs}ms ${a.reason || "HTTP 2xx"}`,
+        );
       }
       continue;
     }
@@ -112,11 +118,15 @@ export async function prewarmTargets(targets: readonly Target[]): Promise<void> 
       } else {
         await probeGet(target, "/api/auth/me", token);
       }
-      console.log(`[prewarm] ${target.name} 预热完成（health ✓ + 登录链 + /api/auth/me，${Date.now() - t0}ms）`);
+      console.log(
+        `[prewarm] ${target.name} 预热完成（health ✓ + 登录链 + /api/auth/me，${Date.now() - t0}ms）`,
+      );
     } catch (cause) {
       console.warn(
         `[prewarm] ${target.name} 登录预热失败（不染色本轮）: ` +
-          (cause instanceof Error ? cause.message.split("\n")[0] : String(cause)),
+          (cause instanceof Error
+            ? cause.message.split("\n")[0]
+            : String(cause)),
       );
     }
   }

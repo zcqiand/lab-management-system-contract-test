@@ -5,7 +5,15 @@
 // 修后：N=3 次尝试 + 退避 1s/2s + 单次 10s 封顶，全部尝试失败才判死；
 // 判死 warn 留痕每次尝试的耗时与失败原因。
 // mode 判定规则本身不改（全部 2xx = live；任一目标最终失败 = unit + 清空 targets）。
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 // probeLive 读模块级 DECLARED_TARGETS（import 时求值）—— 必须在 import 前设 env。
 const PREV_TARGETS = vi.hoisted(() => {
@@ -90,7 +98,9 @@ describe("probeLive 重试语义（5.12，unit 层）", () => {
         const key = String(url);
         const n = (calls.get(key) ?? 0) + 1;
         calls.set(key, n);
-        return (n <= 2 ? { ok: false, status: 503 } : { ok: true, status: 200 }) as Response;
+        return (
+          n <= 2 ? { ok: false, status: 503 } : { ok: true, status: 200 }
+        ) as Response;
       }),
     );
     const d = await settle(probeLive());

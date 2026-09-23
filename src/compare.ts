@@ -4,7 +4,12 @@
 // 判定标准是「前端不可区分」：前端会因为什么走进不同分支，就比什么。
 // 2026-09-15 Phase 2 去 msw：oracle 语义回归 shared OpenAPI 契约（spec §3.3），比对基准 = probes[0]。
 
-import { normalize, stable, assertTimestampShape, type TimestampShapeError } from "./normalize.js";
+import {
+  normalize,
+  stable,
+  assertTimestampShape,
+  type TimestampShapeError,
+} from "./normalize.js";
 import type { Target } from "./targets.js";
 
 export interface Probe {
@@ -77,7 +82,12 @@ export function compareBodies(
 }
 
 /** 只报第一处差异 —— 一次修一个，比甩 200 行 diff 有用。 */
-function firstDiff(want: string, got: string, oracleName: string, target: string): string {
+function firstDiff(
+  want: string,
+  got: string,
+  oracleName: string,
+  target: string,
+): string {
   const a = want.split("\n");
   const b = got.split("\n");
   const n = Math.max(a.length, b.length);
@@ -98,7 +108,10 @@ export function compareAll(
   targets: readonly Target[],
   extraDrop: readonly string[] = [],
 ): Divergence[] {
-  return [...compareStatuses(probes), ...compareBodies(probes, targets, extraDrop)];
+  return [
+    ...compareStatuses(probes),
+    ...compareBodies(probes, targets, extraDrop),
+  ];
 }
 
 export function formatDivergences(items: readonly Divergence[]): string {

@@ -7,7 +7,10 @@
 //
 // 已知使用点：tests/<endpoint>.test.ts 里 pathWithParams(PATH, ALICE_PARAMS) 一行调用。
 
-export function pathWithParams(template: string, params: Record<string, string>): string {
+export function pathWithParams(
+  template: string,
+  params: Record<string, string>,
+): string {
   return template.replace(/\{(\w+)\}/g, (_match, key: string) => {
     const value = params[key];
     if (value === undefined) {
