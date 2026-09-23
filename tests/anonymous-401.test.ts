@@ -38,7 +38,7 @@ const GLOBAL_PATHS = [
   "/api/report-names",
   "/api/calculation-methods",
   "/api/param-interfaces",
-  "/api/inspection/links",
+  "/api/inspection/links/specialty-object",
 ] as const;
 
 const ALL_PATHS = [...FILTERED_PATHS, ...GLOBAL_PATHS];
@@ -50,7 +50,10 @@ interface Tagged {
 }
 
 const targets: Target[] = selectedTargets();
-const live = targets.length >= 2;
+// live 阈值 ≥1：单目标 nextjs 也跑第一个 it（18 路径 × 1 目标 = 18 探针全 401）；
+// 三后端一致性（第二个 it）需 ≥2 目标才 run。
+const live = targets.length >= 1;
+const multiTarget = targets.length >= 2;
 
 describe.skipIf(!live)(
   "M96.F02.I06 匿名探针：filter+global 域 18 路径 × 三目标统一 401 / lab-nextjs BFF 全域 token 化 P2-3",
@@ -77,25 +80,28 @@ describe.skipIf(!live)(
       ).toEqual([]);
     });
 
-    it("三后端对同一路径一致 401（nextjs/aspnetcore/springboot 同形）", () => {
-      const byPath = new Map<string, Set<number>>();
-      for (const t of tagged) {
-        const set = byPath.get(t.path) ?? new Set<number>();
-        set.add(t.status);
-        byPath.set(t.path, set);
-      }
-      const mismatches: string[] = [];
-      for (const [path, statuses] of byPath) {
-        if (statuses.size > 1) {
-          mismatches.push(
-            `${path}: statuses=${[...statuses].sort().join(",")}`,
-          );
+    it.runIf(multiTarget)(
+      "三后端对同一路径一致 401（nextjs/aspnetcore/springboot 同形）",
+      () => {
+        const byPath = new Map<string, Set<number>>();
+        for (const t of tagged) {
+          const set = byPath.get(t.path) ?? new Set<number>();
+          set.add(t.status);
+          byPath.set(t.path, set);
         }
-      }
-      expect(
-        mismatches,
-        `三端 401 形状分歧：\n${mismatches.join("\n")}`,
-      ).toEqual([]);
-    });
+        const mismatches: string[] = [];
+        for (const [path, statuses] of byPath) {
+          if (statuses.size > 1) {
+            mismatches.push(
+              `${path}: statuses=${[...statuses].sort().join(",")}`,
+            );
+          }
+        }
+        expect(
+          mismatches,
+          `三端 401 形状分歧：\n${mismatches.join("\n")}`,
+        ).toEqual([]);
+      },
+    );
   },
 );
