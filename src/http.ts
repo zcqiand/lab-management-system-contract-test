@@ -92,7 +92,9 @@ const tokenCache = new Map<string, string>();
  */
 function isTimeout(err: unknown): boolean {
   return (
-    axios.isAxiosError(err) && err.code === "ECONNABORTED" && err.response === undefined
+    axios.isAxiosError(err) &&
+    err.code === "ECONNABORTED" &&
+    err.response === undefined
   );
 }
 
@@ -113,7 +115,11 @@ async function getWithTimeoutRetry(
 }
 
 /** 带 Bearer 打一个 GET，返回可比对的探针。 */
-export async function probeGet(target: Target, path: string, token: string): Promise<Probe> {
+export async function probeGet(
+  target: Target,
+  path: string,
+  token: string,
+): Promise<Probe> {
   const http = client(target);
   try {
     const res = await getWithTimeoutRetry(http, path, {
@@ -127,7 +133,10 @@ export async function probeGet(target: Target, path: string, token: string): Pro
 }
 
 /** 对一组目标跑同一个 GET。登录各自进行（token 不跨后端复用）。 */
-export async function probeAll(targets: readonly Target[], path: string): Promise<Probe[]> {
+export async function probeAll(
+  targets: readonly Target[],
+  path: string,
+): Promise<Probe[]> {
   const out: Probe[] = [];
   for (const t of targets) {
     const token = await login(t);
@@ -189,17 +198,38 @@ async function probeWithToken(
 }
 
 /** 单目标探针（method-通用）。未传 token 时先 login（走缓存）。 */
-export async function probeRequest(target: Target, opts: ProbeRequestOptions): Promise<Probe> {
+export async function probeRequest(
+  target: Target,
+  opts: ProbeRequestOptions,
+): Promise<Probe> {
   if (opts.token) {
-    return probeWithToken(target, opts.method, opts.path, opts.token, opts.body);
+    return probeWithToken(
+      target,
+      opts.method,
+      opts.path,
+      opts.token,
+      opts.body,
+    );
   }
-  let res = await probeWithToken(target, opts.method, opts.path, await login(target), opts.body);
+  let res = await probeWithToken(
+    target,
+    opts.method,
+    opts.path,
+    await login(target),
+    opts.body,
+  );
   // 401 自愈：缓存 token 陈旧（后端中途重启/密钥轮换）→ force 重登一次再发。
   // 只对「token 由本函数自取」的路径生效；显式传 token 的调用方语义是「用我给的 token 断言 401」，
   // 绝不重试（否则把「预期 401 的用例」重登成 200，吃掉断言）。写方法也只重试这一次且仅在 401 时，
   // 非 401 失败绝不双发（重复建行）。
   if (res.status === 401) {
-    res = await probeWithToken(target, opts.method, opts.path, await login(target, true), opts.body);
+    res = await probeWithToken(
+      target,
+      opts.method,
+      opts.path,
+      await login(target, true),
+      opts.body,
+    );
   }
   return res;
 }
@@ -214,4 +244,54 @@ export async function probeAllRequest(
     out.push(await probeRequest(t, opts));
   }
   return out;
+}
+
+/**
+ * M96.F02.I06 — 匿名探针（2026-09-23 BFF 全域 token 化同步断言）：
+ * 裸打不打 Authorization、不调 login()、不触发 probeRequest 的 401 自愈
+ * （http.ts:196-204）。专用于「缺 token 必须 401」的契约断言——走 probeRequest
+ * 会被自愈重登成 200，吃掉断言。
+ *
+ * 实现要点：
+ * - 共用 client() 的 axios + tough-cookie + maxRedirects:0 + validateStatus 全返
+ * - method 默认 GET；POST/PATCH/PUT/DELETE 与 probeWithToken 同形
+ * - 错误统一抛 UnreachableError（与 probeRequest/probeGet 守门语义一致）
+ */
+export interface ProbeAnonymousOptions {
+  readonly method?: ProbeMethod;
+  readonly body?: unknown;
+}
+
+export async function probeAnonymous(
+  target: Target,
+  path: string,
+  opts: ProbeAnonymousOptions = {},
+): Promise<Probe> {
+  const http = client(target);
+  const method = opts.method ?? "GET";
+  const body = opts.body;
+  try {
+    let res;
+    switch (method) {
+      case "GET":
+        res = await getWithTimeoutRetry(http, path, {});
+        break;
+      case "DELETE":
+        res = await http.delete(path, { data: body });
+        break;
+      case "POST":
+        res = await http.post(path, body);
+        break;
+      case "PATCH":
+        res = await http.patch(path, body);
+        break;
+      case "PUT":
+        res = await http.put(path, body);
+        break;
+    }
+    recordProbe(target.name, res.status);
+    return { target: target.name, status: res.status, body: res.data };
+  } catch (cause) {
+    throw new UnreachableError(target.name, cause);
+  }
 }
