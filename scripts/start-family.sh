@@ -139,12 +139,15 @@ LAB_CORS_ENV="LAB_CORS_ALLOWED_ORIGINS=http://localhost:5201,http://localhost:52
 # no-sso 降级模式已按 2026-09-20 人裁全家族删除，恒真链（lab 后端 ADR-0008 §6）。
 LAB_DEV_AUTH_ENV="LAB_AUTH_DEV_PASSWORD=dev123456 Lab__Auth__DevPassword=dev123456"
 
-# springboot 恒真链 SSO env：SaasAuthClient 构造期 fail-fast（saas-base/client-id/
-# secret/default-tenant/service-client-id 缺一 bean 创建即崩）+ SsoBeansConfig
-# @PostConstruct 校验服务账号三件套（密码登录拉菜单快照走 serviceLogin）。
-# BASE_URL 指黑洞端口：瞬时 ECONNREFUSED → 登录降级空菜单快照（与下方 nextjs
-# SAAS_IDP_URL 同款先例），live 比对不依赖外部 saas 部署。
-LAB_SB_SSO_ENV="LAB_SAAS_BASE_URL=http://127.0.0.1:9 LAB_SAAS_CLIENT_ID=lab-management LAB_SAAS_CLIENT_SECRET=lab-management-secret LAB_SAAS_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000001 LAB_SAAS_SERVICE_USER=alice LAB_SAAS_SERVICE_PASSWORD=dev123456 LAB_SAAS_SERVICE_CLIENT_ID=lab-management"
+# 恒真链 SSO env（aspnetcore + springboot 共用，键为两家 LabOptions/bean 同款 flat
+# LAB_SAAS_*）：aspnetcore HttpSaasAuthClient 构造期 fail-fast（base/client-id/
+# secret/default-tenant/service-client-id 缺一，首个 SSO 依赖请求 500，2026-09-29
+# live run 实锤——healthcheck 过了但 typed client 惰性解析，脚本此前只给 springboot
+# 配导致 vitest 中途 aspnetcore 全量级联崩）；springboot SaasAuthClient bean 创建
+# 即崩 + SsoBeansConfig @PostConstruct 校验服务账号三件套（密码登录拉菜单快照走
+# serviceLogin）。BASE_URL 指黑洞端口：瞬时 ECONNREFUSED → 登录降级空菜单快照
+# （与下方 nextjs SAAS_IDP_URL 同款先例），live 比对不依赖外部 saas 部署。
+LAB_SSO_ENV="LAB_SAAS_BASE_URL=http://127.0.0.1:9 LAB_SAAS_CLIENT_ID=lab-management LAB_SAAS_CLIENT_SECRET=lab-management-secret LAB_SAAS_DEFAULT_TENANT_ID=00000000-0000-0000-0000-000000000001 LAB_SAAS_SERVICE_USER=alice LAB_SAAS_SERVICE_PASSWORD=dev123456 LAB_SAAS_SERVICE_CLIENT_ID=lab-management"
 
 # aspnetcore: SERVER_PORT shim 接线 + ASPNETCORE_URLS 双保险（dotnet run 默认
 # launch profile 会带自己的 ASPNETCORE_URLS, 显式覆盖才稳）。
@@ -163,12 +166,12 @@ fi
 : "${LAB_PG_PASSWORD:=qiand68+++}"
 ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postgres;Password=${LAB_PG_PASSWORD}"
 # 恒 ef（LAB_DATA_PROVIDER key 已随 5.48 aspnetcore 批删除）：真库直连上方 DATABASE_URL。
-(cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
+(cd "$ASPNETCORE_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV $LAB_SSO_ENV SERVER_PORT=5204 ASPNETCORE_URLS="http://+:5204" \
   DATABASE_URL="$ASPNETCORE_PG_URL" \
   dotnet run --project src/Lab.AspNetCore.csproj >"$CT_ROOT/.runtime-logs/aspnetcore.log" 2>&1) & PIDS+=($!)
 
 # springboot: SERVER_PORT relaxed binding。同上共库 lab_dev（JDBC 四件套）。
-(cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV $LAB_SB_SSO_ENV SERVER_PORT=5205 \
+(cd "$SPRINGBOOT_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV $LAB_SSO_ENV SERVER_PORT=5205 \
   DATABASE_URL="jdbc:postgresql://${LAB_PG_HOST}:5432/lab_dev" \
   DATABASE_USER=postgres DATABASE_PASSWORD="$LAB_PG_PASSWORD" DATABASE_NAME=lab_dev \
   mvn -q spring-boot:run >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
@@ -184,7 +187,7 @@ ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postg
 
 # rails: dotenv-rails 在 development 加载仓根 .env（PG 五件套 -> lab_dev），
 # 这里补家族统一 env：LAB_JWT_ENV（fail-fast 六键）+ CORS + dev 密码 + SSO 黑洞
-# （镜像上方 springboot LAB_SB_SSO_ENV：瞬时 ECONNREFUSED → 登录降级空菜单快照，
+# （镜像上方 LAB_SSO_ENV：瞬时 ECONNREFUSED → 登录降级空菜单快照，
 # live 比对不依赖外部 saas 部署）。bin/rails server 默认 RAILS_ENV=development。
 LAB_RAILS_SSO_ENV="LAB_SAAS_BASE_URL=http://127.0.0.1:9 LAB_SSO_LOGIN_URL=http://127.0.0.1:9"
 (cd "$RAILS_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV $LAB_RAILS_SSO_ENV \
