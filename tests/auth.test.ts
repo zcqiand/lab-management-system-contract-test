@@ -98,11 +98,13 @@ describe.skipIf(!live)(
 // 保留 client 导入引用（错误分支探针未来切 axios 直连时用）；当前 probeAllRequest 已覆盖。
 void client;
 
-// M96.F02.I01 姊妹端点：POST /api/auth/native-login（M01.F05.I06，REQ-2026-003 Q4-C）。
-// 契约面与 /api/auth/login 同形同源（LoginRequest→LoginResponse），断言同款：
+// M01.F05.I06（REQ-2026-003 Q4-C）：/api/auth/native-login 是 /api/auth/login 的
+// 姊妹端点，契约面同形同源（LoginRequest→LoginResponse），断言同款：
 // 200 + LoginResponse 必填集 + 错误凭证 4xx 全等 + normalize 四方全等。
+// 注意：describe 标题必须是 check_ssot_coverage.mjs 认的
+// `<ID> <METHOD> <path> 四方比对` 严格格式，不得插词。
 describe.skipIf(!live)(
-  `M96.F02.I01 姊妹 POST /api/auth/native-login 四方比对 / M01.F05.I06`,
+  `M01.F05.I06 POST /api/auth/native-login 四方比对`,
   () => {
     let probes: Probe[];
 
