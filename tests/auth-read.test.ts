@@ -75,16 +75,26 @@ describe.skipIf(!live)(
       );
     }, 60_000);
 
-    it("每个目标都返回 200", () => {
-      const bad = probes.filter((p) => p.status !== 200);
+    it("真后端 status 一致且 ∈ {200, 503}（黑洞 saas 降级语义，2026-09-29 人裁）", () => {
+      // 503 MENUS_UNAVAILABLE = 服务账号拉不到菜单快照就不落缓存的文档化降级
+      // （springboot login 注释：「demo 兜底已删，miss 时 /menus 会 503」）。
+      // aspnetcore/springboot/rails 黑洞 saas 下统一 503（live run2-4 实锤）；
+      // nextjs BFF 自持菜单存储不受影响。真 saas 可达时全 200。契约核心是
+      // 「真后端之间不分叉」，单目标 200 断言只在 saas 可达模式才有意义。
+      const real = probes.filter((p) => p.target !== "nextjs");
+      const statuses = new Set(real.map((p) => p.status));
       expect(
-        bad,
-        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+        [...statuses].filter((s) => s !== 200 && s !== 503),
+        `menus 出现契约外 status: ${real.map((p) => `${p.target}=${p.status}`).join(", ")}`,
       ).toEqual([]);
+      expect(
+        statuses.size,
+        `真后端 menus status 不一致: ${real.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toBeLessThanOrEqual(1);
     });
 
-    it("返回 MenuNode[] 数组", () => {
-      for (const p of probes) {
+    it("200 的目标返回 MenuNode[] 数组", () => {
+      for (const p of probes.filter((x) => x.status === 200)) {
         expect(Array.isArray(p.body), `${p.target} menus 应是数组`).toBe(true);
       }
     });

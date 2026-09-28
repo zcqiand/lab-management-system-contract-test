@@ -113,7 +113,7 @@ describe.skipIf(!live)(
   "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02",
   () => {
     for (const target of targets) {
-      it(`${target.name} sso.callback → 200/4xx（code 不可用）`, async () => {
+      it(`${target.name} sso.callback → 200/4xx/502（code 不可用）`, async () => {
         await login(target);
         const r = await probeRequest(target, {
           method: "POST",
@@ -125,10 +125,12 @@ describe.skipIf(!live)(
             state: "ct-state-fixture",
           },
         });
-        // code 不可用 → 后端可能 400/401/422 —— 这都是契约面
+        // code 不可用 → 400/401/422（code 真无效）；502 = saas 不可达时 exchange
+        // 发不出去的网关语义（2026-09-29 人裁并入：nextjs/springboot/rails 三实现
+        // 黑洞 saas 下统一 502，live run2-4 实锤；真 saas 可达时走 4xx 分支）。
         expect(
-          [200, 400, 401, 422],
-          `${target.name} sso.callback 期望 2xx/4xx 实得 ${r.status}`,
+          [200, 400, 401, 422, 502],
+          `${target.name} sso.callback 期望 2xx/4xx/502 实得 ${r.status}`,
         ).toContain(r.status);
       }, 30_000);
     }
