@@ -97,15 +97,17 @@ describe("M96.F02 比对基准恒为 probes[0]（Phase 2 去 msw）", () => {
 });
 
 describe("M96.F03.I01 目标端口声明", () => {
-  it("三个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段）", () => {
+  it("四个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段；X06=rails 5206）", () => {
     expect(Object.keys(TARGETS).sort()).toEqual([
       "aspnetcore",
       "nextjs",
+      "rails",
       "springboot",
     ]);
     expect(TARGETS.nextjs.baseUrl).toContain(":5201");
     expect(TARGETS.aspnetcore.baseUrl).toContain(":5204");
     expect(TARGETS.springboot.baseUrl).toContain(":5205");
+    expect(TARGETS.rails.baseUrl).toContain(":5206");
   });
 });
 
