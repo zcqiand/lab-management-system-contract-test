@@ -97,3 +97,68 @@ describe.skipIf(!live)(
 
 // 保留 client 导入引用（错误分支探针未来切 axios 直连时用）；当前 probeAllRequest 已覆盖。
 void client;
+
+// M96.F02.I01 姊妹端点：POST /api/auth/native-login（M01.F05.I06，REQ-2026-003 Q4-C）。
+// 契约面与 /api/auth/login 同形同源（LoginRequest→LoginResponse），断言同款：
+// 200 + LoginResponse 必填集 + 错误凭证 4xx 全等 + normalize 四方全等。
+describe.skipIf(!live)(
+  `M96.F02.I01 姊妹 POST /api/auth/native-login 四方比对 / M01.F05.I06`,
+  () => {
+    let probes: Probe[];
+
+    beforeAll(async (ctx) => {
+      probes = await withLiveExecSuite(ctx.name, () =>
+        probeAllRequest(targets, {
+          method: "POST",
+          path: "/api/auth/native-login",
+          body: SEED_USER,
+        }),
+      );
+    }, 60_000);
+
+    it("每个目标都返回 200", () => {
+      const bad = probes.filter((p) => p.status !== 200);
+      expect(
+        bad,
+        `非 200: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toEqual([]);
+    });
+
+    it("必填字段齐全（LoginResponse required: token/user/tenants）", () => {
+      for (const p of probes) {
+        const body = p.body as Record<string, unknown>;
+        expect(body.token, `${p.target} 少了 token`).toBeTruthy();
+        expect(body.user, `${p.target} 少了 user`).toBeDefined();
+        expect(
+          Array.isArray(body.tenants),
+          `${p.target} 的 tenants 不是数组`,
+        ).toBe(true);
+      }
+    });
+
+    it("错误凭证 → 4xx 全等（与 login 同口径）", async () => {
+      const bad = await probeAllRequest(targets, {
+        method: "POST",
+        path: "/api/auth/native-login",
+        body: { username: SEED_USER.username, password: "wrong-password" },
+      });
+      for (const p of bad) {
+        expect(
+          p.status,
+          `${p.target} 错误密码应 4xx，得到 ${p.status}`,
+        ).toBeGreaterThanOrEqual(400);
+        expect(p.status).toBeLessThan(500);
+      }
+      const statuses = new Set(bad.map((p) => Math.floor(p.status / 100)));
+      expect(
+        statuses.size,
+        `4xx 家族分叉: ${bad.map((p) => `${p.target}=${p.status}`).join(", ")}`,
+      ).toBe(1);
+    });
+
+    it("normalize 后所有目标全等", () => {
+      const divergences = compareAll(probes, targets);
+      expect(divergences, `\n${formatDivergences(divergences)}\n`).toEqual([]);
+    });
+  },
+);
