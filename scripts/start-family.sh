@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# scripts/start-family.sh — 本机一键起 lab 家族 4 后端 + live vitest + gate
+# scripts/start-family.sh — 本机一键起 lab 家族 4 后端（5201/5204/5205/5206） + live vitest + gate
 #
 # 用途: 在本机 (Git Bash / macOS / Linux) 模拟 .github/workflows/ci.yml 的核心步骤,
 # 跑通 lab 家族 contract-test 完整 live 验证。仿 saas-identity-platform-contract-test
 # 同名脚本（2026-09-02 端口分段落地时补齐，见 conventions §6）。
 #
 # 前提 (CI runner 自动满足, 本机要手动确保):
-#   1. 4 sibling 仓已在 ../lab-management-system-{shared,aspnetcore,springboot,nextjs}/
+#   1. 5 sibling 仓已在 ../lab-management-system-{shared,aspnetcore,springboot,nextjs,rails}/
 #      (suite 作为 multi-repo-family 用 gitlink 挂载, 本仓库目录下 output/ 自带)
 #   2. 共享 PG 可达 (本机走 Tailscale 100.79.128.25:5432, 库 lab_dev;
 #      3 真后端共库是「前端不可区分」的物理基础（msw 仓已删，Phase 4 提前）
-#   3. dotnet 8 SDK + JDK 21 + Maven + Node 24 已装
-#   4. 3 端口 5201/5204/5205 空闲（conventions §6 lab=5200 段；5200 msw 已退役）
+#   3. dotnet 8 SDK + JDK 21 + Maven + Node 24 + Ruby 3.4 已装
+#   4. 4 端口 5201/5204/5205/5206 空闲（conventions §6 lab=5200 段；5200 msw 已退役；
+#      5206 rails X06 槽位）
 #
 # 与 ci.yml 区别:
 #   - 不 git clone (本机 sibling 已在)
@@ -44,24 +45,32 @@ SHARED_DIR="$SUITE_ROOT/output/lab-management-system-shared"
 ASPNETCORE_DIR="$SUITE_ROOT/output/lab-management-system-aspnetcore"
 SPRINGBOOT_DIR="$SUITE_ROOT/output/lab-management-system-springboot"
 NEXTJS_DIR="$SUITE_ROOT/output/lab-management-system-nextjs"
+RAILS_DIR="$SUITE_ROOT/output/lab-management-system-rails"
 
 mkdir -p "$CT_ROOT/.runtime-logs"
 
 # === 1. 前置检查 ===
 echo "=== [1/6] 工具链 + sibling 仓 + 端口 ==="
 missing_tools=()
-for t in node npm dotnet mvn java python curl; do
+for t in node npm dotnet mvn java python curl ruby bundle; do
   if ! command -v "$t" >/dev/null 2>&1; then
     missing_tools+=("$t")
   fi
 done
+# Git Bash 常见坑：RubyInstaller 不在 PATH（本机 /c/Ruby34-x64/bin），补一次再验
+if [ -d /c/Ruby34-x64/bin ]; then
+  export PATH="/c/Ruby34-x64/bin:$PATH"
+  missing_tools=($(for t in node npm dotnet mvn java python curl ruby bundle; do
+    command -v "$t" >/dev/null 2>&1 || echo "$t"
+  done))
+fi
 if [ ${#missing_tools[@]} -gt 0 ]; then
   echo "FAIL: 缺工具链: ${missing_tools[*]}" >&2
   exit 2
 fi
 
 missing_repos=()
-for d in "$SHARED_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR"; do
+for d in "$SHARED_DIR" "$ASPNETCORE_DIR" "$SPRINGBOOT_DIR" "$NEXTJS_DIR" "$RAILS_DIR"; do
   if [ ! -d "$d" ]; then
     missing_repos+=("$d")
   fi
@@ -71,19 +80,19 @@ if [ ${#missing_repos[@]} -gt 0 ]; then
   echo "  suite 用 gitlink 挂载, 仓应该在 $SUITE_ROOT/output/lab-management-system-*/" >&2
   exit 2
 fi
-echo "  ✓ 5 sibling 仓齐全 + 7 工具齐"
+echo "  ✓ 6 sibling 仓齐全 + 9 工具齐"
 
 # 端口 preflight: 上次跑没清的残留进程占着 5200 段端口就 kill。
 # 只杀匹配已知后端进程名的进程, 不动用户其他 node 工作。
 # Windows 上必须用 taskkill (kill -TERM 在 Git Bash 下杀不掉 native 进程)。
-echo "  检查 4 端口 LISTENING 残留进程..."
-for p in 5201 5204 5205; do
+echo "  检查 5 端口 LISTENING 残留进程..."
+for p in 5201 5204 5205 5206; do
   pids=$(netstat -ano 2>/dev/null | awk -v port=":$p$" '$2 ~ port"$" && $4 == "LISTENING" {print $5}' | sort -u)
   for pid in $pids; do
     if [ -n "$pid" ] && [ "$pid" != "0" ]; then
       pname=$(powershell -NoProfile -Command "(Get-Process -Id $pid -ErrorAction SilentlyContinue).ProcessName" 2>/dev/null | tr -d '\r')
       case "$pname" in
-        node|java|dotnet|Lab.AspNetCore)
+        node|java|dotnet|ruby|Lab.AspNetCore)
               echo "    端口 :$p 被 $pid ($pname) 占用, taskkill /F"
               taskkill //F //PID "$pid" > /dev/null 2>&1 ;;
         *)    echo "    端口 :$p 被 $pid ($pname) 占用 — 不是已知后端, 不杀, 让用户决定";;
@@ -96,17 +105,19 @@ echo "  ✓ 端口 preflight 完成"
 
 # === 2. gen-shared (读 shared 仓 OpenAPI 生成各后端客户端代码) ===
 echo ""
-echo "=== [2/6] gen-shared (nextjs + springboot) ==="
+echo "=== [2/6] gen-shared (nextjs + springboot + rails) ==="
 # nextjs: npm run gen:shared — 读 ../lab-management-system-shared/generated/openapi/openapi.yaml
 # springboot: bash scripts/gen-shared.sh — TypeSpec codegen（OpenAPI → Java client）;
 #   DB schema 消费走 scripts/scaffold-entities.sh（DB-First, ADR-0025/0033, Flyway 已退役）
+# rails: bash scripts/gen-shared.sh — api_manifest.json 生成（route_parity_test 消费）
 # aspnetcore: NSwag 在 csproj build 时自动跑, 不需要单独 step
 (cd "$NEXTJS_DIR" && npm run gen:shared 2>&1 | tail -3)
 (cd "$SPRINGBOOT_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -5)
+(cd "$RAILS_DIR" && bash scripts/gen-shared.sh 2>&1 | tail -3)
 
 # === 3. 后台起 4 后端 ===
 echo ""
-echo "=== [3/6] 后台起 3 真后端 (lab=5200 段, conventions §6) ==="
+echo "=== [3/6] 后台起 4 真后端 (lab=5200 段, conventions §6) ==="
 PIDS=()
 
 # lab 家族 JWT 四件套（别复用 saas 的 issuer/audience —— 4 后端 dev token
@@ -162,8 +173,7 @@ ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postg
   DATABASE_USER=postgres DATABASE_PASSWORD="$LAB_PG_PASSWORD" DATABASE_NAME=lab_dev \
   mvn -q spring-boot:run >"$CT_ROOT/.runtime-logs/springboot.log" 2>&1) & PIDS+=($!)
 
-# nextjs: dev script 已带 -p 5201（package.json）; .env.local 已有 DATABASE_URL 等。
-# dev 密码显式传：login route.ts fail-fast（ADR-0019），缺失时登录 500 →
+# nextjs: dev script 已带 -p 5201（package.json）; .env.local 已有 DATABASE_URL 等。# dev 密码显式传：login route.ts fail-fast（ADR-0019），缺失时登录 500 →
 # probeAll 全量级联失败（2026-09-13 run5 实锤：183 失败全从这一个 500 级联）。
 # SAAS_IDP_URL 指黑洞端口：login route 每次密码登录都会 serviceLogin 拉菜单快照，
 # .env.local 里指向真 saas 部署时每次登录挂 8-10s（快照 fetch 超时），把 next dev
@@ -171,6 +181,14 @@ ASPNETCORE_PG_URL="Host=${LAB_PG_HOST};Port=5432;Database=lab_dev;Username=postg
 # → 空快照路径，与 aspnetcore/springboot saas 不可达空快照语义契约等价（/menus 200 []），
 # live 四方比对不再依赖外部 saas 部署。进程 env 优先于 .env.local（dotenv 语义）。
 (cd "$NEXTJS_DIR" && nohup env $LAB_DEV_AUTH_ENV SAAS_IDP_URL="http://127.0.0.1:9" npm run dev >"$CT_ROOT/.runtime-logs/nextjs.log" 2>&1) & PIDS+=($!)
+
+# rails: dotenv-rails 在 development 加载仓根 .env（PG 五件套 -> lab_dev），
+# 这里补家族统一 env：LAB_JWT_ENV（fail-fast 六键）+ CORS + dev 密码 + SSO 黑洞
+# （镜像上方 springboot LAB_SB_SSO_ENV：瞬时 ECONNREFUSED → 登录降级空菜单快照，
+# live 比对不依赖外部 saas 部署）。bin/rails server 默认 RAILS_ENV=development。
+LAB_RAILS_SSO_ENV="LAB_SAAS_BASE_URL=http://127.0.0.1:9 LAB_SSO_LOGIN_URL=http://127.0.0.1:9"
+(cd "$RAILS_DIR" && nohup env $LAB_JWT_ENV $LAB_CORS_ENV $LAB_DEV_AUTH_ENV $LAB_RAILS_SSO_ENV \
+  SERVER_PORT=5206 bundle exec rails server >"$CT_ROOT/.runtime-logs/rails.log" 2>&1) & PIDS+=($!)
 
 cleanup() {
   echo ""
@@ -181,6 +199,8 @@ cleanup() {
   pkill -f "next dev"         2>/dev/null || true
   pkill -f "next-server"      2>/dev/null || true
   pkill -f "tsx src/server.ts" 2>/dev/null || true
+  pkill -f "rails server"     2>/dev/null || true
+  pkill -f puma               2>/dev/null || true
   sleep 2
 }
 trap cleanup EXIT INT TERM
@@ -206,17 +226,18 @@ healthcheck() {
 healthcheck aspnetcore "http://localhost:5204/health"
 healthcheck springboot "http://localhost:5205/actuator/health"
 healthcheck nextjs     "http://localhost:5201/api/health"
+healthcheck rails      "http://localhost:5206/health"
 
 # === 5. live vitest ===
 echo ""
 echo "=== [5/6] live vitest ==="
-echo "  CONTRACT_TARGETS=nextjs,aspnetcore,springboot"
+echo "  CONTRACT_TARGETS=nextjs,aspnetcore,springboot,rails"
 # vitest 失败不中断 — contract-test 的目的是发现契约分叉, vitest failed 是结果不是故障。
 # 由 [6/6] trace.json shape + L5 软告警统计覆盖率。
 set +e
 (
   cd "$CT_ROOT" && \
-  CONTRACT_TARGETS="nextjs,aspnetcore,springboot" TRACE_MAP=1 npx --no vitest run
+  CONTRACT_TARGETS="nextjs,aspnetcore,springboot,rails" TRACE_MAP=1 npx --no vitest run
 )
 VITEST_EXIT=$?
 set -e
