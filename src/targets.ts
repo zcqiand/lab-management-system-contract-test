@@ -15,6 +15,7 @@ export const TARGETS: Readonly<Record<string, Target>> = {
   aspnetcore: { name: "aspnetcore", baseUrl: "http://localhost:5204" },
   springboot: { name: "springboot", baseUrl: "http://localhost:5205" },
   rails: { name: "rails", baseUrl: "http://localhost:5206" },
+  fastapi: { name: "fastapi", baseUrl: "http://localhost:5207" },
 };
 
 export class TargetError extends Error {}
