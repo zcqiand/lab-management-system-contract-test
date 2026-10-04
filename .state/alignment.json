@@ -195,28 +195,36 @@
         "M96.F02.I02 GET /api/test-records/00000000-0000-0000-0000-00000000dead 四方比对 / M00.F01.I01 > 不存在 id → 4 后端全 404",
         "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > aspnetcore refresh(有效 token) → 200 + 新 token",
         "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > nextjs refresh(有效 token) → 200 + 新 token",
+        "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > rails refresh(有效 token) → 200 + 新 token",
         "M96.F02.I02 POST /api/auth/refresh 四方比对 / M00.F01.I01 > springboot refresh(有效 token) → 200 + 新 token",
         "M96.F02.I02 POST /api/calculation-methods 四方比对 / M00.F01.I01 > aspnetcore 创 calculation-method → 200",
         "M96.F02.I02 POST /api/calculation-methods 四方比对 / M00.F01.I01 > nextjs 创 calculation-method → 200",
+        "M96.F02.I02 POST /api/calculation-methods 四方比对 / M00.F01.I01 > rails 创 calculation-method → 200",
         "M96.F02.I02 POST /api/calculation-methods 四方比对 / M00.F01.I01 > springboot 创 calculation-method → 200",
         "M96.F02.I02 POST /api/catalog/brands 四方比对 / M00.F01.I01 > aspnetcore 创 brand → 200 + 字段齐全",
         "M96.F02.I02 POST /api/catalog/brands 四方比对 / M00.F01.I01 > nextjs 创 brand → 200 + 字段齐全",
+        "M96.F02.I02 POST /api/catalog/brands 四方比对 / M00.F01.I01 > rails 创 brand → 200 + 字段齐全",
         "M96.F02.I02 POST /api/catalog/brands 四方比对 / M00.F01.I01 > springboot 创 brand → 200 + 字段齐全",
         "M96.F02.I02 POST /api/contracts 四方比对 / M00.F01.I01 > aspnetcore 创 contract 返回 200/201 + 字段齐全",
         "M96.F02.I02 POST /api/contracts 四方比对 / M00.F01.I01 > nextjs 创 contract 返回 200/201 + 字段齐全",
         "M96.F02.I02 POST /api/contracts 四方比对 / M00.F01.I01 > normalize 后成功响应字段一致（除唯一值/时间戳）",
+        "M96.F02.I02 POST /api/contracts 四方比对 / M00.F01.I01 > rails 创 contract 返回 200/201 + 字段齐全",
         "M96.F02.I02 POST /api/contracts 四方比对 / M00.F01.I01 > springboot 创 contract 返回 200/201 + 字段齐全",
         "M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01 > aspnetcore 创 specialty → 200",
         "M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01 > nextjs 创 specialty → 200",
+        "M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01 > rails 创 specialty → 200",
         "M96.F02.I02 POST /api/inspection/specialties 四方比对 / M00.F01.I01 > springboot 创 specialty → 200",
         "M96.F02.I02 POST /api/receipts 四方比对 / M00.F01.I01 > aspnetcore 创 receipt → 200/201 或 4xx（contract 不存在）",
         "M96.F02.I02 POST /api/receipts 四方比对 / M00.F01.I01 > nextjs 创 receipt → 200/201 或 4xx（contract 不存在）",
+        "M96.F02.I02 POST /api/receipts 四方比对 / M00.F01.I01 > rails 创 receipt → 200/201 或 4xx（contract 不存在）",
         "M96.F02.I02 POST /api/receipts 四方比对 / M00.F01.I01 > springboot 创 receipt → 200/201 或 4xx（contract 不存在）",
         "M96.F02.I02 POST /api/technical-requirements 四方比对 / M00.F01.I01 > aspnetcore 创 technical-requirement → 200",
         "M96.F02.I02 POST /api/technical-requirements 四方比对 / M00.F01.I01 > nextjs 创 technical-requirement → 200",
+        "M96.F02.I02 POST /api/technical-requirements 四方比对 / M00.F01.I01 > rails 创 technical-requirement → 200",
         "M96.F02.I02 POST /api/technical-requirements 四方比对 / M00.F01.I01 > springboot 创 technical-requirement → 200",
         "M96.F02.I02 POST /api/test-records 四方比对 / M00.F01.I01 > aspnetcore 创 test-record → 200/201 或 4xx（sample 不存在时）",
         "M96.F02.I02 POST /api/test-records 四方比对 / M00.F01.I01 > nextjs 创 test-record → 200/201 或 4xx（sample 不存在时）",
+        "M96.F02.I02 POST /api/test-records 四方比对 / M00.F01.I01 > rails 创 test-record → 200/201 或 4xx（sample 不存在时）",
         "M96.F02.I02 POST /api/test-records 四方比对 / M00.F01.I01 > springboot 创 test-record → 200/201 或 4xx（sample 不存在时）",
         "M96.F02.I02 normalize 后 body 全等 > ID 参与比对 —— 三后端共库，UUID 本来就该相等",
         "M96.F02.I02 normalize 后 body 全等 > 只有字段顺序/日期格式不同 → 不算分歧",
@@ -246,29 +254,37 @@
         "M96.F02.I03 GET /api/receipts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > 404 envelope shape 全等",
         "M96.F02.I03 GET /api/receipts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > status 全等",
         "M96.F02.I03 GET /api/receipts/00000000-0000-0000-0000-00000000dead 四方比对 / M01.F04.I02 > 不存在 id → 4 后端全 404",
-        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > aspnetcore sso.callback → 200/4xx（code 不可用）",
-        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > nextjs sso.callback → 200/4xx（code 不可用）",
-        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > springboot sso.callback → 200/4xx（code 不可用）",
+        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > aspnetcore sso.callback → 200/4xx/502（code 不可用）",
+        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > nextjs sso.callback → 200/4xx/502（code 不可用）",
+        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > rails sso.callback → 200/4xx/502（code 不可用）",
+        "M96.F02.I03 POST /api/auth/sso/callback 四方比对 / M01.F04.I02 > springboot sso.callback → 200/4xx/502（code 不可用）",
         "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > aspnetcore switch-tenant → 200 或 4xx（tenant 不存在）",
         "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > aspnetcore switch-tenant(有效租户) → 200 + 真 JWT token",
         "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > nextjs switch-tenant → 200 或 4xx（tenant 不存在）",
         "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > nextjs switch-tenant(有效租户) → 200 + 真 JWT token",
+        "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > rails switch-tenant → 200 或 4xx（tenant 不存在）",
+        "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > rails switch-tenant(有效租户) → 200 + 真 JWT token",
         "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > springboot switch-tenant → 200 或 4xx（tenant 不存在）",
         "M96.F02.I03 POST /api/auth/switch-tenant 四方比对 / M01.F04.I02 > springboot switch-tenant(有效租户) → 200 + 真 JWT token",
         "M96.F02.I03 POST /api/report-names 四方比对 / M01.F04.I02 > aspnetcore 创 report name → 200",
         "M96.F02.I03 POST /api/report-names 四方比对 / M01.F04.I02 > nextjs 创 report name → 200",
+        "M96.F02.I03 POST /api/report-names 四方比对 / M01.F04.I02 > rails 创 report name → 200",
         "M96.F02.I03 POST /api/report-names 四方比对 / M01.F04.I02 > springboot 创 report name → 200",
         "M96.F02.I03 POST /api/samples 四方比对 / M01.F04.I02 > aspnetcore 创 sample → 200/201（接样单可能不存在，走 400/404 也是契约面）",
         "M96.F02.I03 POST /api/samples 四方比对 / M01.F04.I02 > nextjs 创 sample → 200/201（接样单可能不存在，走 400/404 也是契约面）",
+        "M96.F02.I03 POST /api/samples 四方比对 / M01.F04.I02 > rails 创 sample → 200/201（接样单可能不存在，走 400/404 也是契约面）",
         "M96.F02.I03 POST /api/samples 四方比对 / M01.F04.I02 > springboot 创 sample → 200/201（接样单可能不存在，走 400/404 也是契约面）",
         "M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对 / M01.F04.I02 > aspnetcore 改 name → 200",
         "M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对 / M01.F04.I02 > nextjs 改 name → 200",
+        "M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对 / M01.F04.I02 > rails 改 name → 200",
         "M96.F02.I03 PUT /api/catalog/brands/{code} 四方比对 / M01.F04.I02 > springboot 改 name → 200",
         "M96.F02.I03 PUT /api/inspection/specialties/{code} 四方比对 / M01.F04.I02 > aspnetcore 改 name → 200",
         "M96.F02.I03 PUT /api/inspection/specialties/{code} 四方比对 / M01.F04.I02 > nextjs 改 name → 200",
+        "M96.F02.I03 PUT /api/inspection/specialties/{code} 四方比对 / M01.F04.I02 > rails 改 name → 200",
         "M96.F02.I03 PUT /api/inspection/specialties/{code} 四方比对 / M01.F04.I02 > springboot 改 name → 200",
         "M96.F02.I03 PUT /api/receipts/{id} 四方比对 / M01.F04.I02 > aspnetcore 改 clientName → 200 或 404",
         "M96.F02.I03 PUT /api/receipts/{id} 四方比对 / M01.F04.I02 > nextjs 改 clientName → 200 或 404",
+        "M96.F02.I03 PUT /api/receipts/{id} 四方比对 / M01.F04.I02 > rails 改 clientName → 200 或 404",
         "M96.F02.I03 PUT /api/receipts/{id} 四方比对 / M01.F04.I02 > springboot 改 clientName → 200 或 404"
       ],
       "entry": []
@@ -286,29 +302,36 @@
         "M96.F02.I04 DELETE /api/catalog/brands/{code} 四方比对 / M01.F04.I01 > brand 删除 → 200/204 + 重复删 → 404",
         "M96.F02.I04 DELETE /api/inspection/specialties/{code} 四方比对 / M01.F04.I01 > specialty 删除 → 200/204",
         "M96.F02.I04 DELETE /api/receipts/{id} 四方比对 / M01.F04.I01 > receipt 删除 → 200/204 或 404（id 不存在）",
+        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > 200 的目标返回 MenuNode[] 数组",
         "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > normalize 后骨架全等（items 计数漂移，drop）",
-        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > 每个目标都返回 200",
-        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > 返回 MenuNode[] 数组",
+        "M96.F02.I04 GET /api/auth/menus 四方比对 / M01.F04.I01 > 真后端 status 一致且 ∈ {200, 503}（黑洞 saas 降级语义，2026-09-29 人裁）",
         "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > aspnetcore 创 param-interface → 200",
         "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > nextjs 创 param-interface → 200",
+        "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > rails 创 param-interface → 200",
         "M96.F02.I04 POST /api/param-interfaces 四方比对 / M01.F04.I01 > springboot 创 param-interface → 200",
         "M96.F02.I04 PUT /api/calculation-methods/{object}/{parameter} 四方比对 / M01.F04.I01 > aspnetcore 改 formula → 200",
         "M96.F02.I04 PUT /api/calculation-methods/{object}/{parameter} 四方比对 / M01.F04.I01 > nextjs 改 formula → 200",
+        "M96.F02.I04 PUT /api/calculation-methods/{object}/{parameter} 四方比对 / M01.F04.I01 > rails 改 formula → 200",
         "M96.F02.I04 PUT /api/calculation-methods/{object}/{parameter} 四方比对 / M01.F04.I01 > springboot 改 formula → 200",
         "M96.F02.I04 PUT /api/contracts/{id} 四方比对 / M01.F04.I01 > aspnetcore 改 projectName → 200",
         "M96.F02.I04 PUT /api/contracts/{id} 四方比对 / M01.F04.I01 > nextjs 改 projectName → 200",
+        "M96.F02.I04 PUT /api/contracts/{id} 四方比对 / M01.F04.I01 > rails 改 projectName → 200",
         "M96.F02.I04 PUT /api/contracts/{id} 四方比对 / M01.F04.I01 > springboot 改 projectName → 200",
         "M96.F02.I04 PUT /api/report-names/{code} 四方比对 / M01.F04.I01 > aspnetcore 改 name → 200",
         "M96.F02.I04 PUT /api/report-names/{code} 四方比对 / M01.F04.I01 > nextjs 改 name → 200",
+        "M96.F02.I04 PUT /api/report-names/{code} 四方比对 / M01.F04.I01 > rails 改 name → 200",
         "M96.F02.I04 PUT /api/report-names/{code} 四方比对 / M01.F04.I01 > springboot 改 name → 200",
         "M96.F02.I04 PUT /api/samples/{id} 四方比对 / M01.F04.I01 > aspnetcore 改 spec → 200 或 404（id 不存在时）",
         "M96.F02.I04 PUT /api/samples/{id} 四方比对 / M01.F04.I01 > nextjs 改 spec → 200 或 404（id 不存在时）",
+        "M96.F02.I04 PUT /api/samples/{id} 四方比对 / M01.F04.I01 > rails 改 spec → 200 或 404（id 不存在时）",
         "M96.F02.I04 PUT /api/samples/{id} 四方比对 / M01.F04.I01 > springboot 改 spec → 200 或 404（id 不存在时）",
         "M96.F02.I04 PUT /api/technical-requirements/{object}/{parameter}/{standard} 四方比对 / M01.F04.I01 > aspnetcore 改 requirement → 200",
         "M96.F02.I04 PUT /api/technical-requirements/{object}/{parameter}/{standard} 四方比对 / M01.F04.I01 > nextjs 改 requirement → 200",
+        "M96.F02.I04 PUT /api/technical-requirements/{object}/{parameter}/{standard} 四方比对 / M01.F04.I01 > rails 改 requirement → 200",
         "M96.F02.I04 PUT /api/technical-requirements/{object}/{parameter}/{standard} 四方比对 / M01.F04.I01 > springboot 改 requirement → 200",
         "M96.F02.I04 PUT /api/test-records/{id} 四方比对 / M01.F04.I01 > aspnetcore 改 value → 200 或 404（id 不存在时）",
         "M96.F02.I04 PUT /api/test-records/{id} 四方比对 / M01.F04.I01 > nextjs 改 value → 200 或 404（id 不存在时）",
+        "M96.F02.I04 PUT /api/test-records/{id} 四方比对 / M01.F04.I01 > rails 改 value → 200 或 404（id 不存在时）",
         "M96.F02.I04 PUT /api/test-records/{id} 四方比对 / M01.F04.I01 > springboot 改 value → 200 或 404（id 不存在时）"
       ],
       "entry": []
@@ -342,9 +365,11 @@
         "M96.F02.I05 GET /api/inspection/objects 四方比对 / M01.F05.I02 > 每个目标都返回 200",
         "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > aspnetcore logout → 200/204",
         "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > nextjs logout → 200/204",
+        "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > rails logout → 200/204",
         "M96.F02.I05 POST /api/auth/logout 四方比对 / M01.F05.I02 > springboot logout → 200/204",
         "M96.F02.I05 PUT /api/param-interfaces/{code} 四方比对 / M01.F05.I02 > aspnetcore 改 name → 200",
         "M96.F02.I05 PUT /api/param-interfaces/{code} 四方比对 / M01.F05.I02 > nextjs 改 name → 200",
+        "M96.F02.I05 PUT /api/param-interfaces/{code} 四方比对 / M01.F05.I02 > rails 改 name → 200",
         "M96.F02.I05 PUT /api/param-interfaces/{code} 四方比对 / M01.F05.I02 > springboot 改 name → 200",
         "M96.F02.I05 PUT /api/receipts/{id}/task 四方比对 / M01.F05.I02 > 任务分配 → 200 或 404（id 不存在）"
       ],
@@ -370,10 +395,14 @@
         "M96.F02.I06 PATCH /api/test-records/{id}/verdict 四方比对 / M04.F06.I02 > 人工改判 verdict → 200 或 404（id 不存在）",
         "M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02 > aspnetcore 创 model → 200",
         "M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02 > nextjs 创 model → 200",
+        "M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02 > rails 创 model → 200",
         "M96.F02.I06 POST /api/catalog/models 四方比对 / M04.F06.I02 > springboot 创 model → 200",
         "M96.F02.I06 POST /api/inspection/objects 四方比对 / M04.F06.I02 > aspnetcore 创 object → 200",
         "M96.F02.I06 POST /api/inspection/objects 四方比对 / M04.F06.I02 > nextjs 创 object → 200",
-        "M96.F02.I06 POST /api/inspection/objects 四方比对 / M04.F06.I02 > springboot 创 object → 200"
+        "M96.F02.I06 POST /api/inspection/objects 四方比对 / M04.F06.I02 > rails 创 object → 200",
+        "M96.F02.I06 POST /api/inspection/objects 四方比对 / M04.F06.I02 > springboot 创 object → 200",
+        "M96.F02.I06 匿名探针：filter+global 域 18 路径 × 三目标统一 401 / lab-nextjs BFF 全域 token 化 P2-3 > 三后端对同一路径一致 401（nextjs/aspnetcore/springboot 同形）",
+        "M96.F02.I06 匿名探针：filter+global 域 18 路径 × 三目标统一 401 / lab-nextjs BFF 全域 token 化 P2-3 > 每个匿名探针都返回 401（无 login + 无 Authorization）"
       ],
       "entry": []
     },
@@ -392,12 +421,15 @@
         "M96.F02.I07 GET /api/report-names/links/standard 四方比对 / M04.F06.I03 > 每个目标都返回 200",
         "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > aspnetcore link(PRM, PI) → 200/204",
         "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > nextjs link(PRM, PI) → 200/204",
+        "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > rails link(PRM, PI) → 200/204",
         "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03 > springboot link(PRM, PI) → 200/204",
         "M96.F02.I07 PUT /api/catalog/models/{code} 四方比对 / M04.F06.I03 > aspnetcore 改 name → 200",
         "M96.F02.I07 PUT /api/catalog/models/{code} 四方比对 / M04.F06.I03 > nextjs 改 name → 200",
+        "M96.F02.I07 PUT /api/catalog/models/{code} 四方比对 / M04.F06.I03 > rails 改 name → 200",
         "M96.F02.I07 PUT /api/catalog/models/{code} 四方比对 / M04.F06.I03 > springboot 改 name → 200",
         "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > aspnetcore 改 name → 200",
         "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > nextjs 改 name → 200",
+        "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > rails 改 name → 200",
         "M96.F02.I07 PUT /api/inspection/objects/{code} 四方比对 / M04.F06.I03 > springboot 改 name → 200",
         "M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07 > 真实 sample → PUT ext 200 → GET 回读 ext 一致（恒 404 退化必红）",
         "M96.F02.I07 PUT /api/samples/{id}/ext 四方比对 / M03.F01.I07 > 缺 ext → 400（契约必填字段，真实 sample）",
@@ -419,6 +451,7 @@
         "M96.F02.I08 DELETE /api/inspection/objects/{code} 四方比对 / M04.F06.I04 > object 删除 → 200/204",
         "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > aspnetcore unlink(PRM, PI) → 200/204",
         "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > nextjs unlink(PRM, PI) → 200/204",
+        "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > rails unlink(PRM, PI) → 200/204",
         "M96.F02.I08 DELETE /api/param-interfaces/links 四方比对 / M04.F06.I04 > springboot unlink(PRM, PI) → 200/204",
         "M96.F02.I08 GET /api/report-names/links/parameter 四方比对 / M04.F06.I04 > Page envelope 必填",
         "M96.F02.I08 GET /api/report-names/links/parameter 四方比对 / M04.F06.I04 > normalize 后骨架全等",
@@ -446,6 +479,7 @@
         "M96.F02.I09 GET /api/inspection/parameters 四方比对 / M04.F07.I02 > 每个目标都返回 200",
         "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > aspnetcore link → 200/204",
         "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > nextjs link → 200/204",
+        "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > rails link → 200/204",
         "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02 > springboot link → 200/204"
       ],
       "entry": []
@@ -462,12 +496,15 @@
       "tests": [
         "M96.F02.I10 DELETE /api/report-names/links/object 四方比对 / M04.F07.I03 > aspnetcore unlink → 200/204",
         "M96.F02.I10 DELETE /api/report-names/links/object 四方比对 / M04.F07.I03 > nextjs unlink → 200/204",
+        "M96.F02.I10 DELETE /api/report-names/links/object 四方比对 / M04.F07.I03 > rails unlink → 200/204",
         "M96.F02.I10 DELETE /api/report-names/links/object 四方比对 / M04.F07.I03 > springboot unlink → 200/204",
         "M96.F02.I10 POST /api/catalog/specs 四方比对 / M04.F07.I03 > aspnetcore 创 spec → 200",
         "M96.F02.I10 POST /api/catalog/specs 四方比对 / M04.F07.I03 > nextjs 创 spec → 200",
+        "M96.F02.I10 POST /api/catalog/specs 四方比对 / M04.F07.I03 > rails 创 spec → 200",
         "M96.F02.I10 POST /api/catalog/specs 四方比对 / M04.F07.I03 > springboot 创 spec → 200",
         "M96.F02.I10 POST /api/inspection/parameters 四方比对 / M04.F07.I03 > aspnetcore 创 parameter → 200",
         "M96.F02.I10 POST /api/inspection/parameters 四方比对 / M04.F07.I03 > nextjs 创 parameter → 200",
+        "M96.F02.I10 POST /api/inspection/parameters 四方比对 / M04.F07.I03 > rails 创 parameter → 200",
         "M96.F02.I10 POST /api/inspection/parameters 四方比对 / M04.F07.I03 > springboot 创 parameter → 200"
       ],
       "entry": []
@@ -484,9 +521,11 @@
       "tests": [
         "M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对 / M04.F07.I04 > aspnetcore 改 name → 200",
         "M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对 / M04.F07.I04 > nextjs 改 name → 200",
+        "M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对 / M04.F07.I04 > rails 改 name → 200",
         "M96.F02.I11 PUT /api/catalog/specs/{code} 四方比对 / M04.F07.I04 > springboot 改 name → 200",
         "M96.F02.I11 PUT /api/inspection/parameters/{code} 四方比对 / M04.F07.I04 > aspnetcore 改 name → 200",
         "M96.F02.I11 PUT /api/inspection/parameters/{code} 四方比对 / M04.F07.I04 > nextjs 改 name → 200",
+        "M96.F02.I11 PUT /api/inspection/parameters/{code} 四方比对 / M04.F07.I04 > rails 改 name → 200",
         "M96.F02.I11 PUT /api/inspection/parameters/{code} 四方比对 / M04.F07.I04 > springboot 改 name → 200"
       ],
       "entry": []
@@ -505,6 +544,7 @@
         "M96.F02.I12 DELETE /api/inspection/parameters/{code} 四方比对 / M04.F08.I02 > parameter 删除 → 200/204",
         "M96.F02.I12 POST /api/report-names/links/standard 四方比对 / M04.F08.I02 > aspnetcore link(RN, STD, role=judgment) → 200/204",
         "M96.F02.I12 POST /api/report-names/links/standard 四方比对 / M04.F08.I02 > nextjs link(RN, STD, role=judgment) → 200/204",
+        "M96.F02.I12 POST /api/report-names/links/standard 四方比对 / M04.F08.I02 > rails link(RN, STD, role=judgment) → 200/204",
         "M96.F02.I12 POST /api/report-names/links/standard 四方比对 / M04.F08.I02 > springboot link(RN, STD, role=judgment) → 200/204"
       ],
       "entry": []
@@ -521,6 +561,7 @@
       "tests": [
         "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > aspnetcore unlink(RN, STD, role=judgment) → 200/204",
         "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > nextjs unlink(RN, STD, role=judgment) → 200/204",
+        "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > rails unlink(RN, STD, role=judgment) → 200/204",
         "M96.F02.I13 DELETE /api/report-names/links/standard 四方比对 / M04.F08.I03 > springboot unlink(RN, STD, role=judgment) → 200/204",
         "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > Page envelope 必填",
         "M96.F02.I13 GET /api/catalog/grades 四方比对 / M04.F08.I03 > normalize 后骨架全等（items/total 漂移，drop）",
@@ -545,9 +586,11 @@
       "tests": [
         "M96.F02.I14 POST /api/catalog/grades 四方比对 / M04.F08.I04 > aspnetcore 创 grade → 200",
         "M96.F02.I14 POST /api/catalog/grades 四方比对 / M04.F08.I04 > nextjs 创 grade → 200",
+        "M96.F02.I14 POST /api/catalog/grades 四方比对 / M04.F08.I04 > rails 创 grade → 200",
         "M96.F02.I14 POST /api/catalog/grades 四方比对 / M04.F08.I04 > springboot 创 grade → 200",
         "M96.F02.I14 POST /api/inspection/standards 四方比对 / M04.F08.I04 > aspnetcore 创 standard → 200",
         "M96.F02.I14 POST /api/inspection/standards 四方比对 / M04.F08.I04 > nextjs 创 standard → 200",
+        "M96.F02.I14 POST /api/inspection/standards 四方比对 / M04.F08.I04 > rails 创 standard → 200",
         "M96.F02.I14 POST /api/inspection/standards 四方比对 / M04.F08.I04 > springboot 创 standard → 200"
       ],
       "entry": []
@@ -564,12 +607,15 @@
       "tests": [
         "M96.F02.I15 POST /api/report-names/links/parameter 四方比对 / M06.F02.I02 > aspnetcore link(RN, PRM) → 200/204",
         "M96.F02.I15 POST /api/report-names/links/parameter 四方比对 / M06.F02.I02 > nextjs link(RN, PRM) → 200/204",
+        "M96.F02.I15 POST /api/report-names/links/parameter 四方比对 / M06.F02.I02 > rails link(RN, PRM) → 200/204",
         "M96.F02.I15 POST /api/report-names/links/parameter 四方比对 / M06.F02.I02 > springboot link(RN, PRM) → 200/204",
         "M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对 / M06.F02.I02 > aspnetcore 改 name → 200",
         "M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对 / M06.F02.I02 > nextjs 改 name → 200",
+        "M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对 / M06.F02.I02 > rails 改 name → 200",
         "M96.F02.I15 PUT /api/catalog/grades/{code} 四方比对 / M06.F02.I02 > springboot 改 name → 200",
         "M96.F02.I15 PUT /api/inspection/standards/{code} 四方比对 / M06.F02.I02 > aspnetcore 改 name → 200",
         "M96.F02.I15 PUT /api/inspection/standards/{code} 四方比对 / M06.F02.I02 > nextjs 改 name → 200",
+        "M96.F02.I15 PUT /api/inspection/standards/{code} 四方比对 / M06.F02.I02 > rails 改 name → 200",
         "M96.F02.I15 PUT /api/inspection/standards/{code} 四方比对 / M06.F02.I02 > springboot 改 name → 200"
       ],
       "entry": []
@@ -588,6 +634,7 @@
         "M96.F02.I16 DELETE /api/inspection/standards/{code} 四方比对 / M06.F02.I03 > standard 删除 → 200/204",
         "M96.F02.I16 DELETE /api/report-names/links/parameter 四方比对 / M06.F02.I03 > aspnetcore unlink(RN, PRM) → 200/204",
         "M96.F02.I16 DELETE /api/report-names/links/parameter 四方比对 / M06.F02.I03 > nextjs unlink(RN, PRM) → 200/204",
+        "M96.F02.I16 DELETE /api/report-names/links/parameter 四方比对 / M06.F02.I03 > rails unlink(RN, PRM) → 200/204",
         "M96.F02.I16 DELETE /api/report-names/links/parameter 四方比对 / M06.F02.I03 > springboot unlink(RN, PRM) → 200/204"
       ],
       "entry": []
@@ -668,6 +715,7 @@
       "tests": [
         "M96.F02.I21 POST /api/inspection/links/specialty-object 四方比对 / M06.F02.I04 > aspnetcore link(SP01, OBJ-SP01-P1) → 200/204",
         "M96.F02.I21 POST /api/inspection/links/specialty-object 四方比对 / M06.F02.I04 > nextjs link(SP01, OBJ-SP01-P1) → 200/204",
+        "M96.F02.I21 POST /api/inspection/links/specialty-object 四方比对 / M06.F02.I04 > rails link(SP01, OBJ-SP01-P1) → 200/204",
         "M96.F02.I21 POST /api/inspection/links/specialty-object 四方比对 / M06.F02.I04 > springboot link(SP01, OBJ-SP01-P1) → 200/204"
       ],
       "entry": []
@@ -684,6 +732,7 @@
       "tests": [
         "M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对 / M06.F08.I06 > aspnetcore unlink(SP01, OBJ-SP01-P1) → 200/204",
         "M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对 / M06.F08.I06 > nextjs unlink(SP01, OBJ-SP01-P1) → 200/204",
+        "M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对 / M06.F08.I06 > rails unlink(SP01, OBJ-SP01-P1) → 200/204",
         "M96.F02.I22 DELETE /api/inspection/links/specialty-object 四方比对 / M06.F08.I06 > springboot unlink(SP01, OBJ-SP01-P1) → 200/204"
       ],
       "entry": []
@@ -700,6 +749,7 @@
       "tests": [
         "M96.F02.I24 POST /api/inspection/links/object-parameter 四方比对 / M06.F07.I04 > aspnetcore link(OBJ, PRM) → 200/204",
         "M96.F02.I24 POST /api/inspection/links/object-parameter 四方比对 / M06.F07.I04 > nextjs link(OBJ, PRM) → 200/204",
+        "M96.F02.I24 POST /api/inspection/links/object-parameter 四方比对 / M06.F07.I04 > rails link(OBJ, PRM) → 200/204",
         "M96.F02.I24 POST /api/inspection/links/object-parameter 四方比对 / M06.F07.I04 > springboot link(OBJ, PRM) → 200/204"
       ],
       "entry": []
@@ -716,6 +766,7 @@
       "tests": [
         "M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对 / M06.F07.I05 > aspnetcore unlink(OBJ, PRM) → 200/204",
         "M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对 / M06.F07.I05 > nextjs unlink(OBJ, PRM) → 200/204",
+        "M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对 / M06.F07.I05 > rails unlink(OBJ, PRM) → 200/204",
         "M96.F02.I25 DELETE /api/inspection/links/object-parameter 四方比对 / M06.F07.I05 > springboot unlink(OBJ, PRM) → 200/204"
       ],
       "entry": []
@@ -732,6 +783,7 @@
       "tests": [
         "M96.F02.I27 POST /api/inspection/links/object-standard 四方比对 / M06.F05.I03 > aspnetcore link(OBJ, STD, role=judgment) → 200/204",
         "M96.F02.I27 POST /api/inspection/links/object-standard 四方比对 / M06.F05.I03 > nextjs link(OBJ, STD, role=judgment) → 200/204",
+        "M96.F02.I27 POST /api/inspection/links/object-standard 四方比对 / M06.F05.I03 > rails link(OBJ, STD, role=judgment) → 200/204",
         "M96.F02.I27 POST /api/inspection/links/object-standard 四方比对 / M06.F05.I03 > springboot link(OBJ, STD, role=judgment) → 200/204"
       ],
       "entry": []
@@ -748,6 +800,7 @@
       "tests": [
         "M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对 / M06.F05.I04 > aspnetcore unlink(OBJ, STD, role=judgment) → 200/204",
         "M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对 / M06.F05.I04 > nextjs unlink(OBJ, STD, role=judgment) → 200/204",
+        "M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对 / M06.F05.I04 > rails unlink(OBJ, STD, role=judgment) → 200/204",
         "M96.F02.I28 DELETE /api/inspection/links/object-standard 四方比对 / M06.F05.I04 > springboot unlink(OBJ, STD, role=judgment) → 200/204"
       ],
       "entry": []
@@ -764,6 +817,7 @@
       "tests": [
         "M96.F02.I30 POST /api/inspection/links/standard-parameter 四方比对 / M06.F05.I05 > aspnetcore link(STD, PRM) → 200/204",
         "M96.F02.I30 POST /api/inspection/links/standard-parameter 四方比对 / M06.F05.I05 > nextjs link(STD, PRM) → 200/204",
+        "M96.F02.I30 POST /api/inspection/links/standard-parameter 四方比对 / M06.F05.I05 > rails link(STD, PRM) → 200/204",
         "M96.F02.I30 POST /api/inspection/links/standard-parameter 四方比对 / M06.F05.I05 > springboot link(STD, PRM) → 200/204"
       ],
       "entry": []
@@ -780,6 +834,7 @@
       "tests": [
         "M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对 / M03.F03.I08 > aspnetcore unlink(STD, PRM) → 200/204",
         "M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对 / M03.F03.I08 > nextjs unlink(STD, PRM) → 200/204",
+        "M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对 / M03.F03.I08 > rails unlink(STD, PRM) → 200/204",
         "M96.F02.I31 DELETE /api/inspection/links/standard-parameter 四方比对 / M03.F03.I08 > springboot unlink(STD, PRM) → 200/204"
       ],
       "entry": []
@@ -794,7 +849,7 @@
         "docs\\design\\design-function-map.md"
       ],
       "tests": [
-        "M96.F03.I01 目标端口声明 > 三个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段）"
+        "M96.F03.I01 目标端口声明 > 四个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段；X06=rails 5206）"
       ],
       "entry": []
     },
