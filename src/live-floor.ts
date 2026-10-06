@@ -98,7 +98,18 @@ export function readLiveExecGroups(): Map<string, Set<string>> | null {
     const t = line.trim();
     if (!t) continue;
     try {
-      const row = JSON.parse(t) as LiveExecRow;
+      const row = JSON.parse(t) as Partial<LiveExecRow>;
+      // 5.97⑤：JSON 合法但形状不对（缺字段/错型，外部手工损坏面）与损坏行同判跳过
+      // ——recordProbe 恒写全字段，此守卫只防手改；放行会产 undefined 键垃圾分组（假红侧）。
+      if (
+        typeof row.suite !== "string" ||
+        !row.suite ||
+        typeof row.target !== "string" ||
+        !row.target ||
+        typeof row.status !== "number" ||
+        !Number.isFinite(row.status)
+      )
+        continue;
       if (!groups.has(row.suite)) groups.set(row.suite, new Set());
       groups.get(row.suite)!.add(row.target);
     } catch {

@@ -86,6 +86,26 @@ describe("readLiveExecGroups（jsonl 合并）", () => {
     const groups = readLiveExecGroups()!;
     expect(groups.get("A")).toEqual(new Set(["nextjs"]));
   });
+
+  it("JSON 合法但形状不对的行同判损坏（5.97⑤：缺字段/错类型不产 undefined 键垃圾分组）", () => {
+    mkdirSync(".state", { recursive: true });
+    writeFileSync(
+      ".state/live-exec.jsonl",
+      [
+        "{}",
+        JSON.stringify({ suite: "A" }),
+        JSON.stringify({ suite: "A", target: "nextjs" }),
+        JSON.stringify({ suite: 7, target: "nextjs", status: 200 }),
+        JSON.stringify({ suite: "A", target: 9, status: 200 }),
+        JSON.stringify({ suite: "A", target: "nextjs", status: "200" }),
+        JSON.stringify({ suite: "A", target: "nextjs", status: 200 }),
+      ].join("\n"),
+      "utf-8",
+    );
+    const groups = readLiveExecGroups()!;
+    expect(groups.size).toBe(1);
+    expect(groups.get("A")).toEqual(new Set(["nextjs"]));
+  });
 });
 
 describe("recordProbe 真实 vitest 上下文", () => {
