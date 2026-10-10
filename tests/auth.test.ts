@@ -7,6 +7,13 @@
 // token/菜单快照，三后端响应契约面必须一致 —— 本测试就是那条「登录 shape 不得
 // 分叉」的守卫。
 //
+// 实现语义变更（REQ-2026-023，2026-10-11 人裁方案 A）：登录/原生登录的账密校验
+// 自本版起由本地 dev 目录（LAB_AUTH_DEV_PASSWORD）改为代理转发 saas
+// /api/v1/auth/login（clientId=LAB_SAAS_CLIENT_ID）。契约面（LoginResponse 成员集、
+// MyTenant 四字段、错误状态族）不变 → 本文件断言与 normalize 零结构变更（论证见
+// REQ-2026-023 §4）。live 运行前提相应变为：saas IdP 可达 + 各目标后端已注入
+// LAB_SAAS_CLIENT_ID / LAB_SAAS_BASE_URL（缺 clientId = 后端启动期 fail-fast）。
+//
 // 跑法：CONTRACT_TARGETS=nextjs,aspnetcore,springboot npx vitest run
 // 未声明 CONTRACT_TARGETS → 整组跳过（fnReporter 记 inert，不计入 trace）。
 // **声明了却连不上 = 红，不是跳过。**
