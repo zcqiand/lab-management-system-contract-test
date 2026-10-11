@@ -46,10 +46,10 @@ jobs:
       JWT_TTL_SECONDS: "3600"
       JWT_REFRESH_TTL_SECONDS: "604800"
       # CORS allowlist（契约值 = 两后端 .env.example；aspnetcore RequireCorsOrigins
-      # fail-fast，缺失启动即崩）。dev 目录登录密码（两后端 key 拼法不同都给）。
+      # fail-fast，缺失启动即崩）。
+      # （REQ-2026-023 2026-10-11：LAB_AUTH_DEV_PASSWORD / Lab__Auth__DevPassword 已随
+      # 原生登录代理 saas IdP 退役——凭据真源=saas 库。）
       LAB_CORS_ALLOWED_ORIGINS: http://localhost:5201,http://localhost:5202,http://localhost:5203,http://localhost:5101
-      LAB_AUTH_DEV_PASSWORD: dev123456
-      Lab__Auth__DevPassword: dev123456
       # springboot 恒真链 SSO env（no-sso profile 已删，2026-09-20 人裁）：SaasAuthClient
       # 构造期 fail-fast，5 个 saas key 缺一启动即崩；BASE_URL 指黑洞端口——瞬时
       # ECONNREFUSED → 登录降级空菜单快照（与 SAAS_IDP_URL 同款），比对不依赖外部 saas。
