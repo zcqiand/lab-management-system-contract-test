@@ -13,30 +13,43 @@ const SEED_OBJECT = "OBJ-SP01-P1";
 // PRM-CEMENT-STRENGTH 是 msw 时代虚构码，springboot 真 FK 23503 → 500）。
 // link 的 reportNameCode 不能用任何种子 RN-*（它们都挂着种子 junction 行，unlink 会删种子），
 // 改为每轮现场 create 一个专用 RN（LINK_RN），全程 link→unlink→cleanup delete 净零。
+// 2026-10-11 REQ-2026-023 live r2/r3：LINK_RN 曾是模块级单码五目标共用——共库
+// （lab_dev 单表无 tenant 列，code 全局唯一）下首个目标 201 后，nextjs 重复 POST
+// 返 400「编码已存在」（其路由契约；其余四仓重复 POST 返 200 upsert 语义）→
+// 非首个目标全红。改 per-target 独立码（同 I03 模式），竞争面归零。
 const SEED_STANDARD = "GB 175-2023";
 const SEED_PARAMETER = "IP-0001";
 
-const LINK_RN = uniqueName("ct-rn-link");
+const linkRnCodes = new Map<string, string>();
+function linkRn(target: Target): string {
+  let code = linkRnCodes.get(target.name);
+  if (!code) {
+    code = uniqueName("ct-rn-link");
+    linkRnCodes.set(target.name, code);
+  }
+  return code;
+}
 const linkRnEnsured = new Map<string, Promise<void>>();
 function ensureLinkRn(target: Target): Promise<void> {
   let p = linkRnEnsured.get(target.name);
   if (!p) {
     p = (async () => {
+      const code = linkRn(target);
       const r = await probeRequest(target, {
         method: "POST",
         path: "/api/report-names",
-        body: { code: LINK_RN, name: `rn link ${LINK_RN}` },
+        body: { code, name: `rn link ${code}` },
       });
       expect(
         [200, 201],
         `${target.name} 创 link 用 report-name 期望 200/201 实得 ${r.status}`,
       ).toContain(r.status);
       registerCleanup(
-        `delete-report-name:${target.name}:${LINK_RN.slice(-8)}`,
+        `delete-report-name:${target.name}:${code.slice(-8)}`,
         async () => {
           const tr = await probeRequest(target, {
             method: "DELETE",
-            path: `/api/report-names/${LINK_RN}`,
+            path: `/api/report-names/${code}`,
           });
           if (tr.status !== 200 && tr.status !== 204 && tr.status !== 404) {
             console.warn(
@@ -136,7 +149,7 @@ describe.skipIf(!live)(
   },
 );
 
-// 3 junction links — upsert 模式；reportNameCode 用现场创建的 LINK_RN（见上注）
+// 3 junction links — upsert 模式；reportNameCode 用现场创建的 per-target LINK_RN（见上注）
 describe.skipIf(!live)(
   "M96.F02.I09 POST /api/report-names/links/object 四方比对 / M04.F07.I02",
   () => {
@@ -146,7 +159,7 @@ describe.skipIf(!live)(
         const r = await probeRequest(target, {
           method: "POST",
           path: "/api/report-names/links/object",
-          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: LINK_RN },
+          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: linkRn(target) },
         });
         expect(
           [200, 201, 204],
@@ -168,12 +181,12 @@ describe.skipIf(!live)(
         await probeRequest(target, {
           method: "POST",
           path: "/api/report-names/links/object",
-          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: LINK_RN },
+          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: linkRn(target) },
         });
         const r = await probeRequest(target, {
           method: "DELETE",
           path: "/api/report-names/links/object",
-          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: LINK_RN },
+          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: linkRn(target) },
         });
         expect(
           [200, 201, 204],
@@ -183,7 +196,7 @@ describe.skipIf(!live)(
         const r2 = await probeRequest(target, {
           method: "DELETE",
           path: "/api/report-names/links/object",
-          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: LINK_RN },
+          body: { inspectionObjectCode: SEED_OBJECT, reportNameCode: linkRn(target) },
         });
         expect(
           [200, 201, 204],
@@ -204,7 +217,7 @@ describe.skipIf(!live)(
           method: "POST",
           path: "/api/report-names/links/standard",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionStandardCode: SEED_STANDARD,
             role: "JUDGMENT",
           },
@@ -229,7 +242,7 @@ describe.skipIf(!live)(
           method: "POST",
           path: "/api/report-names/links/standard",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionStandardCode: SEED_STANDARD,
             role: "JUDGMENT",
           },
@@ -238,7 +251,7 @@ describe.skipIf(!live)(
           method: "DELETE",
           path: "/api/report-names/links/standard",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionStandardCode: SEED_STANDARD,
             role: "JUDGMENT",
           },
@@ -252,7 +265,7 @@ describe.skipIf(!live)(
           method: "DELETE",
           path: "/api/report-names/links/standard",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionStandardCode: SEED_STANDARD,
             role: "JUDGMENT",
           },
@@ -276,7 +289,7 @@ describe.skipIf(!live)(
           method: "POST",
           path: "/api/report-names/links/parameter",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionParameterCode: SEED_PARAMETER,
           },
         });
@@ -300,7 +313,7 @@ describe.skipIf(!live)(
           method: "POST",
           path: "/api/report-names/links/parameter",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionParameterCode: SEED_PARAMETER,
           },
         });
@@ -308,7 +321,7 @@ describe.skipIf(!live)(
           method: "DELETE",
           path: "/api/report-names/links/parameter",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionParameterCode: SEED_PARAMETER,
           },
         });
@@ -321,7 +334,7 @@ describe.skipIf(!live)(
           method: "DELETE",
           path: "/api/report-names/links/parameter",
           body: {
-            reportNameCode: LINK_RN,
+            reportNameCode: linkRn(target),
             inspectionParameterCode: SEED_PARAMETER,
           },
         });
