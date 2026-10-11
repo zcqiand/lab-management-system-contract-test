@@ -12,6 +12,7 @@
 import { cleanupAllProbeRows } from "../src/cleanup-pg.js";
 import { resetLiveExecLog } from "../src/live-floor.js";
 import { prewarmTargets } from "../src/prewarm.js";
+import { resetDiskTokens } from "../src/token-store.js";
 import { selectedTargets } from "../src/targets.js";
 
 export async function setup(): Promise<void> {
@@ -19,6 +20,9 @@ export async function setup(): Promise<void> {
   // 下次 flush 会把陈旧分组当成本 run 执行面（spec §2 生命周期）。
   resetLiveExecLog();
   if (!process.env.CONTRACT_TARGETS) return;
+  // 每 run 开场弃上轮 disk token 残留（换签名钥/后端重启场景），prewarm 登录
+  // 重新落盘；prewarm 失败只警告时，文件进程回退自登（既有链路）。
+  resetDiskTokens();
   // selectedTargets() 对不认识的目标名抛 TargetError —— 显式声明写错名是配置错误，
   // 不是环境瞬时问题，按「声明了就必须可达」fail-fast，不属预热豁免范围。
   const targets = selectedTargets();

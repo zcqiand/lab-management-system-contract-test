@@ -9,6 +9,7 @@ import { CookieJar } from "tough-cookie";
 import { wrapper } from "axios-cookiejar-support";
 
 import { recordProbe } from "./live-floor.js";
+import { loadDiskToken, saveDiskToken } from "./token-store.js";
 
 import type { Probe } from "./compare.js";
 import type { Target } from "./targets.js";
@@ -57,6 +58,15 @@ export async function login(target: Target, force = false): Promise<string> {
   if (!force) {
     const cached = tokenCache.get(target.name);
     if (cached) return cached;
+    // 2026-10-11 REQ-2026-023：tokenCache 是进程内 Map，vitest 每文件独立进程
+    // → 全量一轮 ~185 条登录链里 ~180 条重复（每条 4 次出站 saas，跨境链路下
+    // 10-30s+）。查盘共享 globalSetup/prewarm 产出的 token（30min 新鲜度 +
+    // 401 force 重登自愈兜底），语义约束不变（按 target 分键）。
+    const disk = loadDiskToken(target.name);
+    if (disk) {
+      tokenCache.set(target.name, disk);
+      return disk;
+    }
   }
   const http = client(target);
   let res;
@@ -75,6 +85,7 @@ export async function login(target: Target, force = false): Promise<string> {
     throw new Error(`${target.name}: 登录 200 但响应里没有 token`);
   }
   tokenCache.set(target.name, token);
+  saveDiskToken(target.name, token);
   return token;
 }
 

@@ -34,6 +34,11 @@ describe.skipIf(!live)(
   () => {
     let probes: Probe[];
 
+    // 180s（REQ-2026-023 五目标后从 60s 上调）：每条 POST 登录 = 服务端完整
+    // saas 登录链（4-8s 常态，跨境链路拥塞 10-18s+），5 目标串行 = 20-90s。
+    // 60s 是 4 目标时代预算；击穿时 vitest 2.x 把内层 it() 标 skip（不是 fail）
+    // → fnReporter 记 inert → L5 skip=0 硬门红（2026-10-11 gate 实证 12 条 inert）。
+    // 与 axios 单请求预算 120s / receipts 套件 180s 同一水位线。
     beforeAll(async (ctx) => {
       probes = await withLiveExecSuite(ctx.name, () =>
         probeAllRequest(targets, {
@@ -42,7 +47,7 @@ describe.skipIf(!live)(
           body: SEED_USER,
         }),
       );
-    }, 60_000);
+    }, 180_000);
 
     it("每个目标都返回 200", () => {
       const bad = probes.filter((p) => p.status !== 200);
@@ -115,6 +120,8 @@ describe.skipIf(!live)(
   () => {
     let probes: Probe[];
 
+    // 180s 同 login 套件：5 目标 × saas 登录链，60s 拥塞期击穿 →
+    // 内层 it() 被 vitest 标 skip → L5 skip=0 硬门红（2026-10-11 gate 实证）。
     beforeAll(async (ctx) => {
       probes = await withLiveExecSuite(ctx.name, () =>
         probeAllRequest(targets, {
@@ -123,7 +130,7 @@ describe.skipIf(!live)(
           body: SEED_USER,
         }),
       );
-    }, 60_000);
+    }, 180_000);
 
     it("每个目标都返回 200", () => {
       const bad = probes.filter((p) => p.status !== 200);
