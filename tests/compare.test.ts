@@ -97,10 +97,11 @@ describe("M96.F02 比对基准恒为 probes[0]（Phase 2 去 msw）", () => {
 });
 
 describe("M96.F03.I01 目标端口声明", () => {
-  it("五个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段；X06=rails 5206；X07=fastapi 5207，REQ-2026-007）", () => {
+  it("六个目标端口与 conventions §6 一致（lab=5200 段，2026-09-02 端口分段；X06=rails 5206；X07=fastapi 5207，REQ-2026-007；X13=go 5211，REQ-2026-004）", () => {
     expect(Object.keys(TARGETS).sort()).toEqual([
       "aspnetcore",
       "fastapi",
+      "go",
       "nextjs",
       "rails",
       "springboot",
@@ -110,6 +111,7 @@ describe("M96.F03.I01 目标端口声明", () => {
     expect(TARGETS.springboot.baseUrl).toContain(":5205");
     expect(TARGETS.rails.baseUrl).toContain(":5206");
     expect(TARGETS.fastapi.baseUrl).toContain(":5207");
+    expect(TARGETS.go.baseUrl).toContain(":5211");
   });
 });
 
