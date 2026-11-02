@@ -18,6 +18,8 @@ export const TARGETS: Readonly<Record<string, Target>> = {
   fastapi: { name: "fastapi", baseUrl: "http://localhost:5207" },
   // go 后端（REQ-2026-004 lab-go 全量批注册；X13 扩展槽，families/lab.md 值表）
   go: { name: "go", baseUrl: "http://localhost:5211" },
+  // django 后端（REQ-2026-035 lab-django 全量切片注册；X17 扩展槽，families/lab.md 值表）
+  django: { name: "django", baseUrl: "http://localhost:5213" },
 };
 
 export class TargetError extends Error {}
