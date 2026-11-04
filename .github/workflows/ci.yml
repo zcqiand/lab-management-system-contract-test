@@ -27,8 +27,12 @@ jobs:
           POSTGRES_DB: lab_dev
         ports:
           - 5432:5432
+        # 健康探针裸 pg_isready（health 探测不走认证，-U 语义无效）；曾写
+        # `pg_isready -U lab` 未加引号——GA 把 options 按空格拆进 docker CLI，
+        # `-U lab` 被当 docker 旗标 → `unknown shorthand flag: 'U'` exit 125，
+        # 容器建不起来，CI 全红 mask 整个测试面（react 仓同款形状在册）。
         options: >-
-          --health-cmd pg_isready -U lab
+          --health-cmd pg_isready
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
