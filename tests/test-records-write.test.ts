@@ -1,6 +1,9 @@
 // M96.F02 — /api/test-records POST/PUT/DELETE/PATCH verdict 写端点（Phase 2）。
 //
 // SSOT: test-records.tsp M03.F03 数据录入 + M03.F03.I06 人工改判 verdict。
+// ADR-0056 动态表单改造：TestRecord 删 requirementCode、增 data: object
+// （动态表单采集数据，响应必填缺省 {}）；采集值落在 data 内
+// （原 body 的裸 value 键本就不在契约面上，随本次同步收编进 data）。
 import { afterAll, describe, expect, it } from "vitest";
 
 import { probeRequest } from "../src/http.js";
@@ -27,7 +30,7 @@ describe.skipIf(!live)(
           body: {
             sampleId: "00000000-0000-0000-0000-000000000001",
             parameterCode: "IP-0001",
-            value: 42.5,
+            data: { value: 42.5 },
           },
         });
         expect(
@@ -73,7 +76,7 @@ describe.skipIf(!live)(
         const r = await probeRequest(target, {
           method: "PUT",
           path: `/api/test-records/${id}`,
-          body: { value: 50.0 },
+          body: { data: { value: 50.0 } },
         });
         expect(
           [200, 404],

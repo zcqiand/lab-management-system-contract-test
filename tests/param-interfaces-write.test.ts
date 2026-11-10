@@ -1,8 +1,11 @@
 // M96.F02 — /api/param-interfaces POST/PUT/DELETE + link/unlink 写端点（Phase 2）。
 //
 // SSOT: param-interfaces.tsp M06.F08 参数界面 CRUD + link/unlink。
-// 2026-09-14 live 修正：CreateParamInterfaceRequest 契约必填 componentPath
+// 2026-09-14 live 修正：CreateParamInterfaceRequest 契约当时必填 componentPath
 // （原 body {code,name} 被真后端按 SSOT 400 拒绝，宽松 mock 曾掩盖是假象）；
+// ADR-0056 动态表单改造：componentPath 已从契约删除，Create 必填仅剩 code，
+// 新增 version（int32，服务端管理缺省 1，客户端不送）；config 语义升级为
+// 表单结构 schema（结构仍 object）。
 // link/unlink 探测对换真实种子两端点（原 PRM-CEMENT-STRENGTH/PI-FIXTURE 是
 // 幻影值，任何 fixture/库里都不存在，真后端 FK 必拒）。
 import { afterAll, describe, expect, it } from "vitest";
@@ -34,7 +37,8 @@ describe.skipIf(!live)(
         const r = await probeRequest(target, {
           method: "POST",
           path: "/api/param-interfaces",
-          body: { code, name: `pi ${code}`, componentPath: "cards/default" },
+          // ADR-0056：componentPath 已删；version 服务端管理不送；config=表单结构 schema
+          body: { code, name: `pi ${code}` },
         });
         expect(
           [200, 201],
