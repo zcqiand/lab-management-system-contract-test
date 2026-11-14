@@ -27,7 +27,6 @@ export const SEED = {
   dictionary: {
     specialty: "SP01",
     smokeSpecialty: "SP-SMK-001",
-    smokeReportName: "CAT-SMK-001",
   },
 } as const;
 
