@@ -3,20 +3,20 @@
   "project": "lab-management-system-contract-test",
   "tier": "full",
   "excluded_tier": [],
-  "passed": true,
+  "passed": false,
   "partial": true,
   "ran": [
-    "L0"
+    "L2"
   ],
-  "checked_at": "2026-10-26T18:06:13+0800",
+  "checked_at": "2026-11-14T10:37:55+0800",
   "gates": [
     {
-      "level": "L0",
-      "name": "结构完整性",
-      "passed": true,
-      "returncode": 0,
-      "duration_s": 0.109,
-      "output": ""
+      "level": "L2",
+      "name": "SSOT 覆盖",
+      "passed": false,
+      "returncode": 1,
+      "duration_s": 0.391,
+      "output": "L5 SSOT 覆盖检查 — family=lab-management-system | shared SSOT=127 | covered=127 | gaps=0                \n─────────────────────────────────────────────────────────────────────────────────────────────────── \n✅ contract-test 100% 覆盖 shared SSOT 全部端点                                                            \n\n── §2 reverse 端点扫描（私生端点 = 后端实现但 shared openapi.yaml 无）──\n   契约基准：generated/openapi/openapi.yaml paths=128 (method×path=128)\n   [nextjs     ] 扫描 67 文件 / 127 端点，白名单豁免 1\n   [aspnetcore ] 扫描 19 文件 / 120 端点，白名单豁免 0\n   [springboot ] 扫描 27 文件 / 120 端点，白名单豁免 0，unparsed=1\n      ⚠ 未解析（人工确认）：src\\main\\java\\io\\xr\\lab\\platform\\controller\\HealthController.java @GetMapping tpl=\"\"\n✅ 消费后端无私生端点（nextjs/aspnetcore/springboot ↔ openapi.yaml 全对齐）\n\n── §3 gen-shared marker 新鲜度（api_synced_sha ↔ shared HEAD）──\n   shared HEAD = 53890bd45f21\n   [nextjs     ] ❌ 1e2779dcd865fa32675991f49e9204b4b3be9ebe，落后 HEAD 30 commit\n   [aspnetcore ] ❌ e1e92faff1e48419947f9eb1a109fd1f2ea8549d，落后 HEAD 35 commit\n   [springboot ] ❌ e1e92faff1e48419947f9eb1a109fd1f2ea8549d，落后 HEAD 35 commit\n   [react      ] ❌ e1e92faff1e48419947f9eb1a109fd1f2ea8549d，落后 HEAD 35 commit\n   [vue        ] ❌ e1e92faff1e48419947f9eb1a109fd1f2ea8549d，落后 HEAD 35 commit\n   → 在过期仓重跑 gen-shared（orval/NSwag/openapi-generator 任一）刷 marker 到 shared HEAD。\n\n── §4 手写 SDK 层告警（WARN 不阻断；SDK/类型应全部走生成物）──\n   ⚠ [nextjs     ] src\\api\\legacy-client.ts — 手写 axios 实例 + 路由映射表（应迁 orval 生成 hooks）\n   → WARN 不阻断；迁移计划见 docs/superpowers/specs/2026-09-17-tsp-ssot-cleanup-design.md Phase C。"
     }
   ]
 }

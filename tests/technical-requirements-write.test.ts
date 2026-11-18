@@ -37,6 +37,7 @@ describe.skipIf(!live)(
             inspectionObjectCode: SEED_OBJECT,
             inspectionParameterCode: SEED_PARAMETER,
             judgmentStandardCode: SEED_STANDARD,
+            comparison: "≥",
             requirement: "≥ 42.5 MPa",
           },
         });
@@ -106,6 +107,7 @@ describe.skipIf(!live)(
             inspectionObjectCode: SEED_OBJECT,
             inspectionParameterCode: SEED_PARAMETER,
             judgmentStandardCode: SEED_STANDARD,
+            comparison: "≥",
             requirement: "≥ 42.5 MPa",
           },
         });
@@ -125,6 +127,82 @@ describe.skipIf(!live)(
       }
     }, 180_000);
 
+    afterAll(async () => {
+      await runCleanups();
+    }, 60_000);
+  },
+);
+
+// V020（账 11 收链 2026-11-18）：变体列 brand/model/spec/grade/sieve 已 NOT NULL
+// DEFAULT ''（'' 哨兵=不限维度）进 8 列 PK。本块只断言**普适面**：
+// ① 同 3 键不同 brand=自成行（变体 POST 2xx，不与 '' 行 dup、不 23502）；
+// ② list 过滤下该变体行恰 1 条。
+// 【两语义分叉挂账人裁，本块禁断言】2026-11-18 live 实锤（契约对两_face 均沉默）：
+// · POST 同 8 键 dup：nextjs=400「已存在」（route 头明写）vs 六后端=merge 覆盖 200
+//   （spring JPA save=merge 先例）——本块改 per-target unique brand 避开二次 POST。
+// · 三键 GET/PUT/DELETE 作用域：nextjs=族级（patch/删全变体族）vs 六后端=精确命中
+//   '' 行——「现库变体行全 ''」时两语义重合，变体行存在后分叉可见。
+// brand 无 FK 强制（契约「不强制，code 可空引用」），per-target unique 合法；
+// 变体行残留由 nextjs 族级 DELETE 在 teardown 尽力清（不断言；无 nextjs 目标的
+// run 残留累积，dev 库可容忍，挂账随 fork 裁定收口）。
+const VARIANT_LIST_PATH =
+  `/api/technical-requirements?inspectionObjectCode=${SEED_OBJECT}` +
+  `&inspectionParameterCode=${SEED_PARAMETER}` +
+  `&judgmentStandardCode=${encodeURIComponent(SEED_STANDARD)}`;
+
+describe.skipIf(!live)(
+  "M96.F02.I02 POST /api/technical-requirements 变体行写面（V020 8 列 PK）/ M00.F01.I01",
+  () => {
+    it("同 3 键不同 brand 自成行，list 过滤恰 1 条", async () => {
+      for (const target of targets) {
+        const brand = uniqueName("ctvar");
+        const base = {
+          inspectionObjectCode: SEED_OBJECT,
+          inspectionParameterCode: SEED_PARAMETER,
+          judgmentStandardCode: SEED_STANDARD,
+          comparison: "≥",
+          brand,
+        };
+        const a = await probeRequest(target, {
+          method: "POST",
+          path: "/api/technical-requirements",
+          body: { ...base, remark: "variant-v1" },
+        });
+        expect(
+          [200, 201],
+          `${target.name} 变体行首建期望 2xx 实得 ${a.status}`,
+        ).toContain(a.status);
+        registerCleanup(`delete-tr-variant:${target.name}`, async () => {
+          if (target.name !== "nextjs") return;
+          // 尽力清残留（nextjs 族级 DELETE 删全变体族）；分叉未裁，不断言
+          await probeRequest(target, {
+            method: "DELETE",
+            path: `/api/technical-requirements/${SEED_OBJECT}/${SEED_PARAMETER}/${encodeURIComponent(SEED_STANDARD)}`,
+          });
+        });
+        const r = await probeRequest(target, {
+          method: "GET",
+          path: VARIANT_LIST_PATH,
+        });
+        expect(
+          [200],
+          `${target.name} list 期望 200 实得 ${r.status}`,
+        ).toContain(r.status);
+        const rows = (Array.isArray(r.body) ? r.body : []) as Array<{
+          brand?: string;
+          remark?: string;
+        }>;
+        const variantRows = rows.filter((x) => x.brand === brand);
+        expect(
+          variantRows.length === 1 && variantRows[0].remark === "variant-v1",
+          `${target.name} 变体行期望恰 1 条且 remark=variant-v1，` +
+            `实得 ${variantRows.length} 条`,
+        ).toBe(true);
+      }
+    }, 180_000);
+
+    // 本块后于 I05 执行——I05 的 afterAll(runCleanups) 已跑过，本块注册的
+    // 清理须自跑一轮（2026-11-18 live 残留 2 行实锤）。
     afterAll(async () => {
       await runCleanups();
     }, 60_000);
