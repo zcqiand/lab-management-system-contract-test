@@ -1,19 +1,17 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "current_task": "ADR-0056 动态表单契约回放：write-series body 换形（去 componentPath/requirementCode/config，+ version/data/inspectionStandardCode）",
+  "current_task": "账 11 批T tech_req 全链摘租户（2026-11-09 人裁全局化，nextjs R6-3 同形）已六仓收官",
   "done": [
-    "param-interfaces-write / test-records-write 断言体按新契约换形；tsc 绿",
-    "挂账：write-series 变更需下次 live 四向轮真正验证"
+    "write body 补 comparison + 变体断言中性化 + teardown 修复（批T，1a89e76）"
   ],
-  "next": [
-    "skipIf(!live) 结构性洞（门绿=没测）REQ 立项候选——live 目标 <2 时应警告或红"
+  "next": "L2 marker 新鲜度族预存红挂账 52；Fork A/B 断言待人裁 49/50",
+  "open_questions": [
+    "挂账 49 DTO tenantId 契约面/50 Fork A dup 语义/51 Fork B 三键作用域——三项待人裁"
   ],
-  "open_questions": [],
   "dont": [
-    "gate 报「trace.json 是 unit 模式」时禁改 stack.json require_live——走 start-family.sh 出 live trace",
-    "后端语义变更必须同 commit 同步断言（contract-test-rule）",
-    "注意：2026-09-23 收工跑 gate --all 时 L4 unit 轮已把本仓 trace.json 覆写为 unit 模式（live {3,3,3} 证据在 git+日志）——下次 live 验证按 docs/conventions/contract-test-run-live.md 重开（export CONTRACT_TARGETS+TRACE_MAP=1）"
+    "禁顺手刷新 gen-shared marker（挂账 52，生成面重浇须另批）",
+    "禁断言 Fork A/B 语义（待人裁）"
   ],
   "active_branch": "master",
   "last_session_at": "2026-09-23",
