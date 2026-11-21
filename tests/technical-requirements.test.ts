@@ -55,6 +55,27 @@ describe.skipIf(!live)(
         `\n${formatDivergences(divergences)}\n`,
       ).toEqual([]);
     });
+
+    // 表无 id 列——nextjs list 行附加派生 id `tr-<obj>-<param>-<std>`（契约注记
+    // lab nextjs data-entry/models/types.ts，与该仓 POST/single 同形）。lab 前端
+    // req_select 以 r.id 为 option 锚，缺失=下拉恒「——」（2026-11-22 上屏发现，
+    // B1 迁移丢失）。按 target 收窄到 nextjs：其余栈无此面，跨栈对齐挂账另批
+    // （候选：shared 契约正式收编派生 id / 各栈补齐 / 前端本地推导）。
+    it("nextjs list 行带派生 id=tr-<obj>-<param>-<std>", () => {
+      const nx = probes.find((p) => p.target === "nextjs");
+      if (!nx) return;
+      expect(Array.isArray(nx.body), "nextjs list 应是数组").toBe(true);
+      const rows = nx.body as Array<Record<string, string>>;
+      expect(rows.length, "种子面应非空").toBeGreaterThan(0);
+      for (const r of rows.slice(0, 5)) {
+        expect(
+          r.id,
+          `行 ${r.judgmentStandardCode} 须带派生 id（前端 req_select 锚）`,
+        ).toBe(
+          `tr-${r.inspectionObjectCode}-${r.inspectionParameterCode}-${r.judgmentStandardCode}`,
+        );
+      }
+    });
   },
 );
 

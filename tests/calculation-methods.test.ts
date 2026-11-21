@@ -58,6 +58,23 @@ describe.skipIf(!live)(
         `\n${formatDivergences(divergences)}\n`,
       ).toEqual([]);
     });
+
+    // 表无 id 列——nextjs list 行附加派生 id `cr-<obj>-<param>`（与该仓 POST/single
+    // 同形；tech-req tr- 面同批修，2026-11-22）。按 target 收窄到 nextjs，
+    // 其余栈对齐挂账另批。
+    it("nextjs list 行带派生 id=cr-<obj>-<param>", () => {
+      const nx = probes.find((p) => p.target === "nextjs");
+      if (!nx) return;
+      expect(Array.isArray(nx.body), "nextjs list 应是数组").toBe(true);
+      const rows = nx.body as Array<Record<string, string>>;
+      expect(rows.length, "种子面应非空").toBeGreaterThan(0);
+      for (const r of rows.slice(0, 5)) {
+        expect(
+          r.id,
+          `行 ${r.inspectionParameterCode} 须带派生 id`,
+        ).toBe(`cr-${r.inspectionObjectCode}-${r.inspectionParameterCode}`);
+      }
+    });
   },
 );
 
