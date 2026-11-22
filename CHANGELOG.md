@@ -29,3 +29,18 @@
   stack.json 禁改、trace_env 不可被调用方 env 覆盖（load_trace trace_env 优先），
   矛盾上呈人裁：改 trace_env 分档 / 起满 7 后端 / L5 降档。本批验收面=3 健康后端
   （nextjs/aspnetcore/springboot 全 413cb67 新代码）定向 live 全绿。
+
+- test(ct): rules target 注册 + 五域 12 用例重定向 + calc 用例（R2 Task 12，
+  REQ-2026-043，2026-11-22）。①五处注册：targets.ts（rules 5214）/prewarm.ts/
+  fnReporter.ts HEALTH_PATHS（/healthz）/compare.test.ts 目标清单 7→8。②五域 12
+  文件 target 集 `["nextjs","rules"]` 定格（nextjs=迁移参照，rules=canonical）。
+  ③tests/calc.test.ts 新建 M06.F10.I01/I02（SSOT 静态解析过；锚回填待 shared I 行
+  --approve；calc=rules 单目标，nextjs 无 calc 面）。④technical-requirements-write
+  POST 前置幂等 DELETE 净场（R2 Ruling：[nextjs,rules] 共库，nextjs 先建 sentinel
+  行 → rules dup 400；两侧 dup 语义一致=400，旧常态 springboot JPA merge upsert
+  不触发——用例结构修，非后端缺陷）。⑤task12 trace 面：trace_cmd 12 文件 live 重跑
+  mode=live executed_per_describe_min=2 → gate L5 绿；calc 用例 live trace 映射挂账
+  （单目标 floor 结构性塌缩，随 nextjs calc 面或豁免裁定另批）。
+  验证：CONTRACT_TARGETS=nextjs,rules 五域+calc 13 文件 138/138 全绿；gate exit 0。
+  挂账（禁顺手做）：stack.json trace_env 加 `,rules`（hook 拦模型，人改——见上条
+  L5 矛盾，本批 live 验收全走调用方 env 显式 CONTRACT_TARGETS=nextjs,rules）。
