@@ -4,8 +4,15 @@
 // ADR-0056 动态表单改造：TestRecord 删 requirementCode、增 data: object
 // （动态表单采集数据，响应必填缺省 {}）；采集值落在 data 内
 // （原 body 的裸 value 键本就不在契约面上，随本次同步收编进 data）。
+// sampleId 有 FK 校验——固定 UUID 假 id 在真实 FK 23503 → 裸 500（nextjs live
+// 实证，2026-11-22 CT 欠账收口批）：先走自建前置链 receipt → sample 拿真 id。
 import { afterAll, describe, expect, it } from "vitest";
 
+import {
+  DEAD_SAMPLE,
+  createRealSample,
+  registerReceiptPairCleanup,
+} from "../src/chains.js";
 import { probeRequest } from "../src/http.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 import { uniqueName } from "../src/unique.js";
@@ -24,11 +31,15 @@ describe.skipIf(!live)(
   () => {
     for (const target of targets) {
       it(`${target.name} 创 test-record → 200/201 或 4xx（sample 不存在时）`, async () => {
+        // 前置链 receipt → sample；建不出走 DEAD_SAMPLE（POST 吃 400/404 属契约面）
+        const { sampleId, receiptId, contractId } = await createRealSample(
+          target,
+        );
         const r = await probeRequest(target, {
           method: "POST",
           path: "/api/test-records",
           body: {
-            sampleId: "00000000-0000-0000-0000-000000000001",
+            sampleId: sampleId || DEAD_SAMPLE,
             parameterCode: "IP-0001",
             data: { value: 42.5 },
           },
@@ -60,6 +71,29 @@ describe.skipIf(!live)(
               },
             );
           }
+        }
+        // 前置链清理注册在 tr/sample 之后（runCleanups FIFO=tr → sample →
+        // receipt → contract，FK RESTRICT 不炸）；链没建成（contractId 空）则无清理。
+        if (contractId) {
+          registerCleanup(
+            `delete-tr-sample:${target.name}:${sampleId.slice(-8)}`,
+            async () => {
+              const ds = await probeRequest(target, {
+                method: "DELETE",
+                path: `/api/samples/${sampleId}`,
+              });
+              if (
+                ds.status !== 200 &&
+                ds.status !== 204 &&
+                ds.status !== 404
+              ) {
+                console.warn(
+                  `[teardown] delete sample ${target.name} status=${ds.status}`,
+                );
+              }
+            },
+          );
+          registerReceiptPairCleanup(target, receiptId, contractId);
         }
       }, 30_000);
     }

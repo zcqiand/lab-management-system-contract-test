@@ -1,24 +1,28 @@
 {
   "schema": 1,
   "project": "lab-management-system-contract-test",
-  "current_task": "账 11 批T tech_req 全链摘租户（2026-11-09 人裁全局化，nextjs R6-3 同形）已六仓收官",
+  "current_task": "live 复验分叉收口批收官（2026-11-22）：写端点前置链 + calc 测试欠账，33/33 三后端全绿",
   "done": [
-    "write body 补 comparison + 变体断言中性化 + teardown 修复（批T，1a89e76）"
+    "src/chains.ts 自建前置链 helper（contract→receipt→sample，FK RESTRICT 顺序安全）；samples-write 五用例弃固定假 SEED_RECEIPT、test-records-write 弃固定假 sampleId（FK 23503 裸 500 根因）",
+    "calculation-methods-write：POST body 补 testingStandardCode（V018 三键）+ I02 POST 前 per-target 预清（三后端共库 dup 400，springboot 批 live 双向复现）",
+    "定向 live（nextjs,aspnetcore,springboot）四写文件 33/33 全绿；CHANGELOG.md 首建；lab_dev 5 行 CT 残留 tr 行清理",
+    "配套后端修复已提交：aspnetcore d9b840e（calc 三键语义/tr 八键/404 envelope）、springboot c88ff7d（V018 五层全家桶）"
   ],
-  "next": "L2 marker 新鲜度族预存红挂账 52；Fork A/B 断言待人裁 49/50",
+  "next": "gate L5 满档挂账待人裁（trace_env 7 targets vs 常态 2-3 起服人裁矛盾，详见 CHANGELOG [Unreleased]）；B 类 report-name-interfaces 两后端业务面 13 失败挂账；L2 marker 新鲜度族预存红挂账 52",
   "open_questions": [
-    "挂账 49 DTO tenantId 契约面/50 Fork A dup 语义/51 Fork B 三键作用域——三项待人裁"
+    "L5 require_live 与 stack.json trace_env 7 targets 绑定，本机常态 2-3 后端 → L5 自 replay 必落 mode=unit exit 2（本批人裁：3 后端验收收官，满档矛盾上呈）",
+    "B 类 report-name-interfaces aspnetcore+springboot 业务实现缺位（功能新增须人裁立项）"
   ],
   "dont": [
-    "禁顺手刷新 gen-shared marker（挂账 52，生成面重浇须另批）",
-    "禁断言 Fork A/B 语义（待人裁）"
+    "禁手写 trace.json——live trace 只能 CONTRACT_TARGETS+TRACE_MAP=1 vitest run 产出",
+    "gate L5 对 CT 会自 replay 覆写 trace：3 后端起服时 L5 必假红（unit），别当断言红修",
+    "禁给固定种子键的 POST/PUT 用例省 per-target 预清（共库 dup 400，已有 DELETE describe 先例）",
+    "禁 fixed 假 UUID 做 FK 前置——走 src/chains.ts 自建前置链"
   ],
   "active_branch": "master",
-  "last_session_at": "2026-09-23",
+  "last_session_at": "2026-11-22",
   "done_add": [
-    "2026-09-19 wave 收尾：live full trace_cmd 再生（CONTRACT_TARGETS=nextjs,aspnetcore,springboot + TRACE_MAP=1）→ trace mode=live 412 fn；full 419 passed/5 failed(424)；WITHDRAW 定向 63/63 对照超 21 水位；5 失败=menus 503×2（lab 后端 service-account 登录缺 clientId，新池项）+nextjs catalog/grades PUT 30s 超时与 DELETE 500+aspnetcore PUT samples ext 500（已知分叉）",
-    "ADR-0040 T-3 live_floor 降级信号落地（2026-09-22/23 批）：探针层 live-exec.jsonl side channel + fnReporter v8 写 trace.live_floor{declared,effective,executed} + suite L5 消费（塌缩 full 档红/null 只警）+ gate 注入 GATE_TIER 与 live_floor_degraded 字段；live full gate EXIT=0 实证 live_floor{3,3,3}；AC-1 gate 级故障注入 EXIT=1 + [WARN][live-floor] 塌缩文案；终审 CLEAN。lab-ct commits 2b926e7..f89ada2（9 commits）：side channel/出口登记/40 钩子接线/fnReporter v8/ADR-0001（L0 存量债）/REQ-2026-014 状态推进+AC-1 真洞锚点/fixture 快照恢复"
+    "2026-11-22 live 复验批：CT live 全量 466 过/31 失败三分类定性（A=calc 域欠账+C=FK 前置链，已收口；B=report-name-interfaces 业务缺位挂账 13 失败）；两后端修复代理 red-first 交付全绿"
   ],
-  "last_session_summary": "wave 收尾 live 验证：trace 再生 mode=live(3 targets,412 fn)，full 419p/5f/424、WITHDRAW 定向 63/63",
   "history": []
 }

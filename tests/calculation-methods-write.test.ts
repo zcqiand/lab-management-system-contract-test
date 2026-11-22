@@ -15,6 +15,11 @@ import { registerCleanup, runCleanups } from "../src/teardown.js";
 // inspection_calculation_methods 0 行——create→cleanup delete 净零。
 const SEED_OBJECT = "OBJ-SP01-P1";
 const SEED_PARAMETER = "IP-0002";
+// V018（2026-11-14 批H）：PK 补 standard 维度，testing_standard_code NOT NULL（PK 成员
+// 身份 + FK）——nextjs R6-2 fail-fast 对缺省 400。CT write body 补齐挂账（nextjs
+// calculation-methods/route.ts 头注释指向本处）随本批收官：必须真实种子标准码
+// （FK 只认 inspection_standards.code，虚构码 23503 → 500）。
+const SEED_STANDARD = "GB 13788-2024";
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -30,12 +35,21 @@ describe.skipIf(!live)(
   () => {
     for (const target of targets) {
       it(`${target.name} 创 calculation-method → 200`, async () => {
+        // 三后端共库 + 固定种子键（FK 只认真实码，无法 per-target unique）：前一
+        // 目标的 POST 占住共享行 → 后跑的 dup-check 后端吃 400 dup（springboot
+        // V018 批 live 实证，换序双向复现）。POST 前先预清共享键，照抄本文件
+        // DELETE describe 的既有写法。
+        await probeRequest(target, {
+          method: "DELETE",
+          path: `/api/calculation-methods/${SEED_OBJECT}/${SEED_PARAMETER}`,
+        });
         const r = await probeRequest(target, {
           method: "POST",
           path: "/api/calculation-methods",
           body: {
             inspectionObjectCode: SEED_OBJECT,
             inspectionParameterCode: SEED_PARAMETER,
+            testingStandardCode: SEED_STANDARD,
             formula: "value * 2",
           },
         });
@@ -100,6 +114,7 @@ describe.skipIf(!live)(
           body: {
             inspectionObjectCode: SEED_OBJECT,
             inspectionParameterCode: SEED_PARAMETER,
+            testingStandardCode: SEED_STANDARD,
             formula: "value * 2",
           },
         });

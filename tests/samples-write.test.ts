@@ -1,14 +1,21 @@
 // M96.F02 — /api/samples POST/PUT/DELETE 写端点（Phase 2）。
 //
-// SSOT: samples.tsp M03.F03 样品 CRUD。样品挂在接样单下，本测试用 seed 第一个 contract 下的第一个 receipt。
+// SSOT: samples.tsp M03.F03 样品 CRUD。样品挂在接样单下——receiptId 有 FK 校验，
+// 固定 UUID 假 id 在真实 FK 23503 → 裸 500（nextjs live 实证，2026-11-22 CT 欠账
+// 收口批）。改自建前置链：contract → receipt（receipts-act-history 同款三段式），
+// 拿真 id 再打 /api/samples。
 import { afterAll, describe, expect, it } from "vitest";
 
+import {
+  DEAD_RECEIPT,
+  createRealReceiptPair,
+  deleteReceiptPair,
+  registerReceiptPairCleanup,
+} from "../src/chains.js";
 import { probeRequest } from "../src/http.js";
 import { type Target, selectedTargets } from "../src/targets.js";
 import { uniqueName } from "../src/unique.js";
 import { registerCleanup, runCleanups } from "../src/teardown.js";
-
-const SEED_RECEIPT = "00000000-0000-0000-0000-000000000001"; // 实际接单 id 走 seed——查不到 fallback to UUID
 
 const targets: Target[] = selectedTargets();
 const live = targets.length >= 2;
@@ -23,11 +30,12 @@ describe.skipIf(!live)(
   () => {
     for (const target of targets) {
       it(`${target.name} 创 sample → 200/201（接样单可能不存在，走 400/404 也是契约面）`, async () => {
+        const { receiptId, contractId } = await createRealReceiptPair(target);
         const r = await probeRequest(target, {
           method: "POST",
           path: "/api/samples",
           body: {
-            receiptId: SEED_RECEIPT,
+            receiptId: receiptId || DEAD_RECEIPT,
             name: uniqueName("ct-smp"),
             spec: "10x10x10mm",
           },
@@ -61,6 +69,11 @@ describe.skipIf(!live)(
               },
             );
           }
+        }
+        // 前置链清理注册在 sample 之后（runCleanups FIFO=先删 sample 再删
+        // receipt，FK RESTRICT 不炸）；前置链没建成（contractId 空）则无清理。
+        if (contractId) {
+          registerReceiptPairCleanup(target, receiptId, contractId);
         }
       }, 30_000);
     }
@@ -141,13 +154,16 @@ describe.skipIf(!live)(
     it("真实 sample → PUT ext 200 → GET 回读 ext 一致（恒 404 退化必红）", async () => {
       for (const target of targets) {
         // 前置：拿一个真实 sample id。优先自己创（I05 已把 I03 创的删掉）；创不出再取列表首个。
+        // 自创走真 receipt 前置链（假 id FK 500）；本用例在 runCleanups 消费之后跑，
+        // 前置链自删不走 registerCleanup。
         let id = "";
         let created = false;
+        const { receiptId, contractId } = await createRealReceiptPair(target);
         const post = await probeRequest(target, {
           method: "POST",
           path: "/api/samples",
           body: {
-            receiptId: SEED_RECEIPT,
+            receiptId: receiptId || DEAD_RECEIPT,
             sampleCode: uniqueName("ct-smp-ext"),
             ext: {},
           },
@@ -207,6 +223,9 @@ describe.skipIf(!live)(
             );
           }
         }
+        if (contractId) {
+          await deleteReceiptPair(target, receiptId, contractId);
+        }
       }
     }, 180_000);
 
@@ -218,11 +237,12 @@ describe.skipIf(!live)(
       for (const target of targets) {
         let id = "";
         let created = false;
+        const { receiptId, contractId } = await createRealReceiptPair(target);
         const post = await probeRequest(target, {
           method: "POST",
           path: "/api/samples",
           body: {
-            receiptId: SEED_RECEIPT,
+            receiptId: receiptId || DEAD_RECEIPT,
             sampleCode: uniqueName("ct-smp-noext"),
             ext: {},
           },
@@ -265,6 +285,9 @@ describe.skipIf(!live)(
               `[teardown] delete sample ${target.name} status=${del.status}`,
             );
           }
+        }
+        if (contractId) {
+          await deleteReceiptPair(target, receiptId, contractId);
         }
       }
     }, 180_000);
