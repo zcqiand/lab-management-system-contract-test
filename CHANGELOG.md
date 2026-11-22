@@ -44,3 +44,11 @@
   验证：CONTRACT_TARGETS=nextjs,rules 五域+calc 13 文件 138/138 全绿；gate exit 0。
   挂账（禁顺手做）：stack.json trace_env 加 `,rules`（hook 拦模型，人改——见上条
   L5 矛盾，本批 live 验收全走调用方 env 显式 CONTRACT_TARGETS=nextjs,rules）。
+
+- test(ct): M96.F02.I07 links POST 断言收紧 2xx→精确 201（R2 终审 I-2 回放，
+  2026-11-22）。rules 侧弃 204 幂等 upsert 改 201+dup 400（镜像 nextjs
+  createInterfaceLinkDb）后，净场单发 POST = fresh 插入确定性 201——断言精确
+  201 钉死语义，防 204-upsert 分叉回归。rules 仓同步修复见其 CHANGELOG
+  「R2 终审修复」段（I-1 五域 DELETE missing→404 同批）。
+  验证：CONTRACT_TARGETS=nextjs,rules 13 文件 138/138 全绿重验；trace 12 文件
+  mode=live floor=2 重生成；gate exit 0。

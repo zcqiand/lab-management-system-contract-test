@@ -113,8 +113,10 @@ describe.skipIf(!live)(
   "M96.F02.I07 POST /api/param-interfaces/links 四方比对 / M04.F06.I03",
   () => {
     for (const target of targets) {
-      it(`${target.name} link(PRM, PI) → 200/204`, async () => {
-        // 前置清残留（上次残跑可能留下同三元组）：unlink 幂等 204，状态不看
+      it(`${target.name} link(PRM, PI) → 201（fresh 建行；dup 400 由后端预查）`, async () => {
+        // 前置清残留（上次残跑可能留下同三元组）：unlink 幂等 204，状态不看。
+        // 净场后单发 POST = fresh 插入，nextjs/rules 逐字面同语义（R2 终审
+        // I-2 修正后 rules 弃 204 upsert）→ 断言精确 201 钉死语义防分叉回归。
         await probeRequest(target, {
           method: "DELETE",
           path: "/api/param-interfaces/links",
@@ -131,10 +133,7 @@ describe.skipIf(!live)(
             paramInterfaceCode: SEED_INTERFACE,
           },
         });
-        expect(
-          [200, 201, 204],
-          `${target.name} link 期望 2xx 实得 ${r.status}`,
-        ).toContain(r.status);
+        expect(r.status, `${target.name} link 期望 201 实得 ${r.status}`).toBe(201);
       }, 30_000);
     }
   },
