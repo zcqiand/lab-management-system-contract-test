@@ -25,7 +25,10 @@ const PATH_LINK_OBJECT = "/api/report-names/links/object";
 const PATH_LINK_STANDARD = "/api/report-names/links/standard";
 const PATH_LINK_PARAMETER = "/api/report-names/links/parameter";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 const DROP_404 = [

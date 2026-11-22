@@ -21,7 +21,10 @@ const PATH_LIST = "/api/calculation-methods";
 const PATH_DETAIL =
   "/api/calculation-methods/00000000-0000-0000-0000-00000000dead/00000000-0000-0000-0000-00000000dead";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 describe.skipIf(!live)(

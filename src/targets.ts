@@ -20,6 +20,8 @@ export const TARGETS: Readonly<Record<string, Target>> = {
   go: { name: "go", baseUrl: "http://localhost:5211" },
   // django 后端（REQ-2026-035 lab-django 全量切片注册；X17 扩展槽，families/lab.md 值表）
   django: { name: "django", baseUrl: "http://localhost:5213" },
+  // rules 后端（REQ-2026-043 标准规则服务 R2 五域注册；X18 扩展槽，families/lab.md 值表）
+  rules: { name: "rules", baseUrl: "http://localhost:5214" },
 };
 
 export class TargetError extends Error {}

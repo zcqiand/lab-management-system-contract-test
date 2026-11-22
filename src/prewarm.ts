@@ -28,6 +28,7 @@ const HEALTH_PATHS: Record<string, string> = {
   aspnetcore: "/health",
   springboot: "/actuator/health",
   nextjs: "/api/health",
+  rules: "/healthz",
 };
 const DEFAULT_HEALTH = "/health";
 

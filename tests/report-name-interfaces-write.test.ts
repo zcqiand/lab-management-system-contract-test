@@ -15,7 +15,10 @@ import { registerCleanup, runCleanups } from "../src/teardown.js";
 const SEED_REPORT_NAME = "RN-101";
 const SEED_INTERFACE = "sri-welding";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 interface Ctx {

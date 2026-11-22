@@ -16,7 +16,10 @@ const SEED_OBJECT = "OBJ-SP01-P11";
 const SEED_PARAMETER = "IP-0002";
 const SEED_STANDARD = "GB 13788-2024";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 interface Ctx {
@@ -30,6 +33,14 @@ describe.skipIf(!live)(
   () => {
     for (const target of targets) {
       it(`${target.name} 创 technical-requirement → 200`, async () => {
+        // 双目标共享 PG 净场（R2 Ruling 2026-11-22）：[nextjs,rules] 定格后两后端
+        // 同库，前目标 POST 的 sentinel 行会让后目标 dup 400（nextjs/rules dup
+        // 语义一致=400「技术要求已存在」；旧常态 springboot 打头 JPA save=merge
+        // upsert 不触发）——POST 前幂等 DELETE 净场，与文件既定净零意图一致。
+        await probeRequest(target, {
+          method: "DELETE",
+          path: `/api/technical-requirements/${SEED_OBJECT}/${SEED_PARAMETER}/${SEED_STANDARD}`,
+        });
         const r = await probeRequest(target, {
           method: "POST",
           path: "/api/technical-requirements",

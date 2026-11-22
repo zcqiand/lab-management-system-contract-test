@@ -21,7 +21,10 @@ const SEED_PARAMETER = "IP-0002";
 // （FK 只认 inspection_standards.code，虚构码 23503 → 500）。
 const SEED_STANDARD = "GB 13788-2024";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 interface Ctx {

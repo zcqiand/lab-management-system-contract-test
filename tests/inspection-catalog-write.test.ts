@@ -19,7 +19,10 @@ import {
 const SEED_OBJECT_CODE = "OBJ-SP01-P1";
 const SEED_SPECIALTY_CODE = "SP01";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 interface Body {

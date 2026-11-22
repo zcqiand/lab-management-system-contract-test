@@ -24,7 +24,10 @@ const PATH_MODELS = "/api/catalog/models";
 const PATH_SPECS = "/api/catalog/specs";
 const PATH_GRADES = "/api/catalog/grades";
 
-const targets: Target[] = selectedTargets();
+const targets: Target[] = selectedTargets().filter((t) =>
+  // R2（REQ-2026-043）：五域 target 定格 [nextjs, rules]——nextjs=迁移参照，rules=canonical
+  ["nextjs", "rules"].includes(t.name),
+);
 const live = targets.length >= 2;
 
 function assertPageList(probes: Probe[], label: string) {
